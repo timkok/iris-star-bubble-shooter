@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Iris 的星星泡泡守护者</title>
+  <!-- Google Fonts for a modern, rounded, child-friendly look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color-start: #1a1635;
+      --bg-color-end: #3b2c63;
+      --primary-pink: #ffb7c5;
+      --primary-blue: #a0e7e5;
+      --primary-yellow: #ffee93;
+      --primary-purple: #dfb2f4;
+      --primary-green: #bbf2c6;
+      --text-white: #ffffff;
+      --glass-bg: rgba(255, 255, 255, 0.15);
+      --glass-border: rgba(255, 255, 255, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--bg-color-start), var(--bg-color-end));
+      color: var(--text-white);
+      font-family: 'Fredoka', 'System-UI', -apple-system, sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Main Container with 3:4 aspect ratio */
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      max-width: 600px;
+      max-height: 800px;
+      background: linear-gradient(180deg, #1b163a 0%, #2f2254 100%);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      border-radius: 16px;
+      border: 4px solid var(--glass-border);
+    }
+
+    @media (max-width: 600px), (max-height: 800px) {
+      #game-container {
+        border-radius: 0;
+        border: none;
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+      }
+    }
+
+    /* Game Canvas */
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* UI Top Overlay */
+    #ui-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .ui-item {
+      background: var(--glass-bg);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--glass-border);
+      padding: 8px 16px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      font-weight: 600;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+    }
+
+    .ui-score {
+      color: var(--primary-yellow);
+    }
+
+    .ui-level {
+      color: var(--primary-blue);
+    }
+
+    .hearts-container {
+      display: flex;
+      gap: 4px;
+      font-size: 20px;
+      color: #ff5e7e;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+
+    /* Interactive Buttons */
+    .btn-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-white);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      font-size: 18px;
+    }
+
+    .btn-circle:hover {
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-circle:active {
+      transform: scale(0.95);
+    }
+
+    /* Standard Overlay Screen Template */
+    .screen-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(27, 22, 58, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+      padding: 30px;
+      text-align: center;
+      transition: opacity 0.3s ease;
+    }
+
+    .screen-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Custom Screen Styles */
+    .title-magical {
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--primary-yellow);
+      text-shadow: 0 0 15px rgba(255, 238, 147, 0.6), 0 5px 0px #d6a12b;
+      margin-bottom: 24px;
+      animation: floatTitle 3s ease-in-out infinite;
+      letter-spacing: 1px;
+    }
+
+    @keyframes floatTitle {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-10px) rotate(1deg); }
+    }
+
+    .card-instructions {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--glass-border);
+      padding: 20px;
+      border-radius: 16px;
+      max-width: 400px;
+      margin-bottom: 30px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #dfdbf0;
+      box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.05);
+    }
+
+    .card-instructions h3 {
+      color: var(--primary-blue);
+      margin-bottom: 12px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .card-instructions ul {
+      list-style-type: none;
+      text-align: left;
+    }
+
+    .card-instructions li {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-instructions li::before {
+      content: '✨';
+      font-size: 12px;
+    }
+
+    /* Magical Button Design */
+    .btn-magical {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: #3b2c63;
+      background: linear-gradient(135deg, var(--primary-yellow), var(--primary-pink));
+      border: none;
+      padding: 14px 40px;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(255, 183, 197, 0.4), inset 0 -3px 0px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      letter-spacing: 1px;
+    }
+
+    .btn-magical:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 12px 30px rgba(255, 183, 197, 0.6), inset 0 -3px 0px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-magical:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    /* Game Over Custom Elements */
+    .score-summary {
+      font-size: 24px;
+      margin-bottom: 12px;
+      color: var(--primary-blue);
+    }
+
+    .score-summary span {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--primary-yellow);
+      display: block;
+      margin-top: 5px;
+    }
+
+    .encouragement-msg {
+      font-size: 20px;
+      color: var(--primary-pink);
+      margin-bottom: 30px;
+      max-width: 400px;
+      line-height: 1.5;
+      font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Pause Overlay Buttons */
+    .btn-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 200px;
+    }
+
+    .btn-secondary {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--text-white);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      padding: 12px 24px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Mute Button Overlay */
+    #sound-control {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10;
+    }
+
+    /* Touch controls visualization for mobile styling */
+    .touch-prompt {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      pointer-events: none;
+      animation: pulseText 2s infinite;
+      text-align: center;
+    }
+
+    @keyframes pulseText {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+    <!-- UI Overlay Layer -->
+    <div id="ui-overlay">
+      <div class="ui-item">
+        <span>✨</span>
+        <span id="score-text" class="ui-score">0</span>
+      </div>
+      <div class="ui-item">
+        <span>🌟</span>
+        <span id="level-text" class="ui-level">关卡 1</span>
+      </div>
+      <div id="hearts-panel" class="hearts-container">
+        <!-- Filled with JS -->
+      </div>
+      <div id="btn-pause" class="btn-circle" title="暂停游戏">⏸</div>
+    </div>
+
+    <!-- Canvas -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Start Game Overlay -->
+    <div id="start-screen" class="screen-overlay">
+      <h1 class="title-magical">Iris 的星星泡泡守护者</h1>
+      <div class="card-instructions">
+        <h3>守护魔法操作指南</h3>
+        <ul>
+          <li><strong>电脑玩家</strong>：按 <b>A/D</b> 或 <b>←/→</b> 键左右移动，按 <b>空格键</b> 发射泡泡。也可以直接用 <b>鼠标移动</b> 操控，<b>左键点击</b> 发射。</li>
+          <li><strong>触屏玩家</strong>：在屏幕上 <b>滑动手指</b> 左右控制星星，<b>点击屏幕</b> 即可朝上方发射泡泡。</li>
+          <li><strong>终极目标</strong>：打中飘来的淘气陨石和气球怪，保护我们的星星城堡！</li>
+        </ul>
+      </div>
+      <button id="btn-start" class="btn-magical">开始守护</button>
+    </div>
+
+    <!-- Pause Overlay -->
+    <div id="pause-screen" class="screen-overlay hidden">
+      <h1 class="title-magical" style="font-size: 32px; color: var(--primary-blue); text-shadow: 0 0 10px rgba(160, 231, 229, 0.6);">魔法暂停中</h1>
+      <div class="encouragement-msg" style="color: #dfdbf0; font-size: 16px; margin-bottom: 20px;">
+        星星正在吸收能量，准备好继续保护夜空了吗？
+      </div>
+      <div class="btn-container">
+        <button id="btn-resume" class="btn-magical" style="padding: 12px 30px; font-size: 18px;">继续守护</button>
+        <button id="btn-restart-pause" class="btn-secondary">重新开始</button>
+      </div>
+    </div>
+
+    <!-- Game Over Overlay -->
+    <div id="game-over-screen" class="screen-overlay hidden">
+      <h1 class="title-magical" style="color: var(--primary-pink); text-shadow: 0 0 15px rgba(255, 183, 197, 0.6), 0 5px 0px #b55d6e;">守护结束</h1>
+      <div class="score-summary">
+        你在夜空中的守护得分
+        <span id="final-score">0</span>
+      </div>
+      <div class="encouragement-msg">
+        再试一次，你已经很棒了！
+      </div>
+      <button id="btn-retry" class="btn-magical">再次出发</button>
+    </div>
+
+    <!-- Sound Control Button (Toggles Sound Synthesis) -->
+    <div id="sound-control">
+      <div id="btn-mute" class="btn-circle" title="静音切换">🔊</div>
+    </div>
+
+    <div class="touch-prompt" id="touch-indicator">
+      🖱 拖动移动 · 点击发射泡泡
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // AUDIO SYNTHESIZER (Web Audio API)
+    // ==========================================
+    class SoundController {
+      constructor() {
+        this.ctx = null;
+        this.isMuted = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            this.ctx = new AudioContextClass();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      toggleMute() {
+        this.isMuted = !this.isMuted;
+        this.init();
+        return this.isMuted;
+      }
+
+      playShoot() {
+        if (this.isMuted || !this.ctx) return;
+        this.init();
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        // Sound profile: Cute high pitch sweep up
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(450, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.12);
+
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.12);
+      }
+
+      playPop() {
+        if (this.isMuted || !this.ctx) return;
+        this.init();
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        // Sound profile: Bouncy water bubble pop sound
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.15);
+
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.15);
+      }
+
+      playLevelUp() {
+        if (this.isMuted || !this.ctx) return;
+        this.init();
+
+        const notes = [261.63, 329.63, 392.00, 523.25]; // Happy C Major Arpeggio (C4, E4, G4, C5)
+        const duration = 0.08;
+
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * duration);
+
+          gain.gain.setValueAtTime(0.08, this.ctx.currentTime + idx * duration);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + idx * duration + duration);
+
+          osc.start(this.ctx.currentTime + idx * duration);
+          osc.stop(this.ctx.currentTime + idx * duration + duration);
+        });
+      }
+
+      playLoseLife() {
+        if (this.isMuted || !this.ctx) return;
+        this.init();
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        // Sound profile: Downtone "boing" for mistake
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(250, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(100, this.ctx.currentTime + 0.25);
+
+        gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.25);
+      }
+
+      playGameOver() {
+        if (this.isMuted || !this.ctx) return;
+        this.init();
+
+        const notes = [392.00, 349.23, 311.13, 261.63]; // Sad melody (G4, F4, Eb4, C4)
+        const duration = 0.15;
+
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * duration);
+
+          gain.gain.setValueAtTime(0.1, this.ctx.currentTime + idx * duration);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + idx * duration + duration);
+
+          osc.start(this.ctx.currentTime + idx * duration);
+          osc.stop(this.ctx.currentTime + idx * duration + duration);
+        });
+      }
+    }
+
+    const sound = new SoundController();
+
+    // ==========================================
+    // ENCOURAGING WORDS LIST
+    // ==========================================
+    const ENCOURAGING_WORDS = [
+      "Great job, Iris!",
+      "星星能量 +1!",
+      "太棒啦! 🌟",
+      "守护成功! 🌸",
+      "超级星光! ✨",
+      "你真厉害, Iris!",
+      "泡泡爆发! 🫧",
+      "闪闪发光! 💖",
+      "Nice Shot! 🎉"
+    ];
+
+    // ==========================================
+    // ENTITY CLASSES
+    // ==========================================
+
+    // Background Twinkling Star
+    class TwinkleStar {
+      constructor(canvasWidth, canvasHeight) {
+        this.x = Math.random() * canvasWidth;
+        this.y = Math.random() * canvasHeight;
+        this.radius = Math.random() * 2 + 1;
+        this.color = ['#fff', '#ffee93', '#ffb7c5', '#a0e7e5'][Math.floor(Math.random() * 4)];
+        this.twinkleSpeed = Math.random() * 0.02 + 0.005;
+        this.alpha = Math.random();
+        this.amplitude = Math.random() * 0.3 + 0.7; // twinkle strength
+      }
+
+      update() {
+        this.alpha += this.twinkleSpeed;
+        if (this.alpha > 1 || this.alpha < 0) {
+          this.twinkleSpeed = -this.twinkleSpeed;
+        }
+      }
+
+      draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0.1, this.alpha) * this.amplitude;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // Player (Cute Star)
+    class PlayerStar {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.targetX = x;
+        this.radius = 28;
+        this.speed = 7;
+        this.color = '#ffee93'; // Magical Pastel Gold
+        this.wingAngle = 0;
+        this.blinking = false;
+        this.blinkTimer = 0;
+      }
+
+      update() {
+        // Smoothly interpolate position towards targetX (for mouse/touch control)
+        const diff = this.targetX - this.x;
+        if (Math.abs(diff) > 0.1) {
+          this.x += diff * 0.25;
+        }
+
+        // Animate wings
+        this.wingAngle = Math.sin(Date.now() * 0.01) * 0.25;
+
+        // Blink eyes randomly
+        if (!this.blinking && Math.random() < 0.005) {
+          this.blinking = true;
+          this.blinkTimer = 0;
+        }
+        if (this.blinking) {
+          this.blinkTimer += 1;
+          if (this.blinkTimer > 10) {
+            this.blinking = false;
+          }
+        }
+      }
+
+      draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        // Glow Effect
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = 'rgba(255, 238, 147, 0.8)';
+
+        // Draw Left Wing
+        ctx.save();
+        ctx.translate(-15, 2);
+        ctx.rotate(-this.wingAngle - 0.2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 18, 8, -Math.PI/6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Draw Right Wing
+        ctx.save();
+        ctx.translate(15, 2);
+        ctx.rotate(this.wingAngle + 0.2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 18, 8, Math.PI/6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Draw Main Body (5-pointed Star)
+        this.drawFivePointedStar(ctx, 0, 0, 5, this.radius, this.radius * 0.45, this.color);
+
+        // Reset shadow for facial features
+        ctx.shadowBlur = 0;
+
+        // Cute Blush Cheeks
+        ctx.fillStyle = 'rgba(255, 130, 160, 0.55)';
+        ctx.beginPath();
+        ctx.arc(-11, 2, 5, 0, Math.PI * 2); // Left cheek
+        ctx.arc(11, 2, 5, 0, Math.PI * 2);  // Right cheek
+        ctx.fill();
+
+        // Eyes
+        ctx.fillStyle = '#2f2254';
+        if (this.blinking) {
+          // Closed blink lines
+          ctx.lineWidth = 2.5;
+          ctx.strokeStyle = '#2f2254';
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(-9, -2); ctx.lineTo(-5, -2);
+          ctx.moveTo(5, -2); ctx.lineTo(9, -2);
+          ctx.stroke();
+        } else {
+          // Round cute eyes
+          ctx.beginPath();
+          ctx.arc(-7, -2, 3, 0, Math.PI * 2);
+          ctx.arc(7, -2, 3, 0, Math.PI * 2);
+          ctx.fill();
+
+          // White Eye glints
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(-8, -3, 1, 0, Math.PI * 2);
+          ctx.arc(6, -3, 1, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Happy Smiling Mouth
+        ctx.strokeStyle = '#2f2254';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.arc(0, 2, 4, 0, Math.PI); // smiling curve
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      drawFivePointedStar(ctx, cx, cy, spikes, outerRadius, innerRadius, color) {
+        let rot = Math.PI / 2 * 3;
+        let x = cx;
+        let y = cy;
+        let step = Math.PI / spikes;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - outerRadius);
+        for (let i = 0; i < spikes; i++) {
+          x = cx + Math.cos(rot) * outerRadius;
+          y = cy + Math.sin(rot) * outerRadius;
+          ctx.lineTo(x, y);
+          rot += step;
+
+          x = cx + Math.cos(rot) * innerRadius;
+          y = cy + Math.sin(rot) * innerRadius;
+          ctx.lineTo(x, y);
+          rot += step;
+        }
+        ctx.lineTo(cx, cy - outerRadius);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+      }
+    }
+
+    // Translucent Bubble Projectile
+    class BubbleProjectile {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.radius = 11;
+        this.speed = 8;
+        // Cycle colors
+        const colors = [
+          'rgba(255, 183, 197, 0.75)', // Pink
+          'rgba(160, 231, 229, 0.75)', // Blue
+          'rgba(223, 178, 244, 0.75)', // Purple
+          'rgba(187, 242, 198, 0.75)'  // Green
+        ];
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+      }
+
+      update() {
+        this.y -= this.speed;
+      }
+
+      draw(ctx) {
+        ctx.save();
+
+        // Glow
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = this.color;
+
+        // Draw bubble outline
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // 3D specular highlight sphere effect
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(this.x - 3, this.y - 3, 3, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    // Cute Balloon Monsters & Meteors (Enemies)
+    class BalloonEnemy {
+      constructor(canvasWidth, level) {
+        this.radius = Math.random() * 8 + 18; // Size between 18 and 26
+        this.x = this.radius + Math.random() * (canvasWidth - this.radius * 2);
+        this.y = -this.radius * 2;
+
+        // Speed increases slightly with levels
+        const baseSpeed = Math.random() * 1 + 1.2;
+        this.speed = baseSpeed + Math.min(level * 0.15, 2);
+
+        // Different funny visual types
+        const types = [
+          { color: '#ffb7c5', face: 'happy' },   // Pastel Pink
+          { color: '#dfb2f4', face: 'silly' },   // Pastel Purple
+          { color: '#a0e7e5', face: 'wink' },    // Pastel Teal
+          { color: '#ffee93', face: 'giggle' }   // Pastel Gold
+        ];
+        const choice = types[Math.floor(Math.random() * types.length)];
+        this.color = choice.color;
+        this.faceType = choice.face;
+
+        // Sway movement characteristics
+        this.swayFreq = Math.random() * 0.03 + 0.01;
+        this.swayAmp = Math.random() * 1.5 + 0.5;
+        this.phase = Math.random() * Math.PI * 2;
+
+        this.blinkTimer = 0;
+        this.isBlinking = false;
+      }
+
+      update() {
+        this.y += this.speed;
+        this.x += Math.sin(this.y * this.swayFreq + this.phase) * this.swayAmp;
+
+        // Blinking facial animation
+        if (!this.isBlinking && Math.random() < 0.005) {
+          this.isBlinking = true;
+          this.blinkTimer = 0;
+        }
+        if (this.isBlinking) {
+          this.blinkTimer++;
+          if (this.blinkTimer > 12) {
+            this.isBlinking = false;
+          }
+        }
+      }
+
+      draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        // 1. Draw Balloon Knot & String
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        // Wiggly line for the string
+        ctx.moveTo(0, this.radius);
+        ctx.bezierCurveTo(
+          Math.sin(Date.now() * 0.008) * 8, this.radius + 10,
+          -Math.sin(Date.now() * 0.008) * 8, this.radius + 20,
+          0, this.radius + 35
+        );
+        ctx.stroke();
+
+        // Balloon Knot Triangle
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.moveTo(0, this.radius - 2);
+        ctx.lineTo(-6, this.radius + 6);
+        ctx.lineTo(6, this.radius + 6);
+        ctx.closePath();
+        ctx.fill();
+
+        // 2. Draw Main Balloon Body (Eggish Circle)
+        ctx.beginPath();
+        ctx.ellipse(0, 0, this.radius, this.radius * 1.05, 0, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+
+        // Subtle specular glow on balloon edge
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Specular reflection spot
+        ctx.beginPath();
+        ctx.ellipse(-this.radius * 0.4, -this.radius * 0.4, this.radius * 0.25, this.radius * 0.15, -Math.PI/4, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.fill();
+
+        // 3. Draw Unique Silly Faces
+        ctx.fillStyle = '#3b2c63';
+        ctx.strokeStyle = '#3b2c63';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+
+        if (this.faceType === 'happy') {
+          // Draw two arched smiling eyes
+          ctx.beginPath();
+          ctx.arc(-6, -2, 2.5, Math.PI, 0);
+          ctx.arc(6, -2, 2.5, Math.PI, 0);
+          ctx.stroke();
+
+          // Open mouth
+          ctx.beginPath();
+          ctx.arc(0, 4, 3.5, 0, Math.PI);
+          ctx.fill();
+        } 
+        else if (this.faceType === 'silly') {
+          // Cross eyes
+          ctx.font = 'bold 12px sans-serif';
+          ctx.fillText('x', -10, 1);
+          ctx.fillText('x', 2, 1);
+
+          // Tongue out mouth
+          ctx.fillStyle = '#ff5e7e';
+          ctx.beginPath();
+          ctx.arc(0, 5, 4, 0, Math.PI);
+          ctx.fill();
+          ctx.strokeStyle = '#3b2c63';
+          ctx.stroke();
+        } 
+        else if (this.faceType === 'wink') {
+          if (this.isBlinking) {
+            // Blink horizontal line
+            ctx.beginPath();
+            ctx.moveTo(-10, -2); ctx.lineTo(-4, -2);
+            ctx.moveTo(4, -2); ctx.lineTo(10, -2);
+            ctx.stroke();
+          } else {
+            // Wink: Left eye open, Right eye winking line
+            ctx.beginPath();
+            ctx.arc(-7, -2, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(4, -3);
+            ctx.lineTo(9, -1);
+            ctx.lineTo(4, 1);
+            ctx.stroke();
+          }
+          // Small grin
+          ctx.beginPath();
+          ctx.arc(0, 4, 3, 0, Math.PI);
+          ctx.stroke();
+        } 
+        else { // giggle
+          // Happy squint eyes
+          ctx.beginPath();
+          ctx.moveTo(-9, 0); ctx.lineTo(-5, -4); ctx.lineTo(-1, 0);
+          ctx.moveTo(1, 0); ctx.lineTo(5, -4); ctx.lineTo(9, 0);
+          ctx.stroke();
+
+          // Big happy open mouth showing teeth (or just flat pink)
+          ctx.fillStyle = '#ff8ea4';
+          ctx.beginPath();
+          ctx.arc(0, 2, 5, 0, Math.PI);
+          ctx.fill();
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+    }
+
+    // Particle class (For sparks, pops, and floating texts)
+    class SparkParticle {
+      constructor(x, y, color, type = 'star', text = '') {
+        this.x = x;
+        this.y = y;
+        this.type = type; // 'star' | 'bubble' | 'text'
+        this.color = color;
+        this.text = text;
+
+        if (type === 'text') {
+          this.vx = (Math.random() - 0.5) * 1.5;
+          this.vy = -1.5 - Math.random() * 1.2;
+          this.alpha = 1.0;
+          this.decay = 0.015;
+          this.size = 14 + Math.floor(Math.random() * 4);
+        } else if (type === 'bubble') {
+          this.vx = (Math.random() - 0.5) * 4;
+          this.vy = (Math.random() - 0.5) * 4;
+          this.radius = Math.random() * 4 + 2;
+          this.alpha = 1.0;
+          this.decay = 0.035;
+        } else { // 'star' glitter
+          this.vx = (Math.random() - 0.5) * 6;
+          this.vy = (Math.random() - 0.5) * 6;
+          this.radius = Math.random() * 3 + 2;
+          this.alpha = 1.0;
+          this.decay = 0.025;
+          this.gravity = 0.08;
+        }
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.gravity) {
+          this.vy += this.gravity;
+        }
+        this.alpha -= this.decay;
+      }
+
+      draw(ctx) {
+        if (this.alpha <= 0) return;
+
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+
+        if (this.type === 'text') {
+          // Floating encouraging message
+          ctx.font = `bold ${this.size}px 'Fredoka', 'System-UI', sans-serif`;
+          ctx.fillStyle = this.color;
+          ctx.textAlign = 'center';
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+          ctx.fillText(this.text, this.x, this.y);
+        } 
+        else if (this.type === 'bubble') {
+          // Fading bubbles
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fillStyle = this.color;
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+          ctx.stroke();
+        } 
+        else {
+          // Glitter sparkles (drawn as 4-pointed stars)
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.moveTo(this.x, this.y - this.radius);
+          ctx.lineTo(this.x + this.radius/2, this.y - this.radius/2);
+          ctx.lineTo(this.x + this.radius, this.y);
+          ctx.lineTo(this.x + this.radius/2, this.y + this.radius/2);
+          ctx.lineTo(this.x, this.y + this.radius);
+          ctx.lineTo(this.x - this.radius/2, this.y + this.radius/2);
+          ctx.lineTo(this.x - this.radius, this.y);
+          ctx.lineTo(this.x - this.radius/2, this.y - this.radius/2);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+    }
+
+
+    // ==========================================
+    // GAME ENGINE & LOGIC
+    // ==========================================
+    class GameEngine {
+      constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+
+        // Target logical resolution
+        this.baseWidth = 600;
+        this.baseHeight = 800;
+
+        // Game state variables
+        this.state = 'START'; // START | PLAYING | PAUSED | GAMEOVER
+        this.score = 0;
+        this.level = 1;
+        this.maxHearts = 5;
+        this.hearts = 5;
+
+        // Timers & intervals
+        this.lastTime = 0;
+        this.spawnTimer = 0;
+        this.spawnInterval = 2000; // start with 2 seconds
+        this.shootCooldown = 280; // ms between bubble shots
+        this.lastShootTime = 0;
+
+        // Input monitoring
+        this.keys = {};
+        this.mouseX = this.baseWidth / 2;
+
+        // Entity Lists
+        this.player = null;
+        this.bubbles = [];
+        this.enemies = [];
+        this.particles = [];
+        this.stars = [];
+
+        // UI references
+        this.scoreText = document.getElementById('score-text');
+        this.levelText = document.getElementById('level-text');
+        this.heartsPanel = document.getElementById('hearts-panel');
+        this.finalScoreText = document.getElementById('final-score');
+
+        // Screens
+        this.startScreen = document.getElementById('start-screen');
+        this.pauseScreen = document.getElementById('pause-screen');
+        this.gameOverScreen = document.getElementById('game-over-screen');
+
+        this.initResize();
+        this.initEvents();
+        this.createBackgroundStars();
+        this.resetGame();
+      }
+
+      createBackgroundStars() {
+        this.stars = [];
+        for (let i = 0; i < 50; i++) {
+          this.stars.push(new TwinkleStar(this.baseWidth, this.baseHeight));
+        }
+      }
+
+      resetGame() {
+        this.score = 0;
+        this.level = 1;
+        this.hearts = this.maxHearts;
+        this.spawnInterval = 2000;
+        this.spawnTimer = 0;
+
+        this.player = new PlayerStar(this.baseWidth / 2, this.baseHeight - 70);
+        this.bubbles = [];
+        this.enemies = [];
+        this.particles = [];
+
+        this.updateUI();
+      }
+
+      updateUI() {
+        this.scoreText.innerText = this.score;
+        this.levelText.innerText = `关卡 ${this.level}`;
+
+        // Redraw Hearts Panel
+        this.heartsPanel.innerHTML = '';
+        for (let i = 0; i < this.maxHearts; i++) {
+          const heart = document.createElement('span');
+          if (i < this.hearts) {
+            heart.innerText = '❤️'; // Filled Heart
+          } else {
+            heart.innerText = '🤍'; // Empty Heart
+            heart.style.opacity = '0.5';
+          }
+          this.heartsPanel.appendChild(heart);
+        }
+      }
+
+      setState(newState) {
+        this.state = newState;
+
+        // Show/hide screen overlays
+        this.startScreen.classList.toggle('hidden', newState !== 'START');
+        this.pauseScreen.classList.toggle('hidden', newState !== 'PAUSED');
+        this.gameOverScreen.classList.toggle('hidden', newState !== 'GAMEOVER');
+
+        if (newState === 'GAMEOVER') {
+          this.finalScoreText.innerText = this.score;
+          sound.playGameOver();
+        } else if (newState === 'PLAYING') {
+          sound.init();
+        }
+      }
+
+      initResize() {
+        const resize = () => {
+          // Adjust canvas internal sizing for crisp CSS boundaries (maintaining 3:4 aspect ratio)
+          const rect = this.canvas.getBoundingClientRect();
+          const dpr = window.devicePixelRatio || 1;
+
+          this.canvas.width = rect.width * dpr;
+          this.canvas.height = rect.height * dpr;
+
+          // Scale contexts to fit target base coordinate system
+          this.ctx.resetTransform();
+          this.ctx.scale(
+            (rect.width * dpr) / this.baseWidth,
+            (rect.height * dpr) / this.baseHeight
+          );
+        };
+
+        window.addEventListener('resize', resize);
+        // Small delay to allow element metrics to calculate on page load
+        setTimeout(resize, 100);
+      }
+
+      initEvents() {
+        // Keyboard inputs
+        window.addEventListener('keydown', (e) => {
+          this.keys[e.code] = true;
+
+          // Quick Pause bindings
+          if (e.code === 'Escape' || e.code === 'KeyP') {
+            if (this.state === 'PLAYING') {
+              this.setState('PAUSED');
+            } else if (this.state === 'PAUSED') {
+              this.setState('PLAYING');
+            }
+          }
+
+          // Shoot binding (Space)
+          if (e.code === 'Space' && this.state === 'PLAYING') {
+            e.preventDefault(); // prevent scrolling
+            this.shootBubble();
+          }
+        });
+
+        window.addEventListener('keyup', (e) => {
+          this.keys[e.code] = false;
+        });
+
+        // Mouse/Touch controls (Tracking position relative to Canvas client layout)
+        const getRelativeX = (clientX) => {
+          const rect = this.canvas.getBoundingClientRect();
+          const relativeX = ((clientX - rect.left) / rect.width) * this.baseWidth;
+          return Math.max(25, Math.min(this.baseWidth - 25, relativeX));
+        };
+
+        // Handles touch/mouse movement
+        const handleMove = (clientX) => {
+          if (this.state === 'PLAYING') {
+            const rx = getRelativeX(clientX);
+            this.player.targetX = rx;
+            this.mouseX = rx;
+          }
+        };
+
+        // Mouse Listeners
+        this.canvas.addEventListener('mousemove', (e) => {
+          handleMove(e.clientX);
+        });
+
+        this.canvas.addEventListener('mousedown', (e) => {
+          if (this.state === 'PLAYING') {
+            handleMove(e.clientX);
+            this.shootBubble();
+          }
+        });
+
+        // Touch Listeners
+        this.canvas.addEventListener('touchmove', (e) => {
+          if (e.touches.length > 0) {
+            handleMove(e.touches[0].clientX);
+          }
+        }, { passive: true });
+
+        this.canvas.addEventListener('touchstart', (e) => {
+          if (this.state === 'PLAYING' && e.touches.length > 0) {
+            handleMove(e.touches[0].clientX);
+            this.shootBubble();
+          }
+        }, { passive: true });
+
+        // Bind interactive UI Buttons
+        document.getElementById('btn-start').addEventListener('click', () => {
+          sound.init();
+          this.resetGame();
+          this.setState('PLAYING');
+        });
+
+        document.getElementById('btn-pause').addEventListener('click', () => {
+          if (this.state === 'PLAYING') {
+            this.setState('PAUSED');
+          }
+        });
+
+        document.getElementById('btn-resume').addEventListener('click', () => {
+          sound.init();
+          this.setState('PLAYING');
+        });
+
+        document.getElementById('btn-restart-pause').addEventListener('click', () => {
+          this.resetGame();
+          this.setState('PLAYING');
+        });
+
+        document.getElementById('btn-retry').addEventListener('click', () => {
+          this.resetGame();
+          this.setState('PLAYING');
+        });
+
+        // Mute Button Handler
+        const muteBtn = document.getElementById('btn-mute');
+        muteBtn.addEventListener('click', () => {
+          const muted = sound.toggleMute();
+          muteBtn.innerText = muted ? '🔇' : '🔊';
+        });
+      }
+
+      shootBubble() {
+        const now = Date.now();
+        if (now - this.lastShootTime >= this.shootCooldown) {
+          // Launch Bubble from Player position
+          this.bubbles.push(new BubbleProjectile(this.player.x, this.player.y - 20));
+          sound.playShoot();
+          this.lastShootTime = now;
+        }
+      }
+
+      spawnEnemy() {
+        this.enemies.push(new BalloonEnemy(this.baseWidth, this.level));
+      }
+
+      // Check bubble-enemy circle-to-circle collisions
+      checkCollisions() {
+        for (let b = this.bubbles.length - 1; b >= 0; b--) {
+          const bubble = this.bubbles[b];
+
+          for (let e = this.enemies.length - 1; e >= 0; e--) {
+            const enemy = this.enemies[e];
+
+            // Radial distances
+            const dx = bubble.x - enemy.x;
+            const dy = bubble.y - enemy.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            // Collide hit
+            if (dist < bubble.radius + enemy.radius) {
+              // 1. Remove bubble and enemy
+              this.bubbles.splice(b, 1);
+              this.enemies.splice(e, 1);
+
+              // 2. Play sound effects
+              sound.playPop();
+
+              // 3. Calculate Score gains
+              this.score += 10;
+              this.updateUI();
+
+              // Check level progress
+              if (this.score % 100 === 0) {
+                this.level += 1;
+                this.spawnInterval = Math.max(600, 2000 - this.level * 180);
+                sound.playLevelUp();
+
+                // Level up float animation text
+                this.particles.push(new SparkParticle(
+                  this.baseWidth / 2, 
+                  this.baseHeight / 2 - 100, 
+                  '#a0e7e5', 
+                  'text', 
+                  `✨ LEVEL ${this.level} ✨`
+                ));
+              }
+
+              // 4. Generate visual glitter explosion particles
+              for (let i = 0; i < 12; i++) {
+                this.particles.push(new SparkParticle(enemy.x, enemy.y, enemy.color, 'star'));
+              }
+              for (let i = 0; i < 6; i++) {
+                this.particles.push(new SparkParticle(enemy.x, enemy.y, 'rgba(255,255,255,0.7)', 'bubble'));
+              }
+
+              // 5. Encourgement floating text pops randomly
+              if (Math.random() < 0.4 || this.score % 50 === 0) {
+                const words = ENCOURAGING_WORDS[Math.floor(Math.random() * ENCOURAGING_WORDS.length)];
+                const wordColors = ['#ffb7c5', '#ffee93', '#a0e7e5', '#dfb2f4', '#bbf2c6'];
+                const textColor = wordColors[Math.floor(Math.random() * wordColors.length)];
+
+                this.particles.push(new SparkParticle(
+                  enemy.x, 
+                  enemy.y - 15, 
+                  textColor, 
+                  'text', 
+                  words
+                ));
+              }
+
+              break; // exit inner loop for this bubble
+            }
+          }
+        }
+      }
+
+      update(deltaTime) {
+        // Update twinkling background stars
+        this.stars.forEach(star => star.update());
+
+        if (this.state !== 'PLAYING') return;
+
+        // A/D Keyboard controls for desktop fallback
+        if (this.keys['KeyA'] || this.keys['ArrowLeft']) {
+          this.player.targetX = Math.max(25, this.player.x - this.player.speed);
+        }
+        if (this.keys['KeyD'] || this.keys['ArrowRight']) {
+          this.player.targetX = Math.min(this.baseWidth - 25, this.player.x + this.player.speed);
+        }
+
+        // Update player animations
+        this.player.update();
+
+        // Update bubble movements
+        for (let i = this.bubbles.length - 1; i >= 0; i--) {
+          this.bubbles[i].update();
+          // Remove out-of-screen bubbles
+          if (this.bubbles[i].y < -20) {
+            this.bubbles.splice(i, 1);
+          }
+        }
+
+        // Update and spawn enemy balloons
+        this.spawnTimer += deltaTime;
+        if (this.spawnTimer >= this.spawnInterval) {
+          this.spawnEnemy();
+          this.spawnTimer = 0;
+        }
+
+        for (let i = this.enemies.length - 1; i >= 0; i--) {
+          const enemy = this.enemies[i];
+          enemy.update();
+
+          // Check if enemy slipped past the screen bottom
+          if (enemy.y > this.baseHeight + enemy.radius) {
+            this.enemies.splice(i, 1);
+            this.hearts -= 1;
+            this.updateUI();
+            sound.playLoseLife();
+
+            // Flash Screen / Floating loss warning
+            this.particles.push(new SparkParticle(
+              this.baseWidth / 2, 
+              this.baseHeight - 150, 
+              '#ff5e7e', 
+              'text', 
+              '🌟 星星能量流失! -1'
+            ));
+
+            if (this.hearts <= 0) {
+              this.setState('GAMEOVER');
+            }
+          }
+        }
+
+        // Check bubble vs enemy hits
+        this.checkCollisions();
+
+        // Update active particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          this.particles[i].update();
+          if (this.particles[i].alpha <= 0) {
+            this.particles.splice(i, 1);
+          }
+        }
+      }
+
+      draw() {
+        // Clear canvas with space darkness background
+        this.ctx.clearRect(0, 0, this.baseWidth, this.baseHeight);
+
+        // Draw Twinkling Background Stars
+        this.stars.forEach(star => star.draw(this.ctx));
+
+        // Draw active game elements
+        this.bubbles.forEach(bubble => bubble.draw(this.ctx));
+        this.enemies.forEach(enemy => enemy.draw(this.ctx));
+        this.particles.forEach(particle => particle.draw(this.ctx));
+
+        if (this.state === 'PLAYING' || this.state === 'PAUSED') {
+          this.player.draw(this.ctx);
+        }
+      }
+
+      start() {
+        let lastTimestamp = 0;
+
+        const loop = (timestamp) => {
+          if (!lastTimestamp) lastTimestamp = timestamp;
+          const elapsed = timestamp - lastTimestamp;
+          lastTimestamp = timestamp;
+
+          // Limit delta time checks to avoid huge physics jumps when tab loses focus
+          const delta = Math.min(elapsed, 100);
+
+          this.update(delta);
+          this.draw();
+
+          requestAnimationFrame(loop);
+        };
+
+        requestAnimationFrame(loop);
+      }
+    }
+
+    // Launch game on load
+    window.addEventListener('DOMContentLoaded', () => {
+      const game = new GameEngine();
+      game.start();
+    });
+  </script>
+</body>
+</html>
