@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Iris 的星星泡泡守护者</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #23324d;
+      --panel: rgba(255, 255, 255, 0.82);
+      --panel-strong: rgba(255, 255, 255, 0.94);
+      --rose: #ff719d;
+      --teal: #39c7bc;
+      --gold: #ffd44d;
+      --sky: #80d4ff;
+      --violet: #8068dc;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      font-family: "Trebuchet MS", "Microsoft YaHei", system-ui, sans-serif;
+      color: var(--ink);
+      background: #b8ebff;
+      touch-action: none;
+      user-select: none;
+    }
+
+    body {
+      display: grid;
+      place-items: stretch;
+    }
+
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      background: #b8ebff;
+    }
+
+    .hud {
+      position: fixed;
+      inset: max(12px, env(safe-area-inset-top)) 12px auto;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: start;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .stats,
+    .controls,
+    .message,
+    .start-card {
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      background: var(--panel);
+      box-shadow: 0 12px 28px rgba(52, 92, 139, 0.18);
+      backdrop-filter: blur(10px);
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      width: fit-content;
+      max-width: min(680px, calc(100vw - 120px));
+      padding: 9px;
+      border-radius: 8px;
+      font-size: clamp(13px, 2.8vw, 17px);
+      font-weight: 800;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 32px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.76);
+      white-space: nowrap;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      justify-self: end;
+      padding: 7px;
+      border-radius: 8px;
+      pointer-events: auto;
+    }
+
+    button {
+      min-width: 44px;
+      min-height: 40px;
+      border: 0;
+      border-radius: 8px;
+      color: #fff;
+      background: linear-gradient(180deg, #ff86ad, #ef5f93);
+      box-shadow: inset 0 -2px 0 rgba(106, 32, 67, 0.16), 0 5px 14px rgba(170, 68, 105, 0.2);
+      font: 800 15px/1 system-ui, sans-serif;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button.secondary {
+      background: linear-gradient(180deg, #6bd9d1, #28b9b0);
+    }
+
+    .message {
+      position: fixed;
+      left: 50%;
+      bottom: max(22px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      max-width: min(560px, calc(100vw - 24px));
+      min-height: 46px;
+      padding: 12px 18px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 900;
+      font-size: clamp(16px, 4vw, 24px);
+      opacity: 0;
+      transition: opacity 180ms ease, transform 180ms ease;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .message.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-8px);
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(164, 225, 255, 0.34);
+      z-index: 5;
+    }
+
+    .overlay.hidden {
+      display: none;
+    }
+
+    .start-card {
+      width: min(620px, 100%);
+      border-radius: 8px;
+      padding: clamp(18px, 5vw, 30px);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 6vw, 46px);
+      line-height: 1.04;
+      letter-spacing: 0;
+      color: #4a3f9b;
+    }
+
+    .start-card p {
+      margin: 8px auto;
+      max-width: 36rem;
+      font-size: clamp(16px, 4vw, 19px);
+      line-height: 1.55;
+    }
+
+    .start-card .actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .big-button {
+      min-width: 144px;
+      min-height: 48px;
+      font-size: 18px;
+    }
+
+    @media (max-width: 620px) {
+      .hud {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        max-width: calc(100vw - 24px);
+      }
+
+      .controls {
+        justify-self: start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game" aria-label="Iris 的星星泡泡守护者游戏画布"></canvas>
+
+  <div class="hud" aria-live="polite">
+    <div class="stats">
+      <span class="pill">Score <span id="score">0</span></span>
+      <span class="pill">Level <span id="level">1</span></span>
+      <span class="pill">爱心 <span id="hearts">💛💛💛</span></span>
+      <span class="pill">星星能量 <span id="energy">0</span></span>
+    </div>
+    <div class="controls">
+      <button id="pauseBtn" class="secondary" type="button" aria-label="暂停或继续">暂停</button>
+      <button id="restartBtn" type="button" aria-label="重新开始">重来</button>
+    </div>
+  </div>
+
+  <div id="message" class="message">Great job, Iris!</div>
+
+  <div id="overlay" class="overlay">
+    <section class="start-card">
+      <h1>Iris 的星星泡泡守护者</h1>
+      <p>控制小星星飞船，发射彩色泡泡，把调皮的小陨石和气球怪轻轻送回星空。</p>
+      <p>方向键或 A/D 移动，空格发射。鼠标和触摸也可以移动并点按发射。</p>
+      <div class="actions">
+        <button id="startBtn" class="big-button" type="button">开始守护</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const canvas = document.getElementById("game");
+      const ctx = canvas.getContext("2d");
+      const ui = {
+        score: document.getElementById("score"),
+        level: document.getElementById("level"),
+        hearts: document.getElementById("hearts"),
+        energy: document.getElementById("energy"),
+        message: document.getElementById("message"),
+        overlay: document.getElementById("overlay"),
+        startBtn: document.getElementById("startBtn"),
+        pauseBtn: document.getElementById("pauseBtn"),
+        restartBtn: document.getElementById("restartBtn")
+      };
+
+      const state = {
+        width: 0,
+        height: 0,
+        dpr: 1,
+        running: false,
+        paused: false,
+        gameOver: false,
+        score: 0,
+        level: 1,
+        hearts: 3,
+        energy: 0,
+        lastTime: 0,
+        spawnTimer: 0,
+        spawnDelay: 1300,
+        shotCooldown: 0,
+        particles: [],
+        bubbles: [],
+        friends: [],
+        stars: [],
+        keys: new Set(),
+        pointerActive: false,
+        pointerX: 0,
+        messageTimer: 0,
+        player: {
+          x: 0,
+          y: 0,
+          radius: 24,
+          targetX: 0
+        }
+      };
+
+      const encouragingWords = [
+        "Great job, Iris!",
+        "星星能量 +1!",
+        "泡泡魔法成功!",
+        "守护得真棒!",
+        "闪闪发光!"
+      ];
+
+      function resize() {
+        state.dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+        state.width = Math.max(320, window.innerWidth);
+        state.height = Math.max(460, window.innerHeight);
+        canvas.width = Math.floor(state.width * state.dpr);
+        canvas.height = Math.floor(state.height * state.dpr);
+        canvas.style.width = `${state.width}px`;
+        canvas.style.height = `${state.height}px`;
+        ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+        state.player.y = state.height - Math.max(78, state.height * 0.13);
+        if (!state.running) {
+          state.player.x = state.width / 2;
+          state.player.targetX = state.player.x;
+        }
+        seedStars();
+      }
+
+      function seedStars() {
+        const count = Math.floor((state.width * state.height) / 12500);
+        state.stars = Array.from({ length: count }, (_, index) => ({
+          x: (index * 97 + 43) % state.width,
+          y: (index * 151 + 29) % state.height,
+          r: 1 + ((index * 7) % 18) / 10,
+          twinkle: (index % 9) / 9
+        }));
+      }
+
+      function resetGame() {
+        state.running = true;
+        state.paused = false;
+        state.gameOver = false;
+        state.score = 0;
+        state.level = 1;
+        state.hearts = 3;
+        state.energy = 0;
+        state.spawnTimer = 0;
+        state.spawnDelay = 1300;
+        state.shotCooldown = 0;
+        state.particles = [];
+        state.bubbles = [];
+        state.friends = [];
+        state.player.x = state.width / 2;
+        state.player.targetX = state.player.x;
+        state.lastTime = performance.now();
+        ui.overlay.classList.add("hidden");
+        ui.pauseBtn.textContent = "暂停";
+        showMessage("Great job, Iris!");
+        updateHud();
+      }
+
+      function updateHud() {
+        ui.score.textContent = state.score;
+        ui.level.textContent = state.level;
+        ui.energy.textContent = state.energy;
+        ui.hearts.textContent = "💛".repeat(Math.max(0, state.hearts)) || "♡";
+      }
+
+      function showMessage(text) {
+        ui.message.textContent = text;
+        ui.message.classList.add("show");
+        state.messageTimer = 1500;
+      }
+
+      function togglePause() {
+        if (!state.running || state.gameOver) return;
+        state.paused = !state.paused;
+        ui.pauseBtn.textContent = state.paused ? "继续" : "暂停";
+        showMessage(state.paused ? "星星休息一下" : "继续守护星空!");
+        if (!state.paused) state.lastTime = performance.now();
+      }
+
+      function shootBubble() {
+        if (!state.running || state.paused || state.gameOver || state.shotCooldown > 0) return;
+        const hue = (state.score * 21 + state.energy * 37) % 360;
+        state.bubbles.push({
+          x: state.player.x,
+          y: state.player.y - 26,
+          radius: 10,
+          vy: -560,
+          hue,
+          wobble: Math.random() * Math.PI * 2
+        });
+        state.shotCooldown = 170;
+      }
+
+      function spawnFriend() {
+        const size = 18 + Math.random() * 18;
+        const isBalloon = Math.random() > 0.45;
+        const speed = 48 + state.level * 9 + Math.random() * 22;
+        state.friends.push({
+          x: size + Math.random() * (state.width - size * 2),
+          y: -size - 10,
+          radius: size,
+          vy: speed,
+          drift: (Math.random() - 0.5) * (24 + state.level * 3),
+          spin: Math.random() * Math.PI * 2,
+          kind: isBalloon ? "balloon" : "meteor",
+          color: isBalloon ? randomChoice(["#ff92b5", "#8de077", "#75c9ff", "#ffc75f"]) : randomChoice(["#b29cff", "#93d8ff", "#ffd36e"])
+        });
+      }
+
+      function randomChoice(list) {
+        return list[Math.floor(Math.random() * list.length)];
+      }
+
+      function addSparkles(x, y, color) {
+        for (let i = 0; i < 14; i += 1) {
+          const angle = (Math.PI * 2 * i) / 14;
+          const speed = 70 + Math.random() * 130;
+          state.particles.push({
+            x,
+            y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 520 + Math.random() * 180,
+            age: 0,
+            color
+          });
+        }
+      }
+
+      function update(delta) {
+        if (!state.running || state.paused || state.gameOver) return;
+
+        state.messageTimer -= delta;
+        if (state.messageTimer <= 0) ui.message.classList.remove("show");
+
+        state.level = 1 + Math.floor(state.score / 90);
+        state.spawnDelay = Math.max(620, 1320 - state.level * 78);
+        state.spawnTimer += delta;
+        state.shotCooldown = Math.max(0, state.shotCooldown - delta);
+
+        while (state.spawnTimer >= state.spawnDelay) {
+          state.spawnTimer -= state.spawnDelay;
+          spawnFriend();
+        }
+
+        const moveSpeed = 460;
+        if (state.keys.has("ArrowLeft") || state.keys.has("KeyA")) state.player.targetX -= moveSpeed * delta / 1000;
+        if (state.keys.has("ArrowRight") || state.keys.has("KeyD")) state.player.targetX += moveSpeed * delta / 1000;
+        if (state.pointerActive) state.player.targetX = state.pointerX;
+        state.player.targetX = clamp(state.player.targetX, 28, state.width - 28);
+        state.player.x += (state.player.targetX - state.player.x) * Math.min(1, delta / 90);
+
+        for (const bubble of state.bubbles) {
+          bubble.y += bubble.vy * delta / 1000;
+          bubble.wobble += delta / 180;
+          bubble.x += Math.sin(bubble.wobble) * 0.35;
+        }
+        state.bubbles = state.bubbles.filter((bubble) => bubble.y + bubble.radius > -20);
+
+        for (const friend of state.friends) {
+          friend.y += friend.vy * delta / 1000;
+          friend.x += Math.sin(friend.spin) * friend.drift * delta / 1000;
+          friend.spin += delta / 700;
+        }
+
+        for (const particle of state.particles) {
+          particle.age += delta;
+          particle.x += particle.vx * delta / 1000;
+          particle.y += particle.vy * delta / 1000;
+          particle.vy += 90 * delta / 1000;
+        }
+        state.particles = state.particles.filter((particle) => particle.age < particle.life);
+
+        handleCollisions();
+        handleMisses();
+        updateHud();
+      }
+
+      function handleCollisions() {
+        for (let i = state.friends.length - 1; i >= 0; i -= 1) {
+          const friend = state.friends[i];
+          for (let j = state.bubbles.length - 1; j >= 0; j -= 1) {
+            const bubble = state.bubbles[j];
+            const distance = Math.hypot(friend.x - bubble.x, friend.y - bubble.y);
+            if (distance < friend.radius + bubble.radius) {
+              state.friends.splice(i, 1);
+              state.bubbles.splice(j, 1);
+              state.score += friend.kind === "balloon" ? 12 : 16;
+              state.energy += 1;
+              addSparkles(friend.x, friend.y, friend.color);
+              if (state.energy % 5 === 0 && state.hearts < 5) {
+                state.hearts += 1;
+                showMessage("爱心补充 +1!");
+              } else {
+                showMessage(randomChoice(encouragingWords));
+              }
+              break;
+            }
+          }
+        }
+      }
+
+      function handleMisses() {
+        for (let i = state.friends.length - 1; i >= 0; i -= 1) {
+          const friend = state.friends[i];
+          if (friend.y - friend.radius > state.height) {
+            state.friends.splice(i, 1);
+            state.hearts -= 1;
+            showMessage("没关系，下一颗泡泡会更准!");
+            if (state.hearts <= 0) endGame();
+          }
+        }
+      }
+
+      function endGame() {
+        state.gameOver = true;
+        state.running = false;
+        ui.overlay.classList.remove("hidden");
+        ui.overlay.querySelector("h1").textContent = "再试一次，你已经很棒了！";
+        ui.overlay.querySelectorAll("p")[0].textContent = `Iris 得到了 ${state.score} 分，收集了 ${state.energy} 点星星能量。`;
+        ui.overlay.querySelectorAll("p")[1].textContent = "深呼吸，按开始守护再来一局。";
+        ui.startBtn.textContent = "再玩一次";
+      }
+
+      function draw(time) {
+        drawBackground(time);
+        drawBubbles();
+        drawFriends(time);
+        drawParticles();
+        drawPlayer(time);
+        if (state.paused) drawPaused();
+      }
+
+      function drawBackground(time) {
+        const sky = ctx.createLinearGradient(0, 0, 0, state.height);
+        sky.addColorStop(0, "#a9e7ff");
+        sky.addColorStop(0.55, "#d7f7ff");
+        sky.addColorStop(1, "#fff4c7");
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, state.width, state.height);
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
+        for (let i = 0; i < 6; i += 1) {
+          const x = (i * 210 + (time / (55 + i * 8))) % (state.width + 220) - 110;
+          const y = 84 + i * 55;
+          drawCloud(x, y, 42 + i * 3);
+        }
+
+        for (const star of state.stars) {
+          const glow = 0.45 + Math.sin(time / 500 + star.twinkle * Math.PI * 2) * 0.28;
+          ctx.globalAlpha = glow;
+          drawStar(star.x, star.y, star.r + 2, "#fff7a8");
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function drawCloud(x, y, r) {
+        ctx.beginPath();
+        ctx.arc(x, y, r * 0.55, 0, Math.PI * 2);
+        ctx.arc(x + r * 0.42, y - r * 0.2, r * 0.7, 0, Math.PI * 2);
+        ctx.arc(x + r * 0.98, y, r * 0.58, 0, Math.PI * 2);
+        ctx.arc(x + r * 0.55, y + r * 0.18, r * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function drawPlayer(time) {
+        const p = state.player;
+        ctx.save();
+        ctx.translate(p.x, p.y + Math.sin(time / 240) * 3);
+
+        ctx.fillStyle = "rgba(90, 130, 190, 0.18)";
+        ctx.beginPath();
+        ctx.ellipse(0, 35, 32, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        drawStar(0, 0, 28, "#ffd84e");
+        drawStar(0, 0, 17, "#fff5a9");
+
+        ctx.fillStyle = "#4a3f9b";
+        ctx.beginPath();
+        ctx.arc(-8, -4, 2.8, 0, Math.PI * 2);
+        ctx.arc(8, -4, 2.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = "#4a3f9b";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 2, 8, 0.15 * Math.PI, 0.85 * Math.PI);
+        ctx.stroke();
+
+        ctx.fillStyle = "#ff80aa";
+        ctx.beginPath();
+        ctx.ellipse(-23, 9, 11, 6, -0.4, 0, Math.PI * 2);
+        ctx.ellipse(23, 9, 11, 6, 0.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      function drawBubbles() {
+        for (const bubble of state.bubbles) {
+          const fill = ctx.createRadialGradient(
+            bubble.x - 4,
+            bubble.y - 5,
+            2,
+            bubble.x,
+            bubble.y,
+            bubble.radius + 5
+          );
+          fill.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+          fill.addColorStop(0.35, `hsla(${bubble.hue}, 88%, 74%, 0.72)`);
+          fill.addColorStop(1, `hsla(${bubble.hue}, 88%, 58%, 0.22)`);
+          ctx.fillStyle = fill;
+          ctx.strokeStyle = `hsla(${bubble.hue}, 80%, 58%, 0.72)`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        }
+      }
+
+      function drawFriends(time) {
+        for (const friend of state.friends) {
+          ctx.save();
+          ctx.translate(friend.x, friend.y);
+          ctx.rotate(Math.sin(friend.spin) * 0.12);
+          if (friend.kind === "balloon") {
+            drawBalloonFriend(friend, time);
+          } else {
+            drawMeteorFriend(friend);
+          }
+          ctx.restore();
+        }
+      }
+
+      function drawBalloonFriend(friend, time) {
+        const r = friend.radius;
+        ctx.fillStyle = friend.color;
+        ctx.strokeStyle = "rgba(92, 69, 146, 0.32)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, r * 0.84, r, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
+        ctx.beginPath();
+        ctx.ellipse(-r * 0.26, -r * 0.32, r * 0.18, r * 0.28, -0.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#51406e";
+        ctx.beginPath();
+        ctx.arc(-r * 0.25, -r * 0.06, 2.2, 0, Math.PI * 2);
+        ctx.arc(r * 0.25, -r * 0.06, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#51406e";
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(0, r * 0.08, r * 0.2, 0.18 * Math.PI, 0.82 * Math.PI);
+        ctx.stroke();
+
+        ctx.strokeStyle = "rgba(81, 64, 110, 0.42)";
+        ctx.beginPath();
+        ctx.moveTo(0, r * 0.9);
+        ctx.quadraticCurveTo(Math.sin(time / 260) * 10, r * 1.25, 0, r * 1.6);
+        ctx.stroke();
+      }
+
+      function drawMeteorFriend(friend) {
+        const r = friend.radius;
+        ctx.fillStyle = friend.color;
+        ctx.strokeStyle = "rgba(92, 69, 146, 0.3)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, -r);
+        for (let i = 1; i < 10; i += 1) {
+          const angle = -Math.PI / 2 + (Math.PI * 2 * i) / 10;
+          const point = r * (i % 2 ? 0.78 : 1);
+          ctx.lineTo(Math.cos(angle) * point, Math.sin(angle) * point);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.46)";
+        ctx.beginPath();
+        ctx.arc(-r * 0.25, -r * 0.25, r * 0.18, 0, Math.PI * 2);
+        ctx.arc(r * 0.28, r * 0.18, r * 0.13, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#51406e";
+        ctx.beginPath();
+        ctx.arc(-r * 0.22, 0, 2.2, 0, Math.PI * 2);
+        ctx.arc(r * 0.22, 0, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function drawParticles() {
+        for (const particle of state.particles) {
+          const alpha = 1 - particle.age / particle.life;
+          ctx.globalAlpha = Math.max(0, alpha);
+          drawStar(particle.x, particle.y, 5, particle.color);
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function drawStar(x, y, radius, color) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.beginPath();
+        for (let i = 0; i < 10; i += 1) {
+          const angle = -Math.PI / 2 + (i * Math.PI) / 5;
+          const point = i % 2 === 0 ? radius : radius * 0.45;
+          ctx.lineTo(Math.cos(angle) * point, Math.sin(angle) * point);
+        }
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawPaused() {
+        ctx.fillStyle = "rgba(255, 255, 255, 0.58)";
+        ctx.fillRect(0, 0, state.width, state.height);
+        ctx.fillStyle = "#4a3f9b";
+        ctx.font = "900 34px Trebuchet MS, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("暂停中", state.width / 2, state.height / 2);
+      }
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function loop(time) {
+        const delta = Math.min(34, time - state.lastTime || 16);
+        state.lastTime = time;
+        update(delta);
+        draw(time);
+        requestAnimationFrame(loop);
+      }
+
+      window.addEventListener("resize", resize);
+      window.addEventListener("keydown", (event) => {
+        if (["ArrowLeft", "ArrowRight", "KeyA", "KeyD", "Space"].includes(event.code)) {
+          event.preventDefault();
+        }
+        state.keys.add(event.code);
+        if (event.code === "Space") shootBubble();
+        if (event.code === "KeyP") togglePause();
+      });
+      window.addEventListener("keyup", (event) => state.keys.delete(event.code));
+
+      canvas.addEventListener("pointerdown", (event) => {
+        state.pointerActive = true;
+        state.pointerX = event.clientX;
+        state.player.targetX = event.clientX;
+        shootBubble();
+      });
+      canvas.addEventListener("pointermove", (event) => {
+        state.pointerActive = true;
+        state.pointerX = event.clientX;
+      });
+      canvas.addEventListener("pointerup", () => {
+        state.pointerActive = false;
+      });
+      canvas.addEventListener("pointercancel", () => {
+        state.pointerActive = false;
+      });
+
+      ui.startBtn.addEventListener("click", resetGame);
+      ui.restartBtn.addEventListener("click", resetGame);
+      ui.pauseBtn.addEventListener("click", togglePause);
+
+      resize();
+      updateHud();
+      requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>
