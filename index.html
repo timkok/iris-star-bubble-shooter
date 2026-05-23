@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Iris 的星星泡泡守护者</title>
-  <meta name="iris-build" content="polished-game-menu-v2">
+  <meta name="iris-build" content="polished-game-menu-v3">
   <style>
     :root {
       color-scheme: light;
@@ -67,9 +67,9 @@
     .controls,
     .message,
     .start-card {
-      border: 2px solid rgba(255, 255, 255, 0.9);
-      background: var(--panel);
-      box-shadow: 0 12px 28px rgba(52, 92, 139, 0.18);
+      border: 2px solid rgba(255, 255, 255, 0.72);
+      background: rgba(255, 255, 255, 0.52);
+      box-shadow: 0 14px 30px rgba(28, 23, 96, 0.22);
       backdrop-filter: blur(10px);
     }
 
@@ -78,21 +78,30 @@
       flex-wrap: wrap;
       gap: 8px;
       width: fit-content;
-      max-width: min(680px, calc(100vw - 120px));
-      padding: 9px;
-      border-radius: 8px;
-      font-size: clamp(13px, 2.8vw, 17px);
-      font-weight: 800;
+      max-width: min(720px, calc(100vw - 132px));
+      padding: 8px;
+      border-radius: 999px;
+      font-size: clamp(13px, 2.4vw, 16px);
+      font-weight: 900;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .stats.pop {
+      transform: scale(1.04);
+      box-shadow: 0 18px 38px rgba(255, 206, 92, 0.32);
     }
 
     .pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      min-height: 32px;
-      padding: 4px 9px;
+      min-height: 36px;
+      padding: 6px 12px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.76);
+      background:
+        radial-gradient(circle at 26% 20%, rgba(255, 255, 255, 0.9), transparent 18%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(247, 232, 255, 0.62));
+      box-shadow: inset 0 -3px 0 rgba(99, 76, 160, 0.1), 0 7px 14px rgba(46, 35, 123, 0.12);
       white-space: nowrap;
     }
 
@@ -100,29 +109,39 @@
       display: flex;
       gap: 8px;
       justify-self: end;
-      padding: 7px;
-      border-radius: 8px;
+      padding: 8px;
+      border-radius: 999px;
       pointer-events: auto;
     }
 
     button {
-      min-width: 44px;
-      min-height: 40px;
+      min-width: 48px;
+      min-height: 48px;
       border: 0;
-      border-radius: 8px;
+      border-radius: 999px;
       color: #fff;
-      background: linear-gradient(180deg, #ff86ad, #ef5f93);
-      box-shadow: inset 0 -2px 0 rgba(106, 32, 67, 0.16), 0 5px 14px rgba(170, 68, 105, 0.2);
-      font: 800 15px/1 system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.9), transparent 18%),
+        linear-gradient(180deg, #ff91bd, #ff5d9a 58%, #df3e84);
+      box-shadow: inset 0 -5px 0 rgba(122, 25, 72, 0.22), 0 10px 18px rgba(170, 68, 105, 0.24);
+      font: 900 15px/1 system-ui, sans-serif;
       cursor: pointer;
+      transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      filter: brightness(1.04);
     }
 
     button:active {
-      transform: translateY(1px);
+      transform: translateY(1px) scale(0.96);
     }
 
     button.secondary {
-      background: linear-gradient(180deg, #6bd9d1, #28b9b0);
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.9), transparent 18%),
+        linear-gradient(180deg, #7cf3e9, #35c7c0 58%, #17a9a2);
     }
 
     .message {
@@ -163,22 +182,22 @@
     }
 
     .start-card {
-      width: min(720px, 100%);
+      width: min(760px, 92vw);
       border-radius: 8px;
-      padding: clamp(16px, 4vw, 28px);
+      padding: clamp(14px, 3.5vw, 26px);
       text-align: center;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 246, 255, 0.38)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 246, 255, 0.32)),
         radial-gradient(circle at 24% 18%, rgba(255, 228, 119, 0.5), transparent 28%),
         radial-gradient(circle at 84% 22%, rgba(116, 222, 255, 0.42), transparent 30%);
-      box-shadow: 0 24px 48px rgba(22, 18, 94, 0.34), inset 0 0 0 2px rgba(255, 255, 255, 0.78);
+      box-shadow: 0 26px 56px rgba(22, 18, 94, 0.38), inset 0 0 0 2px rgba(255, 255, 255, 0.82);
       backdrop-filter: none;
       overflow: hidden;
     }
 
     h1 {
-      margin: 0 0 10px;
-      font-size: clamp(30px, 6vw, 54px);
+      margin: 2px 0 8px;
+      font-size: clamp(27px, 5vw, 50px);
       line-height: 1.04;
       letter-spacing: 0;
       color: #4a3f9b;
@@ -216,9 +235,9 @@
     }
 
     .menu-art-window {
-      height: clamp(190px, 35vh, 310px);
-      margin: clamp(10px, 2.5vw, 16px) auto;
-      border-radius: 8px;
+      height: clamp(250px, 42vh, 390px);
+      margin: 0 auto clamp(8px, 1.8vw, 14px);
+      border-radius: 12px;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
       box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.18);
       pointer-events: none;
@@ -293,22 +312,51 @@
     @media (max-width: 620px) {
       .hud {
         grid-template-columns: 1fr;
+        inset: max(8px, env(safe-area-inset-top)) 8px auto;
+        gap: 7px;
       }
 
       .stats {
-        max-width: calc(100vw - 24px);
+        max-width: calc(100vw - 16px);
+        border-radius: 18px;
+        padding: 6px;
+        gap: 5px;
+      }
+
+      .pill {
+        min-height: 31px;
+        padding: 4px 8px;
+        font-size: 12px;
       }
 
       .controls {
         justify-self: start;
+        padding: 6px;
+      }
+
+      button {
+        min-height: 48px;
       }
 
       .start-card {
-        width: min(430px, 100%);
+        width: min(430px, 92vw);
+        padding: 12px;
       }
 
       .menu-art-window {
-        height: clamp(180px, 32vh, 245px);
+        height: clamp(255px, 41vh, 330px);
+      }
+
+      .icon-row {
+        gap: 7px;
+      }
+
+      .icon-card {
+        min-height: 68px;
+      }
+
+      h1 {
+        font-size: clamp(25px, 8vw, 36px);
       }
     }
   </style>
@@ -318,10 +366,10 @@
 
   <div class="hud" aria-live="polite">
     <div class="stats">
-      <span class="pill">Score <span id="score">0</span></span>
-      <span class="pill">Level <span id="level">1</span></span>
-      <span class="pill">爱心 <span id="hearts">💛💛💛</span></span>
-      <span class="pill">星星能量 <span id="energy">0</span></span>
+      <span class="pill">✨ 分数 <span id="score">0</span></span>
+      <span class="pill">🌙 关卡 <span id="level">1</span></span>
+      <span class="pill">💖 爱心 <span id="hearts">3</span></span>
+      <span class="pill">⭐ 星星能量 <span id="energy">0</span></span>
     </div>
     <div class="controls">
       <button id="pauseBtn" class="secondary" type="button" aria-label="暂停或继续">暂停</button>
@@ -333,6 +381,7 @@
 
   <div id="overlay" class="overlay">
     <section class="start-card">
+      <div class="menu-art-window" aria-hidden="true"></div>
       <h1>Iris 的星星泡泡守护者</h1>
       <p class="subtitle">用魔法泡泡守护星星城堡</p>
       <div class="menu-status" aria-label="游戏状态">
@@ -340,7 +389,6 @@
         <span class="menu-chip">爱心 💛💛💛</span>
         <span class="menu-chip">星星城堡</span>
       </div>
-      <div class="menu-art-window" aria-hidden="true"></div>
       <div class="icon-row" aria-label="游戏操作">
         <div class="icon-card"><span>↔</span><span>移动</span></div>
         <div class="icon-card"><span>●</span><span>发射</span></div>
@@ -389,7 +437,12 @@
         spawnTimer: 0,
         spawnDelay: 1300,
         shotCooldown: 0,
+        hudPopTimer: 0,
+        levelGlowTimer: 0,
+        lastLevel: 1,
         particles: [],
+        energyStars: [],
+        trails: [],
         bubbles: [],
         friends: [],
         stars: [],
@@ -451,7 +504,12 @@
         state.spawnTimer = 0;
         state.spawnDelay = 1300;
         state.shotCooldown = 0;
+        state.hudPopTimer = 0;
+        state.levelGlowTimer = 0;
+        state.lastLevel = 1;
         state.particles = [];
+        state.energyStars = [];
+        state.trails = [];
         state.bubbles = [];
         state.friends = [];
         state.player.x = state.width / 2;
@@ -469,7 +527,7 @@
         ui.bestScore.textContent = state.bestScore;
         ui.level.textContent = state.level;
         ui.energy.textContent = state.energy;
-        ui.hearts.textContent = "💛".repeat(Math.max(0, state.hearts)) || "♡";
+        ui.hearts.textContent = Math.max(0, state.hearts);
       }
 
       function showMessage(text) {
@@ -502,7 +560,8 @@
 
       function spawnFriend() {
         const size = 18 + Math.random() * 18;
-        const isBalloon = Math.random() > 0.45;
+        const kinds = ["meteor", "balloon", "cloud", "moon"];
+        const kind = randomChoice(kinds);
         const speed = 48 + state.level * 9 + Math.random() * 22;
         state.friends.push({
           x: size + Math.random() * (state.width - size * 2),
@@ -511,8 +570,13 @@
           vy: speed,
           drift: (Math.random() - 0.5) * (24 + state.level * 3),
           spin: Math.random() * Math.PI * 2,
-          kind: isBalloon ? "balloon" : "meteor",
-          color: isBalloon ? randomChoice(["#ff92b5", "#8de077", "#75c9ff", "#ffc75f"]) : randomChoice(["#b29cff", "#93d8ff", "#ffd36e"])
+          kind,
+          color: {
+            meteor: randomChoice(["#b29cff", "#93d8ff", "#ffd36e"]),
+            balloon: randomChoice(["#ff92b5", "#8de077", "#75c9ff", "#ffc75f"]),
+            cloud: randomChoice(["#ffffff", "#e6f7ff", "#ffe7f2"]),
+            moon: randomChoice(["#fff09b", "#ffe1a6", "#f7d8ff"])
+          }[kind]
         });
       }
 
@@ -521,8 +585,8 @@
       }
 
       function addSparkles(x, y, color) {
-        for (let i = 0; i < 14; i += 1) {
-          const angle = (Math.PI * 2 * i) / 14;
+        for (let i = 0; i < 22; i += 1) {
+          const angle = (Math.PI * 2 * i) / 22;
           const speed = 70 + Math.random() * 130;
           state.particles.push({
             x,
@@ -531,9 +595,23 @@
             vy: Math.sin(angle) * speed,
             life: 520 + Math.random() * 180,
             age: 0,
-            color
+            color,
+            size: 4 + Math.random() * 5
           });
         }
+      }
+
+      function addEnergyStar(x, y) {
+        state.energyStars.push({
+          x,
+          y,
+          sx: x,
+          sy: y,
+          tx: Math.min(360, state.width * 0.45),
+          ty: 34,
+          age: 0,
+          life: 720
+        });
       }
 
       function update(delta) {
@@ -543,9 +621,17 @@
         if (state.messageTimer <= 0) ui.message.classList.remove("show");
 
         state.level = 1 + Math.floor(state.score / 90);
+        if (state.level > state.lastLevel) {
+          state.lastLevel = state.level;
+          state.levelGlowTimer = 900;
+          showMessage("关卡提升!");
+        }
         state.spawnDelay = Math.max(620, 1320 - state.level * 78);
         state.spawnTimer += delta;
         state.shotCooldown = Math.max(0, state.shotCooldown - delta);
+        state.hudPopTimer = Math.max(0, state.hudPopTimer - delta);
+        state.levelGlowTimer = Math.max(0, state.levelGlowTimer - delta);
+        document.querySelector(".stats").classList.toggle("pop", state.hudPopTimer > 0);
 
         while (state.spawnTimer >= state.spawnDelay) {
           state.spawnTimer -= state.spawnDelay;
@@ -558,6 +644,11 @@
         if (state.pointerActive) state.player.targetX = state.pointerX;
         state.player.targetX = clamp(state.player.targetX, 28, state.width - 28);
         state.player.x += (state.player.targetX - state.player.x) * Math.min(1, delta / 90);
+        state.trails.push({ x: state.player.x, y: state.player.y + 18, age: 0, life: 420 });
+        state.trails = state.trails.filter((trail) => {
+          trail.age += delta;
+          return trail.age < trail.life;
+        });
 
         for (const bubble of state.bubbles) {
           bubble.y += bubble.vy * delta / 1000;
@@ -580,6 +671,15 @@
         }
         state.particles = state.particles.filter((particle) => particle.age < particle.life);
 
+        for (const star of state.energyStars) {
+          star.age += delta;
+          const t = Math.min(1, star.age / star.life);
+          const ease = 1 - Math.pow(1 - t, 3);
+          star.x = star.sx + (star.tx - star.sx) * ease;
+          star.y = star.sy + (star.ty - star.sy) * ease - Math.sin(t * Math.PI) * 42;
+        }
+        state.energyStars = state.energyStars.filter((star) => star.age < star.life);
+
         handleCollisions();
         handleMisses();
         updateHud();
@@ -594,9 +694,11 @@
             if (distance < friend.radius + bubble.radius) {
               state.friends.splice(i, 1);
               state.bubbles.splice(j, 1);
-              state.score += friend.kind === "balloon" ? 12 : 16;
+              state.score += friend.kind === "balloon" ? 12 : friend.kind === "moon" ? 18 : 16;
               state.energy += 1;
+              state.hudPopTimer = 260;
               addSparkles(friend.x, friend.y, friend.color);
+              addEnergyStar(friend.x, friend.y);
               if (state.energy % 5 === 0 && state.hearts < 5) {
                 state.hearts += 1;
                 showMessage("爱心补充 +1!");
@@ -640,11 +742,14 @@
           drawMenuScene(time);
         }
         if (state.running || state.gameOver) {
+          drawTrails();
           drawBubbles();
           drawFriends(time);
           drawParticles();
+          drawEnergyStars();
           drawPlayer(time);
         }
+        if (state.levelGlowTimer > 0) drawLevelGlow();
         if (state.paused) drawPaused();
       }
 
@@ -676,6 +781,10 @@
           drawStar(star.x, star.y, star.r + 2, "#fff7a8");
         }
         ctx.globalAlpha = 1;
+
+        if (state.running || state.gameOver) {
+          drawDistantCastle(time);
+        }
       }
 
       function drawMenuScene(time) {
@@ -689,14 +798,27 @@
         ctx.rect(rect.left, rect.top, rect.width, rect.height);
         ctx.clip();
 
-        drawMenuCloud(cx - 235 * scale, cy - 58 * scale, 34 * scale, time, 0);
-        drawMenuCloud(cx + 215 * scale, cy - 42 * scale, 30 * scale, time, 1.3);
-        drawMenuBubble(cx - 185 * scale, cy + 12 * scale, 20 * scale, "#9ff2ff", time, 0.2);
-        drawMenuBubble(cx + 172 * scale, cy - 12 * scale, 17 * scale, "#ffb2d3", time, 1.4);
-        drawMenuBubble(cx + 118 * scale, cy + 72 * scale, 13 * scale, "#fff59a", time, 2.1);
-        drawStarCastle(cx + 66 * scale, cy + 34 * scale, scale, time);
-        drawIrisShip(cx - 104 * scale, cy + 40 * scale, scale * 1.22, time);
+        drawMenuCloud(cx - 246 * scale, cy - 72 * scale, 34 * scale, time, 0);
+        drawMenuCloud(cx + 230 * scale, cy - 46 * scale, 30 * scale, time, 1.3);
+        drawMenuCloud(cx - 10 * scale, cy - 116 * scale, 24 * scale, time, 2.2);
+        drawMenuBubble(cx - 208 * scale, cy - 4 * scale, 22 * scale, "#9ff2ff", time, 0.2);
+        drawMenuBubble(cx + 188 * scale, cy - 16 * scale, 18 * scale, "#ffb2d3", time, 1.4);
+        drawMenuBubble(cx - 120 * scale, cy + 86 * scale, 14 * scale, "#fff59a", time, 2.1);
+        drawMenuBubble(cx + 90 * scale, cy + 92 * scale, 12 * scale, "#b4ffbf", time, 2.8);
+        for (let i = 0; i < 9; i += 1) {
+          drawStar(cx - 230 * scale + i * 58 * scale, cy - 112 * scale + Math.sin(time / 500 + i) * 8 * scale, 6 * scale, i % 2 ? "#fff6a4" : "#ffffff");
+        }
+        drawStarCastle(cx + 78 * scale, cy + 74 * scale, scale * 0.92, time);
+        drawIrisShip(cx - 94 * scale, cy + 12 * scale, scale * 1.55, time);
 
+        ctx.restore();
+      }
+
+      function drawDistantCastle(time) {
+        const scale = Math.min(0.56, Math.max(0.42, state.width / 2300));
+        ctx.save();
+        ctx.globalAlpha = 0.5;
+        drawStarCastle(state.width * 0.5, state.height - 138, scale, time);
         ctx.restore();
       }
 
@@ -828,23 +950,36 @@
         ctx.closePath();
         ctx.fill();
 
+        ctx.fillStyle = "#ffffff";
+        ctx.strokeStyle = "#ff8fbd";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(0, -22, 16, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#7b62d8";
+        ctx.font = "900 22px Trebuchet MS, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("I", 0, -21);
+
         ctx.fillStyle = "#513a99";
         ctx.beginPath();
-        ctx.arc(-16, -6, 4.5, 0, Math.PI * 2);
-        ctx.arc(16, -6, 4.5, 0, Math.PI * 2);
+        ctx.arc(-19, 0, 4.5, 0, Math.PI * 2);
+        ctx.arc(19, 0, 4.5, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.strokeStyle = "#513a99";
         ctx.lineWidth = 4;
         ctx.lineCap = "round";
         ctx.beginPath();
-        ctx.arc(0, 2, 17, 0.18 * Math.PI, 0.82 * Math.PI);
+        ctx.arc(0, 8, 17, 0.18 * Math.PI, 0.82 * Math.PI);
         ctx.stroke();
 
         ctx.fillStyle = "#fff";
         ctx.beginPath();
-        ctx.arc(-17.5, -8, 1.6, 0, Math.PI * 2);
-        ctx.arc(14.5, -8, 1.6, 0, Math.PI * 2);
+        ctx.arc(-20.5, -2, 1.6, 0, Math.PI * 2);
+        ctx.arc(17.5, -2, 1.6, 0, Math.PI * 2);
         ctx.fill();
 
         for (let i = 0; i < 4; i += 1) {
@@ -866,6 +1001,15 @@
       function drawPlayer(time) {
         const p = state.player;
         drawIrisShip(p.x, p.y, 0.36, time);
+      }
+
+      function drawTrails() {
+        for (const trail of state.trails) {
+          const t = trail.age / trail.life;
+          ctx.globalAlpha = (1 - t) * 0.45;
+          drawMenuBubble(trail.x, trail.y + t * 18, 12 * (1 - t), "#aaf7ff", 0, t);
+        }
+        ctx.globalAlpha = 1;
       }
 
       function drawBubbles() {
@@ -898,6 +1042,10 @@
           ctx.rotate(Math.sin(friend.spin) * 0.12);
           if (friend.kind === "balloon") {
             drawBalloonFriend(friend, time);
+          } else if (friend.kind === "cloud") {
+            drawCloudFriend(friend, time);
+          } else if (friend.kind === "moon") {
+            drawMoonFriend(friend, time);
           } else {
             drawMeteorFriend(friend);
           }
@@ -935,6 +1083,60 @@
         ctx.beginPath();
         ctx.moveTo(0, r * 0.9);
         ctx.quadraticCurveTo(Math.sin(time / 260) * 10, r * 1.25, 0, r * 1.6);
+        ctx.stroke();
+      }
+
+      function drawCloudFriend(friend, time) {
+        const r = friend.radius;
+        ctx.save();
+        ctx.translate(0, Math.sin(time / 360 + friend.spin) * 2);
+        ctx.fillStyle = friend.color;
+        ctx.strokeStyle = "rgba(124, 100, 190, 0.22)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(-r * 0.45, r * 0.08, r * 0.45, 0, Math.PI * 2);
+        ctx.arc(0, -r * 0.16, r * 0.58, 0, Math.PI * 2);
+        ctx.arc(r * 0.5, r * 0.08, r * 0.42, 0, Math.PI * 2);
+        ctx.arc(0, r * 0.24, r * 0.54, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#51406e";
+        ctx.beginPath();
+        ctx.arc(-r * 0.18, r * 0.02, 2.2, 0, Math.PI * 2);
+        ctx.arc(r * 0.18, r * 0.02, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#51406e";
+        ctx.lineWidth = 1.7;
+        ctx.beginPath();
+        ctx.arc(0, r * 0.1, r * 0.16, 0.18 * Math.PI, 0.82 * Math.PI);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawMoonFriend(friend, time) {
+        const r = friend.radius;
+        const moon = ctx.createRadialGradient(-r * 0.25, -r * 0.35, 2, 0, 0, r);
+        moon.addColorStop(0, "#fff9c9");
+        moon.addColorStop(0.62, friend.color);
+        moon.addColorStop(1, "#f6b6d7");
+        ctx.fillStyle = moon;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0.25 * Math.PI, 1.75 * Math.PI);
+        ctx.quadraticCurveTo(r * 0.34, 0, 0, r);
+        ctx.fill();
+        ctx.stroke();
+        drawStar(r * 0.1, -r * 0.56 + Math.sin(time / 340) * 2, r * 0.18, "#ffffff");
+        ctx.fillStyle = "#51406e";
+        ctx.beginPath();
+        ctx.arc(-r * 0.24, -r * 0.05, 2.1, 0, Math.PI * 2);
+        ctx.arc(r * 0.08, -r * 0.02, 2.1, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#51406e";
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.arc(-r * 0.08, r * 0.11, r * 0.15, 0.18 * Math.PI, 0.82 * Math.PI);
         ctx.stroke();
       }
 
@@ -981,9 +1183,27 @@
         for (const particle of state.particles) {
           const alpha = 1 - particle.age / particle.life;
           ctx.globalAlpha = Math.max(0, alpha);
-          drawStar(particle.x, particle.y, 5, particle.color);
+          drawStar(particle.x, particle.y, particle.size || 5, particle.color);
         }
         ctx.globalAlpha = 1;
+      }
+
+      function drawEnergyStars() {
+        for (const star of state.energyStars) {
+          const t = star.age / star.life;
+          ctx.globalAlpha = Math.max(0, 1 - t * 0.15);
+          drawStar(star.x, star.y, 10 * (1 - t * 0.35), "#fff27b");
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function drawLevelGlow() {
+        const alpha = state.levelGlowTimer / 900;
+        const glow = ctx.createRadialGradient(state.width / 2, state.height / 2, 40, state.width / 2, state.height / 2, Math.max(state.width, state.height) * 0.6);
+        glow.addColorStop(0, `rgba(255, 245, 166, ${0.22 * alpha})`);
+        glow.addColorStop(1, "rgba(255, 245, 166, 0)");
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, state.width, state.height);
       }
 
       function drawStar(x, y, radius, color) {
