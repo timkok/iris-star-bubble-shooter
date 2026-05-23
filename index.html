@@ -7,9 +7,9 @@
   <style>
     :root {
       color-scheme: light;
-      --ink: #23324d;
-      --panel: rgba(255, 255, 255, 0.82);
-      --panel-strong: rgba(255, 255, 255, 0.94);
+      --ink: #35265f;
+      --panel: rgba(255, 255, 255, 0.78);
+      --panel-strong: rgba(255, 255, 255, 0.92);
       --rose: #ff719d;
       --teal: #39c7bc;
       --gold: #ffd44d;
@@ -29,7 +29,7 @@
       overflow: hidden;
       font-family: "Trebuchet MS", "Microsoft YaHei", system-ui, sans-serif;
       color: var(--ink);
-      background: #b8ebff;
+      background: #1b1b6d;
       touch-action: none;
       user-select: none;
     }
@@ -43,7 +43,7 @@
       display: block;
       width: 100vw;
       height: 100vh;
-      background: #b8ebff;
+      background: #1b1b6d;
     }
 
     .hud {
@@ -55,6 +55,11 @@
       align-items: start;
       pointer-events: none;
       z-index: 3;
+      transition: opacity 180ms ease;
+    }
+
+    body.menu-mode .hud {
+      opacity: 0;
     }
 
     .stats,
@@ -148,7 +153,7 @@
       display: grid;
       place-items: center;
       padding: 18px;
-      background: rgba(164, 225, 255, 0.34);
+      background: transparent;
       z-index: 5;
     }
 
@@ -157,38 +162,108 @@
     }
 
     .start-card {
-      width: min(620px, 100%);
+      width: min(720px, 100%);
       border-radius: 8px;
-      padding: clamp(18px, 5vw, 30px);
+      padding: clamp(16px, 4vw, 28px);
       text-align: center;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 246, 255, 0.38)),
+        radial-gradient(circle at 24% 18%, rgba(255, 228, 119, 0.5), transparent 28%),
+        radial-gradient(circle at 84% 22%, rgba(116, 222, 255, 0.42), transparent 30%);
+      box-shadow: 0 24px 48px rgba(22, 18, 94, 0.34), inset 0 0 0 2px rgba(255, 255, 255, 0.78);
+      backdrop-filter: none;
+      overflow: hidden;
     }
 
     h1 {
       margin: 0 0 10px;
-      font-size: clamp(28px, 6vw, 46px);
+      font-size: clamp(30px, 6vw, 54px);
       line-height: 1.04;
       letter-spacing: 0;
       color: #4a3f9b;
+      text-shadow: 0 3px 0 rgba(255, 255, 255, 0.75), 0 9px 20px rgba(83, 57, 160, 0.18);
     }
 
-    .start-card p {
-      margin: 8px auto;
-      max-width: 36rem;
-      font-size: clamp(16px, 4vw, 19px);
-      line-height: 1.55;
+    .subtitle {
+      margin: 0 auto;
+      color: #8b3da9;
+      font-size: clamp(17px, 4vw, 24px);
+      font-weight: 900;
+    }
+
+    .menu-art-window {
+      height: clamp(190px, 35vh, 310px);
+      margin: clamp(10px, 2.5vw, 16px) auto;
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.18);
+      pointer-events: none;
+    }
+
+    .icon-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 0 auto clamp(12px, 3vw, 18px);
+      max-width: 500px;
+    }
+
+    .icon-card {
+      display: grid;
+      gap: 4px;
+      justify-items: center;
+      min-height: 76px;
+      padding: 9px 6px;
+      border: 2px solid rgba(255, 255, 255, 0.92);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.74);
+      color: #4a3f9b;
+      font-size: clamp(13px, 3.2vw, 16px);
+      font-weight: 900;
+      box-shadow: 0 9px 18px rgba(73, 64, 145, 0.16);
+    }
+
+    .icon-card span:first-child {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      color: #fff;
+      background: linear-gradient(180deg, #9eeeff, #6a79f3);
+      box-shadow: inset 0 -3px 0 rgba(53, 38, 95, 0.16);
+      font-size: 21px;
     }
 
     .start-card .actions {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
       gap: 10px;
-      margin-top: 18px;
+      margin-top: 0;
     }
 
     .big-button {
-      min-width: 144px;
-      min-height: 48px;
-      font-size: 18px;
+      min-width: 176px;
+      min-height: 56px;
+      border-radius: 999px;
+      font-size: 20px;
+      background:
+        radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.88), transparent 18%),
+        linear-gradient(180deg, #ff9fc4, #ff5f9b 58%, #e74788);
+      box-shadow: inset 0 -5px 0 rgba(147, 28, 84, 0.24), 0 12px 22px rgba(189, 54, 116, 0.32);
+      text-shadow: 0 1px 0 rgba(110, 22, 69, 0.28);
+    }
+
+    .small-button {
+      min-width: 92px;
+      min-height: 46px;
+      border-radius: 999px;
+      color: #4a3f9b;
+      background:
+        radial-gradient(circle at 28% 20%, rgba(255, 255, 255, 0.95), transparent 20%),
+        linear-gradient(180deg, #fff2a6, #ffd45f 58%, #ffbc47);
+      box-shadow: inset 0 -4px 0 rgba(153, 105, 32, 0.2), 0 10px 18px rgba(129, 90, 42, 0.22);
     }
 
     @media (max-width: 620px) {
@@ -203,10 +278,18 @@
       .controls {
         justify-self: start;
       }
+
+      .start-card {
+        width: min(430px, 100%);
+      }
+
+      .menu-art-window {
+        height: clamp(180px, 32vh, 245px);
+      }
     }
   </style>
 </head>
-<body>
+<body class="menu-mode">
   <canvas id="game" aria-label="Iris 的星星泡泡守护者游戏画布"></canvas>
 
   <div class="hud" aria-live="polite">
@@ -227,10 +310,16 @@
   <div id="overlay" class="overlay">
     <section class="start-card">
       <h1>Iris 的星星泡泡守护者</h1>
-      <p>控制小星星飞船，发射彩色泡泡，把调皮的小陨石和气球怪轻轻送回星空。</p>
-      <p>方向键或 A/D 移动，空格发射。鼠标和触摸也可以移动并点按发射。</p>
+      <p class="subtitle">用魔法泡泡守护星星城堡</p>
+      <div class="menu-art-window" aria-hidden="true"></div>
+      <div class="icon-row" aria-label="游戏操作">
+        <div class="icon-card"><span>↔</span><span>移动</span></div>
+        <div class="icon-card"><span>●</span><span>发射</span></div>
+        <div class="icon-card"><span>★</span><span>收集</span></div>
+      </div>
       <div class="actions">
         <button id="startBtn" class="big-button" type="button">开始守护</button>
+        <button id="settingsBtn" class="small-button" type="button">设置</button>
       </div>
     </section>
   </div>
@@ -249,6 +338,7 @@
         message: document.getElementById("message"),
         overlay: document.getElementById("overlay"),
         startBtn: document.getElementById("startBtn"),
+        settingsBtn: document.getElementById("settingsBtn"),
         pauseBtn: document.getElementById("pauseBtn"),
         restartBtn: document.getElementById("restartBtn")
       };
@@ -336,6 +426,7 @@
         state.player.x = state.width / 2;
         state.player.targetX = state.player.x;
         state.lastTime = performance.now();
+        document.body.classList.remove("menu-mode");
         ui.overlay.classList.add("hidden");
         ui.pauseBtn.textContent = "暂停";
         showMessage("Great job, Iris!");
@@ -501,28 +592,40 @@
       function endGame() {
         state.gameOver = true;
         state.running = false;
+        document.body.classList.add("menu-mode");
         ui.overlay.classList.remove("hidden");
         ui.overlay.querySelector("h1").textContent = "再试一次，你已经很棒了！";
-        ui.overlay.querySelectorAll("p")[0].textContent = `Iris 得到了 ${state.score} 分，收集了 ${state.energy} 点星星能量。`;
-        ui.overlay.querySelectorAll("p")[1].textContent = "深呼吸，按开始守护再来一局。";
+        ui.overlay.querySelector(".subtitle").textContent = `Iris 得到了 ${state.score} 分`;
         ui.startBtn.textContent = "再玩一次";
       }
 
       function draw(time) {
         drawBackground(time);
-        drawBubbles();
-        drawFriends(time);
-        drawParticles();
-        drawPlayer(time);
+        if (!state.running && !state.gameOver) {
+          drawMenuScene(time);
+        }
+        if (state.running || state.gameOver) {
+          drawBubbles();
+          drawFriends(time);
+          drawParticles();
+          drawPlayer(time);
+        }
         if (state.paused) drawPaused();
       }
 
       function drawBackground(time) {
         const sky = ctx.createLinearGradient(0, 0, 0, state.height);
-        sky.addColorStop(0, "#a9e7ff");
-        sky.addColorStop(0.55, "#d7f7ff");
-        sky.addColorStop(1, "#fff4c7");
+        sky.addColorStop(0, "#14145c");
+        sky.addColorStop(0.46, "#4a2f92");
+        sky.addColorStop(0.78, "#7a68c9");
+        sky.addColorStop(1, "#ffd6a0");
         ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, state.width, state.height);
+
+        const moonGlow = ctx.createRadialGradient(state.width * 0.78, state.height * 0.17, 10, state.width * 0.78, state.height * 0.17, Math.min(state.width, state.height) * 0.34);
+        moonGlow.addColorStop(0, "rgba(255, 245, 190, 0.45)");
+        moonGlow.addColorStop(1, "rgba(255, 245, 190, 0)");
+        ctx.fillStyle = moonGlow;
         ctx.fillRect(0, 0, state.width, state.height);
 
         ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
@@ -540,6 +643,182 @@
         ctx.globalAlpha = 1;
       }
 
+      function drawMenuScene(time) {
+        const rect = document.querySelector(".menu-art-window").getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const scale = Math.min(rect.width / 620, rect.height / 280);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(rect.left, rect.top, rect.width, rect.height);
+        ctx.clip();
+
+        drawMenuCloud(cx - 235 * scale, cy - 58 * scale, 34 * scale, time, 0);
+        drawMenuCloud(cx + 215 * scale, cy - 42 * scale, 30 * scale, time, 1.3);
+        drawMenuBubble(cx - 185 * scale, cy + 12 * scale, 20 * scale, "#9ff2ff", time, 0.2);
+        drawMenuBubble(cx + 172 * scale, cy - 12 * scale, 17 * scale, "#ffb2d3", time, 1.4);
+        drawMenuBubble(cx + 118 * scale, cy + 72 * scale, 13 * scale, "#fff59a", time, 2.1);
+        drawStarCastle(cx + 66 * scale, cy + 34 * scale, scale, time);
+        drawIrisShip(cx - 104 * scale, cy + 40 * scale, scale * 1.22, time);
+
+        ctx.restore();
+      }
+
+      function drawMenuCloud(x, y, r, time, offset) {
+        const bob = Math.sin(time / 640 + offset) * r * 0.08;
+        ctx.save();
+        ctx.translate(x, y + bob);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.86)";
+        ctx.shadowColor = "rgba(112, 103, 196, 0.22)";
+        ctx.shadowBlur = 18;
+        drawCloud(-r * 0.9, 0, r);
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "rgba(255, 202, 232, 0.34)";
+        ctx.beginPath();
+        ctx.ellipse(r * 0.02, r * 0.16, r * 1.35, r * 0.18, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawMenuBubble(x, y, r, color, time, offset) {
+        const bob = Math.sin(time / 520 + offset) * r * 0.24;
+        const fill = ctx.createRadialGradient(x - r * 0.35, y - r * 0.45 + bob, 2, x, y + bob, r);
+        fill.addColorStop(0, "rgba(255, 255, 255, 0.96)");
+        fill.addColorStop(0.42, color);
+        fill.addColorStop(1, "rgba(255, 255, 255, 0.12)");
+        ctx.fillStyle = fill;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+        ctx.lineWidth = Math.max(1.5, r * 0.1);
+        ctx.beginPath();
+        ctx.arc(x, y + bob, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      function drawStarCastle(x, y, scale, time) {
+        ctx.save();
+        ctx.translate(x, y + Math.sin(time / 700) * 2 * scale);
+        ctx.scale(scale, scale);
+
+        ctx.fillStyle = "rgba(24, 18, 76, 0.18)";
+        ctx.beginPath();
+        ctx.ellipse(0, 80, 128, 16, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        const body = ctx.createLinearGradient(0, -90, 0, 84);
+        body.addColorStop(0, "#ffe890");
+        body.addColorStop(0.5, "#ffb8de");
+        body.addColorStop(1, "#9cdcff");
+        ctx.fillStyle = body;
+        roundedRect(-76, -38, 152, 118, 18);
+        ctx.fill();
+
+        ctx.fillStyle = "#7b62d8";
+        roundedRect(-112, -4, 48, 84, 14);
+        ctx.fill();
+        roundedRect(64, -4, 48, 84, 14);
+        ctx.fill();
+
+        ctx.fillStyle = "#ffd95f";
+        drawStar(-88, -28, 32, "#ffd95f");
+        drawStar(88, -28, 32, "#ffd95f");
+        drawStar(0, -74, 44, "#fff27b");
+
+        ctx.fillStyle = "#fff8bf";
+        roundedRect(-30, 26, 60, 54, 28);
+        ctx.fill();
+        ctx.fillStyle = "#6b55bd";
+        roundedRect(-18, 42, 36, 38, 18);
+        ctx.fill();
+
+        ctx.fillStyle = "#ffffff";
+        for (const wx of [-45, 45]) {
+          ctx.beginPath();
+          ctx.arc(wx, 7, 13, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#83cfff";
+          ctx.beginPath();
+          ctx.arc(wx, 7, 8, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#ffffff";
+        }
+
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.82)";
+        ctx.lineWidth = 5;
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      function drawIrisShip(x, y, scale, time) {
+        ctx.save();
+        ctx.translate(x, y + Math.sin(time / 520) * 4 * scale);
+        ctx.rotate(Math.sin(time / 700) * 0.06);
+        ctx.scale(scale, scale);
+
+        ctx.fillStyle = "rgba(20, 14, 76, 0.18)";
+        ctx.beginPath();
+        ctx.ellipse(0, 76, 82, 15, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#ff8fbd";
+        ctx.beginPath();
+        ctx.moveTo(-76, 12);
+        ctx.quadraticCurveTo(-120, 28, -104, 62);
+        ctx.quadraticCurveTo(-62, 58, -32, 30);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = "#7de7df";
+        ctx.beginPath();
+        ctx.moveTo(76, 12);
+        ctx.quadraticCurveTo(120, 28, 104, 62);
+        ctx.quadraticCurveTo(62, 58, 32, 30);
+        ctx.closePath();
+        ctx.fill();
+
+        const hull = ctx.createLinearGradient(0, -68, 0, 62);
+        hull.addColorStop(0, "#fff6a5");
+        hull.addColorStop(0.45, "#ffd65c");
+        hull.addColorStop(1, "#ff9f4d");
+        drawStar(0, 0, 68, "#ffd65c");
+        drawStar(0, 0, 43, "#fff6a5");
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+        ctx.beginPath();
+        ctx.arc(0, -8, 36, Math.PI, 0);
+        ctx.lineTo(36, 2);
+        ctx.quadraticCurveTo(0, 18, -36, 2);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = "#513a99";
+        ctx.beginPath();
+        ctx.arc(-16, -6, 4.5, 0, Math.PI * 2);
+        ctx.arc(16, -6, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = "#513a99";
+        ctx.lineWidth = 4;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.arc(0, 2, 17, 0.18 * Math.PI, 0.82 * Math.PI);
+        ctx.stroke();
+
+        ctx.fillStyle = "#fff";
+        ctx.beginPath();
+        ctx.arc(-17.5, -8, 1.6, 0, Math.PI * 2);
+        ctx.arc(14.5, -8, 1.6, 0, Math.PI * 2);
+        ctx.fill();
+
+        for (let i = 0; i < 4; i += 1) {
+          drawMenuBubble(-70 - i * 18, 43 + i * 7, 10 - i, ["#a4f7ff", "#ffb7de", "#fff08a", "#b4ffbf"][i], time, i);
+        }
+
+        ctx.restore();
+      }
+
       function drawCloud(x, y, r) {
         ctx.beginPath();
         ctx.arc(x, y, r * 0.55, 0, Math.PI * 2);
@@ -551,36 +830,7 @@
 
       function drawPlayer(time) {
         const p = state.player;
-        ctx.save();
-        ctx.translate(p.x, p.y + Math.sin(time / 240) * 3);
-
-        ctx.fillStyle = "rgba(90, 130, 190, 0.18)";
-        ctx.beginPath();
-        ctx.ellipse(0, 35, 32, 8, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        drawStar(0, 0, 28, "#ffd84e");
-        drawStar(0, 0, 17, "#fff5a9");
-
-        ctx.fillStyle = "#4a3f9b";
-        ctx.beginPath();
-        ctx.arc(-8, -4, 2.8, 0, Math.PI * 2);
-        ctx.arc(8, -4, 2.8, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = "#4a3f9b";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(0, 2, 8, 0.15 * Math.PI, 0.85 * Math.PI);
-        ctx.stroke();
-
-        ctx.fillStyle = "#ff80aa";
-        ctx.beginPath();
-        ctx.ellipse(-23, 9, 11, 6, -0.4, 0, Math.PI * 2);
-        ctx.ellipse(23, 9, 11, 6, 0.4, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.restore();
+        drawIrisShip(p.x, p.y, 0.36, time);
       }
 
       function drawBubbles() {
@@ -655,9 +905,13 @@
 
       function drawMeteorFriend(friend) {
         const r = friend.radius;
-        ctx.fillStyle = friend.color;
-        ctx.strokeStyle = "rgba(92, 69, 146, 0.3)";
-        ctx.lineWidth = 2;
+        const gem = ctx.createLinearGradient(-r, -r, r, r);
+        gem.addColorStop(0, "#fff3a8");
+        gem.addColorStop(0.5, friend.color);
+        gem.addColorStop(1, "#8b7ee8");
+        ctx.fillStyle = gem;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.68)";
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(0, -r);
         for (let i = 1; i < 10; i += 1) {
@@ -669,7 +923,7 @@
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = "rgba(255, 255, 255, 0.46)";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.62)";
         ctx.beginPath();
         ctx.arc(-r * 0.25, -r * 0.25, r * 0.18, 0, Math.PI * 2);
         ctx.arc(r * 0.28, r * 0.18, r * 0.13, 0, Math.PI * 2);
@@ -680,6 +934,12 @@
         ctx.arc(-r * 0.22, 0, 2.2, 0, Math.PI * 2);
         ctx.arc(r * 0.22, 0, 2.2, 0, Math.PI * 2);
         ctx.fill();
+
+        ctx.strokeStyle = "#51406e";
+        ctx.lineWidth = 1.7;
+        ctx.beginPath();
+        ctx.arc(0, r * 0.08, r * 0.18, 0.16 * Math.PI, 0.84 * Math.PI);
+        ctx.stroke();
       }
 
       function drawParticles() {
@@ -704,6 +964,21 @@
         ctx.fillStyle = color;
         ctx.fill();
         ctx.restore();
+      }
+
+      function roundedRect(x, y, width, height, radius) {
+        const r = Math.min(radius, width / 2, height / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + width - r, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+        ctx.lineTo(x + width, y + height - r);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+        ctx.lineTo(x + r, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
       }
 
       function drawPaused() {
