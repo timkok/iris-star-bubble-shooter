@@ -7,10 +7,10 @@
   <!-- Google Fonts for a modern, rounded, child-friendly look -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-color-start: #1a1635;
+      --bg-color-start: #1b163e;
       --bg-color-end: #3b2c63;
       --primary-pink: #ffb7c5;
       --primary-blue: #a0e7e5;
@@ -18,8 +18,8 @@
       --primary-purple: #dfb2f4;
       --primary-green: #bbf2c6;
       --text-white: #ffffff;
-      --glass-bg: rgba(255, 255, 255, 0.15);
-      --glass-border: rgba(255, 255, 255, 0.25);
+      --glass-bg: rgba(255, 255, 255, 0.12);
+      --glass-border: rgba(255, 255, 255, 0.2);
     }
 
     * {
@@ -50,10 +50,10 @@
       height: 100vh;
       max-width: 600px;
       max-height: 800px;
-      background: linear-gradient(180deg, #1b163a 0%, #2f2254 100%);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      background: linear-gradient(180deg, #161233 0%, #2b1f4c 100%);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
       overflow: hidden;
-      border-radius: 16px;
+      border-radius: 20px;
       border: 4px solid var(--glass-border);
     }
 
@@ -75,13 +75,13 @@
       height: 100%;
     }
 
-    /* UI Top Overlay */
-    #ui-overlay {
+    /* HUD Top Layout */
+    #hud-overlay {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
-      padding: 20px;
+      padding: 16px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -89,28 +89,70 @@
       z-index: 10;
     }
 
-    .ui-item {
+    .hud-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .hud-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+    }
+
+    .hud-item {
       background: var(--glass-bg);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border: 1px solid var(--glass-border);
-      padding: 8px 16px;
+      padding: 6px 14px;
       border-radius: 20px;
       display: flex;
       align-items: center;
       gap: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       font-weight: 600;
-      font-size: 16px;
+      font-size: 15px;
       letter-spacing: 0.5px;
     }
 
-    .ui-score {
+    .hud-score {
       color: var(--primary-yellow);
+      transition: transform 0.1s ease;
     }
 
-    .ui-level {
+    .hud-level {
       color: var(--primary-blue);
+    }
+
+    /* Bouncing Combo Badge */
+    #combo-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #ff5e7e, #ffb7c5);
+      border: 1.5px solid #fff;
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-left: 6px;
+      box-shadow: 0 4px 10px rgba(255, 94, 126, 0.4);
+      transform: scale(0);
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      vertical-align: middle;
+    }
+
+    #combo-badge.active {
+      transform: scale(1);
+      animation: comboPulse 0.4s ease-out;
+    }
+
+    @keyframes comboPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3) rotate(-5deg); }
+      100% { transform: scale(1); }
     }
 
     .hearts-container {
@@ -118,13 +160,13 @@
       gap: 4px;
       font-size: 20px;
       color: #ff5e7e;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
     }
 
-    /* Interactive Buttons */
-    .btn-circle {
-      width: 44px;
-      height: 44px;
+    /* Custom Buttons styling */
+    .btn-icon {
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
@@ -133,37 +175,59 @@
       justify-content: center;
       align-items: center;
       cursor: pointer;
-      pointer-events: auto;
       transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-      font-size: 18px;
+      font-size: 16px;
     }
 
-    .btn-circle:hover {
+    .btn-icon:hover {
       transform: scale(1.1);
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.22);
     }
 
-    .btn-circle:active {
+    .btn-icon:active {
       transform: scale(0.95);
     }
 
-    /* Standard Overlay Screen Template */
+    .btn-hud-text {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      border-radius: 20px;
+      padding: 0 14px;
+      height: 40px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-white);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-hud-text:hover {
+      background: rgba(255, 255, 255, 0.22);
+      transform: translateY(-1px);
+    }
+
+    /* Screens/Overlays */
     .screen-overlay {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(27, 22, 58, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(22, 18, 51, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       z-index: 20;
-      padding: 30px;
+      padding: 24px;
       text-align: center;
       transition: opacity 0.3s ease;
     }
@@ -173,12 +237,12 @@
       pointer-events: none;
     }
 
-    /* Custom Screen Styles */
+    /* Dynamic Title Styling */
     .title-magical {
       font-size: 38px;
       font-weight: 700;
       color: var(--primary-yellow);
-      text-shadow: 0 0 15px rgba(255, 238, 147, 0.6), 0 5px 0px #d6a12b;
+      text-shadow: 0 0 15px rgba(255, 238, 147, 0.5), 0 5px 0px #c29227;
       margin-bottom: 24px;
       animation: floatTitle 3s ease-in-out infinite;
       letter-spacing: 1px;
@@ -186,227 +250,512 @@
 
     @keyframes floatTitle {
       0%, 100% { transform: translateY(0) rotate(-1deg); }
-      50% { transform: translateY(-10px) rotate(1deg); }
+      50% { transform: translateY(-8px) rotate(1deg); }
     }
 
-    .card-instructions {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--glass-border);
-      padding: 20px;
-      border-radius: 16px;
-      max-width: 400px;
-      margin-bottom: 30px;
+    /* Instructions / Cards */
+    .card-panel {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1.5px solid var(--glass-border);
+      padding: 22px;
+      border-radius: 18px;
+      max-width: 440px;
+      width: 100%;
+      margin-bottom: 24px;
       font-size: 14px;
       line-height: 1.6;
       color: #dfdbf0;
-      box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.05);
+      box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.03), 0 10px 30px rgba(0, 0, 0, 0.2);
     }
 
-    .card-instructions h3 {
+    .card-panel h3 {
       color: var(--primary-blue);
       margin-bottom: 12px;
       font-size: 18px;
       font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
-    .card-instructions ul {
-      list-style-type: none;
-      text-align: left;
-    }
-
-    .card-instructions li {
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .card-instructions li::before {
-      content: '✨';
-      font-size: 12px;
-    }
-
-    /* Magical Button Design */
+    /* Interactive Buttons */
     .btn-magical {
       font-family: 'Fredoka', sans-serif;
       font-weight: 700;
       font-size: 20px;
-      color: #3b2c63;
+      color: #38255c;
       background: linear-gradient(135deg, var(--primary-yellow), var(--primary-pink));
       border: none;
-      padding: 14px 40px;
+      padding: 12px 36px;
       border-radius: 30px;
       cursor: pointer;
-      box-shadow: 0 8px 25px rgba(255, 183, 197, 0.4), inset 0 -3px 0px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 8px 20px rgba(255, 183, 197, 0.35), inset 0 -3px 0px rgba(0, 0, 0, 0.15);
       transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       letter-spacing: 1px;
     }
 
     .btn-magical:hover {
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 12px 30px rgba(255, 183, 197, 0.6), inset 0 -3px 0px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 10px 24px rgba(255, 183, 197, 0.5), inset 0 -3px 0px rgba(0, 0, 0, 0.15);
     }
 
     .btn-magical:active {
       transform: translateY(1px) scale(0.98);
     }
 
-    /* Game Over Custom Elements */
-    .score-summary {
-      font-size: 24px;
-      margin-bottom: 12px;
-      color: var(--primary-blue);
-    }
-
-    .score-summary span {
-      font-size: 36px;
-      font-weight: 700;
-      color: var(--primary-yellow);
-      display: block;
-      margin-top: 5px;
-    }
-
-    .encouragement-msg {
-      font-size: 20px;
-      color: var(--primary-pink);
-      margin-bottom: 30px;
-      max-width: 400px;
-      line-height: 1.5;
-      font-weight: 600;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-
-    /* Pause Overlay Buttons */
-    .btn-container {
+    .btn-container-row {
       display: flex;
-      flex-direction: column;
-      gap: 15px;
-      width: 200px;
+      gap: 12px;
+      justify-content: center;
+      width: 100%;
+      max-width: 440px;
+      margin-top: 10px;
     }
 
-    .btn-secondary {
+    .btn-action-outline {
       font-family: 'Fredoka', sans-serif;
       font-weight: 600;
       font-size: 16px;
       color: var(--text-white);
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      padding: 12px 24px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid var(--glass-border);
+      padding: 12px 28px;
       border-radius: 25px;
+      cursor: pointer;
+      flex: 1;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-outline:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-1px);
+    }
+
+    /* Settings Panel Layout */
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .setting-row:last-child {
+      border-bottom: none;
+    }
+
+    .setting-label {
+      font-weight: 600;
+      font-size: 15px;
+      color: #eae5f7;
+      text-align: left;
+    }
+
+    .setting-desc {
+      font-size: 11px;
+      color: #9d95be;
+      margin-top: 2px;
+    }
+
+    /* Switch Style toggle */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 46px;
+      height: 26px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255,255,255,0.15);
+      transition: .3s;
+      border-radius: 34px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    input:checked + .slider {
+      background: linear-gradient(135deg, var(--primary-blue), var(--primary-pink));
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Option tabs / group */
+    .option-group {
+      display: flex;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 15px;
+      padding: 3px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .option-btn {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      border: none;
+      background: transparent;
+      color: #8c82ab;
+      padding: 6px 14px;
+      border-radius: 12px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.25);
+    .option-btn.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--text-white);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
-    /* Mute Button Overlay */
-    #sound-control {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      z-index: 10;
+    /* Tutorial Screen Styling */
+    .tutorial-slides {
+      position: relative;
+      width: 100%;
+      min-height: 220px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
-    /* Touch controls visualization for mobile styling */
-    .touch-prompt {
+    .tutorial-slide {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s ease;
       position: absolute;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 12px;
-      color: rgba(255,255,255,0.4);
+      width: 100%;
+      opacity: 0;
       pointer-events: none;
-      animation: pulseText 2s infinite;
-      text-align: center;
     }
 
-    @keyframes pulseText {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 0.8; }
+    .tutorial-slide.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .tutorial-img {
+      font-size: 56px;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 4px 10px rgba(255,255,255,0.1));
+      animation: wobbly 2s ease-in-out infinite;
+    }
+
+    @keyframes wobbly {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-8px) scale(1.05); }
+    }
+
+    .tutorial-text {
+      font-size: 15px;
+      color: #dfdbf0;
+      max-width: 320px;
+      line-height: 1.6;
+    }
+
+    .tutorial-dots {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .dot.active {
+      background-color: var(--primary-yellow);
+      transform: scale(1.3);
+    }
+
+    /* Score Display / Highscore Panel */
+    .highscore-title {
+      font-size: 14px;
+      color: #9d95be;
+      margin-top: 10px;
+    }
+
+    .highscore-val {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary-pink);
+    }
+
+    /* Low Motion / Accessibility Alerts */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation: none !important;
+        transition: none !important;
+      }
     }
   </style>
 </head>
 <body>
 
   <div id="game-container">
-    <!-- UI Overlay Layer -->
-    <div id="ui-overlay">
-      <div class="ui-item">
-        <span>✨</span>
-        <span id="score-text" class="ui-score">0</span>
+    <!-- Top HUD Overlay -->
+    <div id="hud-overlay">
+      <div class="hud-left">
+        <div class="hud-item">
+          <span>✨</span>
+          <span id="score-text" class="hud-score">0</span>
+          <span id="combo-badge">Combo x1</span>
+        </div>
+        <div class="hud-item" style="margin-top: 4px;">
+          <span>🌟</span>
+          <span id="level-text" class="hud-level">关卡 1</span>
+        </div>
       </div>
-      <div class="ui-item">
-        <span>🌟</span>
-        <span id="level-text" class="ui-level">关卡 1</span>
+      <div class="hud-right">
+        <div id="hearts-panel" class="hearts-container">
+          <!-- Filled with JS -->
+        </div>
+        <button id="btn-pause-toggle" class="btn-hud-text" title="暂停游戏">
+          <span>⏸</span>暂停
+        </button>
+        <button id="btn-settings-toggle" class="btn-icon" title="设置">⚙️</button>
       </div>
-      <div id="hearts-panel" class="hearts-container">
-        <!-- Filled with JS -->
-      </div>
-      <div id="btn-pause" class="btn-circle" title="暂停游戏">⏸</div>
     </div>
 
-    <!-- Canvas -->
+    <!-- Canvas viewport -->
     <canvas id="gameCanvas"></canvas>
 
-    <!-- Start Game Overlay -->
+    <!-- Start Screen Overlay -->
     <div id="start-screen" class="screen-overlay">
       <h1 class="title-magical">Iris 的星星泡泡守护者</h1>
-      <div class="card-instructions">
-        <h3>守护魔法操作指南</h3>
-        <ul>
-          <li><strong>电脑玩家</strong>：按 <b>A/D</b> 或 <b>←/→</b> 键左右移动，按 <b>空格键</b> 发射泡泡。也可以直接用 <b>鼠标移动</b> 操控，<b>左键点击</b> 发射。</li>
-          <li><strong>触屏玩家</strong>：在屏幕上 <b>滑动手指</b> 左右控制星星，<b>点击屏幕</b> 即可朝上方发射泡泡。</li>
-          <li><strong>终极目标</strong>：打中飘来的淘气陨石和气球怪，保护我们的星星城堡！</li>
-        </ul>
+      
+      <div class="card-panel">
+        <h3 id="start-title-mode">守护星空计划</h3>
+        <p style="margin-bottom: 12px; font-size: 14px;">在梦幻的夜空中，控制小星星发射泡泡，把淘气的小怪变成闪耀的星光吧！🌟</p>
+        <div class="highscore-title">最高守护记录</div>
+        <div class="highscore-val"><span id="menu-highscore">0</span> 分</div>
       </div>
-      <button id="btn-start" class="btn-magical">开始守护</button>
+
+      <div class="btn-container-row">
+        <button id="btn-show-tutorial" class="btn-action-outline">如何游玩</button>
+        <button id="btn-start" class="btn-magical" style="flex: 1.2;">开始守护</button>
+      </div>
     </div>
 
-    <!-- Pause Overlay -->
+    <!-- Tutorial Screen Overlay -->
+    <div id="tutorial-screen" class="screen-overlay hidden">
+      <h1 class="title-magical" style="font-size: 32px; color: var(--primary-blue);">守护魔法教学</h1>
+      
+      <div class="card-panel" style="min-height: 300px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
+        <div class="tutorial-slides">
+          <!-- Slide 1 -->
+          <div class="tutorial-slide active" data-index="0">
+            <div class="tutorial-img">✨</div>
+            <h3>第一步：控制小星星</h3>
+            <p class="tutorial-text">电脑玩家：使用 <b>A/D</b> 或 <b>←/→</b> 键，或者用 <b>鼠标左右移动</b>。<br>触屏玩家：在屏幕上 <b>按住左右滑动</b>。</p>
+          </div>
+          <!-- Slide 2 -->
+          <div class="tutorial-slide" data-index="1">
+            <div class="tutorial-img">🫧</div>
+            <h3>第二步：发射七彩泡泡</h3>
+            <p class="tutorial-text">电脑玩家：按 <b>空格键</b> 或 <b>左键点击</b> 射击。<br>触屏玩家：<b>轻点屏幕任意位置</b> 发射泡泡。</p>
+          </div>
+          <!-- Slide 3 -->
+          <div class="tutorial-slide" data-index="2">
+            <div class="tutorial-img">🏰</div>
+            <h3>第三步：消除怪物，收集星星</h3>
+            <p class="tutorial-text">泡泡打中飘来的淘气小怪便可得分。漏掉怪物会失去爱心。打中怪物还有概率掉落<b>金色星星</b>，控制角色去接到它吧！</p>
+          </div>
+        </div>
+
+        <div class="tutorial-dots">
+          <div class="dot active"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+
+      <div class="btn-container-row">
+        <button id="btn-tut-skip" class="btn-action-outline" style="border-color: transparent;">跳过</button>
+        <button id="btn-tut-prev" class="btn-action-outline" style="display: none;">上一步</button>
+        <button id="btn-tut-next" class="btn-magical" style="flex: 1.2;">下一步</button>
+      </div>
+    </div>
+
+    <!-- Pause Screen Overlay -->
     <div id="pause-screen" class="screen-overlay hidden">
-      <h1 class="title-magical" style="font-size: 32px; color: var(--primary-blue); text-shadow: 0 0 10px rgba(160, 231, 229, 0.6);">魔法暂停中</h1>
-      <div class="encouragement-msg" style="color: #dfdbf0; font-size: 16px; margin-bottom: 20px;">
-        星星正在吸收能量，准备好继续保护夜空了吗？
+      <h1 class="title-magical" style="font-size: 32px; color: var(--primary-blue);">魔法暂停中</h1>
+      <div class="card-panel">
+        <p style="font-size: 16px;">星星正在夜空中休息...</p>
+        <p style="margin-top: 10px; font-size: 13px; color: #9d95be;">按 <b>P</b> 或 <b>ESC</b> 键也可以快速继续守护哦</p>
       </div>
-      <div class="btn-container">
-        <button id="btn-resume" class="btn-magical" style="padding: 12px 30px; font-size: 18px;">继续守护</button>
-        <button id="btn-restart-pause" class="btn-secondary">重新开始</button>
+      <div class="btn-container-row">
+        <button id="btn-restart-pause" class="btn-action-outline">重新开始</button>
+        <button id="btn-resume" class="btn-magical" style="flex: 1.2;">继续守护</button>
       </div>
     </div>
 
-    <!-- Game Over Overlay -->
-    <div id="game-over-screen" class="screen-overlay hidden">
-      <h1 class="title-magical" style="color: var(--primary-pink); text-shadow: 0 0 15px rgba(255, 183, 197, 0.6), 0 5px 0px #b55d6e;">守护结束</h1>
-      <div class="score-summary">
-        你在夜空中的守护得分
-        <span id="final-score">0</span>
+    <!-- Settings Overlay -->
+    <div id="settings-screen" class="screen-overlay hidden">
+      <h1 class="title-magical" style="font-size: 32px; color: var(--primary-purple);">设置面板</h1>
+      
+      <div class="card-panel" style="max-width: 440px;">
+        <!-- Mute Audio -->
+        <div class="setting-row">
+          <div class="setting-label">
+            游戏声效
+            <div class="setting-desc">开启泡泡和星光的可爱音效</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="setting-sound" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <!-- Difficulty -->
+        <div class="setting-row">
+          <div class="setting-label">
+            游戏难度
+            <div class="setting-desc">简单难度怪物移动更慢</div>
+          </div>
+          <div class="option-group" id="setting-difficulty">
+            <button class="option-btn active" data-val="easy">简单</button>
+            <button class="option-btn" data-val="normal">普通</button>
+          </div>
+        </div>
+
+        <!-- Animation Details (prefers reduced motion) -->
+        <div class="setting-row">
+          <div class="setting-label">
+            特效细节
+            <div class="setting-desc">低特效适合护眼或省电</div>
+          </div>
+          <div class="option-group" id="setting-animation">
+            <button class="option-btn active" data-val="high">精致</button>
+            <button class="option-btn" data-val="low">节能</button>
+          </div>
+        </div>
+
+        <!-- Reset Progress -->
+        <div class="setting-row">
+          <div class="setting-label">
+            清除记录
+            <div class="setting-desc">重置本地最高分记录</div>
+          </div>
+          <button id="btn-reset-score" class="btn-action-outline" style="padding: 6px 14px; font-size: 13px; flex: none;">重置高分</button>
+        </div>
       </div>
-      <div class="encouragement-msg">
+
+      <button id="btn-settings-close" class="btn-magical" style="padding: 10px 40px; font-size: 16px;">确认返回</button>
+    </div>
+
+    <!-- Game Over Screen Overlay -->
+    <div id="game-over-screen" class="screen-overlay hidden">
+      <h1 class="title-magical" style="color: var(--primary-pink); text-shadow: 0 0 15px rgba(255, 183, 197, 0.5), 0 5px 0px #ab5869;" id="game-over-title">守护结束</h1>
+      <div class="card-panel">
+        <div class="score-summary" style="font-size: 18px; margin-bottom: 12px;">
+          本次守护得分
+          <span id="final-score" style="font-size: 40px; font-weight: 700; color: var(--primary-yellow); display: block; margin-top: 4px;">0</span>
+        </div>
+        <div class="highscore-title" style="margin-top: 10px;">最高守护纪录</div>
+        <div class="highscore-val" style="font-size: 18px; color: var(--primary-blue);"><span id="game-over-highscore">0</span> 分</div>
+      </div>
+      <div class="encouragement-msg" id="encouragement-box" style="font-size: 18px; color: var(--primary-pink); margin-bottom: 24px; font-weight: 600;">
         再试一次，你已经很棒了！
       </div>
       <button id="btn-retry" class="btn-magical">再次出发</button>
     </div>
-
-    <!-- Sound Control Button (Toggles Sound Synthesis) -->
-    <div id="sound-control">
-      <div id="btn-mute" class="btn-circle" title="静音切换">🔊</div>
-    </div>
-
-    <div class="touch-prompt" id="touch-indicator">
-      🖱 拖动移动 · 点击发射泡泡
-    </div>
   </div>
 
   <script>
+    // ==========================================
+    // LOCAL STORAGE & SETTINGS MODULE
+    // ==========================================
+    const CONFIG = {
+      sound: true,
+      difficulty: 'easy', // 'easy' | 'normal'
+      animation: 'high',  // 'high' | 'low'
+      tutorialShown: false,
+      highScore: 0
+    };
+
+    function loadSettings() {
+      try {
+        const saved = localStorage.getItem('iris_guardian_config');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          Object.assign(CONFIG, parsed);
+        }
+        const savedScore = localStorage.getItem('iris_guardian_highscore');
+        if (savedScore) {
+          CONFIG.highScore = parseInt(savedScore, 10) || 0;
+        }
+      } catch (e) {
+        console.warn('LocalStorage unavailable: ', e);
+      }
+      applySettingsToUI();
+    }
+
+    function saveSettings() {
+      try {
+        localStorage.setItem('iris_guardian_config', JSON.stringify({
+          sound: CONFIG.sound,
+          difficulty: CONFIG.difficulty,
+          animation: CONFIG.animation,
+          tutorialShown: CONFIG.tutorialShown
+        }));
+        localStorage.setItem('iris_guardian_highscore', CONFIG.highScore.toString());
+      } catch (e) {
+        console.warn('Unable to write to LocalStorage: ', e);
+      }
+    }
+
+    function applySettingsToUI() {
+      document.getElementById('setting-sound').checked = CONFIG.sound;
+      document.getElementById('menu-highscore').innerText = CONFIG.highScore;
+
+      // Update Difficulty buttons active class
+      const diffGroup = document.getElementById('setting-difficulty');
+      Array.from(diffGroup.children).forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-val') === CONFIG.difficulty);
+      });
+
+      // Update Animation buttons active class
+      const animGroup = document.getElementById('setting-animation');
+      Array.from(animGroup.children).forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-val') === CONFIG.animation);
+      });
+    }
+
     // ==========================================
     // AUDIO SYNTHESIZER (Web Audio API)
     // ==========================================
     class SoundController {
       constructor() {
         this.ctx = null;
-        this.isMuted = false;
       }
 
       init() {
@@ -421,14 +770,8 @@
         }
       }
 
-      toggleMute() {
-        this.isMuted = !this.isMuted;
-        this.init();
-        return this.isMuted;
-      }
-
       playShoot() {
-        if (this.isMuted || !this.ctx) return;
+        if (!CONFIG.sound || !this.ctx) return;
         this.init();
 
         const osc = this.ctx.createOscillator();
@@ -437,10 +780,32 @@
         osc.connect(gain);
         gain.connect(this.ctx.destination);
 
-        // Sound profile: Cute high pitch sweep up
+        // Sound profile: Gentle bubbles shooting pop
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.1);
+
+        gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.1);
+      }
+
+      playPop() {
+        if (!CONFIG.sound || !this.ctx) return;
+        this.init();
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        // Sound profile: Cute pop sound
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(450, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.12);
+        osc.frequency.setValueAtTime(550, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(180, this.ctx.currentTime + 0.12);
 
         gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
@@ -449,34 +814,37 @@
         osc.stop(this.ctx.currentTime + 0.12);
       }
 
-      playPop() {
-        if (this.isMuted || !this.ctx) return;
+      playBling() {
+        if (!CONFIG.sound || !this.ctx) return;
         this.init();
 
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
+        // Dual tones for magical sparkle bling (e.g. collecting star or hit special)
+        const notes = [523.25, 783.99]; // C5, G5
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
 
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
 
-        // Sound profile: Bouncy water bubble pop sound
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(600, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.15);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.05);
 
-        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.05, this.ctx.currentTime + idx * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + idx * 0.05 + 0.15);
 
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.15);
+          osc.start(this.ctx.currentTime + idx * 0.05);
+          osc.stop(this.ctx.currentTime + idx * 0.05 + 0.15);
+        });
       }
 
       playLevelUp() {
-        if (this.isMuted || !this.ctx) return;
+        if (!CONFIG.sound || !this.ctx) return;
         this.init();
 
-        const notes = [261.63, 329.63, 392.00, 523.25]; // Happy C Major Arpeggio (C4, E4, G4, C5)
-        const duration = 0.08;
+        // Magic arpeggio arpeggio (C4, E4, G4, C5, E5)
+        const notes = [261.63, 329.63, 392.00, 523.25, 659.25];
+        const duration = 0.07;
 
         notes.forEach((freq, idx) => {
           const osc = this.ctx.createOscillator();
@@ -488,16 +856,16 @@
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * duration);
 
-          gain.gain.setValueAtTime(0.08, this.ctx.currentTime + idx * duration);
-          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + idx * duration + duration);
+          gain.gain.setValueAtTime(0.06, this.ctx.currentTime + idx * duration);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + idx * duration + duration + 0.05);
 
           osc.start(this.ctx.currentTime + idx * duration);
-          osc.stop(this.ctx.currentTime + idx * duration + duration);
+          osc.stop(this.ctx.currentTime + idx * duration + duration + 0.05);
         });
       }
 
       playLoseLife() {
-        if (this.isMuted || !this.ctx) return;
+        if (!CONFIG.sound || !this.ctx) return;
         this.init();
 
         const osc = this.ctx.createOscillator();
@@ -506,24 +874,52 @@
         osc.connect(gain);
         gain.connect(this.ctx.destination);
 
-        // Sound profile: Downtone "boing" for mistake
+        // Sound profile: Descending heavy bubble thud
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(250, this.ctx.currentTime);
-        osc.frequency.linearRampToValueAtTime(100, this.ctx.currentTime + 0.25);
+        osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(80, this.ctx.currentTime + 0.2);
 
-        gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.2);
 
         osc.start();
-        osc.stop(this.ctx.currentTime + 0.25);
+        osc.stop(this.ctx.currentTime + 0.2);
+      }
+
+      playVictory() {
+        if (!CONFIG.sound || !this.ctx) return;
+        this.init();
+
+        // Joyful short arpeggio fanfare for beating Boss
+        const notes = [349.23, 440.00, 523.25, 587.33, 698.46, 880.00]; // F4, A4, C5, D5, F5, A5
+        const step = 0.06;
+
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * step);
+
+          const volume = idx === notes.length - 1 ? 0.08 : 0.05;
+          gain.gain.setValueAtTime(volume, this.ctx.currentTime + idx * step);
+          gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + idx * step + 0.2);
+
+          osc.start(this.ctx.currentTime + idx * step);
+          osc.stop(this.ctx.currentTime + idx * step + 0.2);
+        });
       }
 
       playGameOver() {
-        if (this.isMuted || !this.ctx) return;
+        if (!CONFIG.sound || !this.ctx) return;
         this.init();
 
-        const notes = [392.00, 349.23, 311.13, 261.63]; // Sad melody (G4, F4, Eb4, C4)
-        const duration = 0.15;
+        // Descending sad scale (F4, Eb4, Db4, C4)
+        const notes = [349.23, 311.13, 277.18, 261.63];
+        const duration = 0.16;
 
         notes.forEach((freq, idx) => {
           const osc = this.ctx.createOscillator();
@@ -535,7 +931,7 @@
           osc.type = 'sine';
           osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * duration);
 
-          gain.gain.setValueAtTime(0.1, this.ctx.currentTime + idx * duration);
+          gain.gain.setValueAtTime(0.06, this.ctx.currentTime + idx * duration);
           gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + idx * duration + duration);
 
           osc.start(this.ctx.currentTime + idx * duration);
@@ -547,23 +943,26 @@
     const sound = new SoundController();
 
     // ==========================================
-    // ENCOURAGING WORDS LIST
+    // TEXT MESSAGES FOR PLAYS
     // ==========================================
-    const ENCOURAGING_WORDS = [
-      "Great job, Iris!",
+    const ENCOURAGEMENTS_HIT = [
+      "太棒了，Iris!",
+      "漂亮的一击！",
       "星星能量 +1!",
-      "太棒啦! 🌟",
-      "守护成功! 🌸",
-      "超级星光! ✨",
-      "你真厉害, Iris!",
-      "泡泡爆发! 🫧",
-      "闪闪发光! 💖",
-      "Nice Shot! 🎉"
+      "你守护了夜空！",
+      "超级瞄准！🌟",
+      "魔法大爆发！💖",
+      "闪耀星芒！✨",
+      "太好玩啦！"
     ];
 
-    // ==========================================
-    // ENTITY CLASSES
-    // ==========================================
+    const ENCOURAGEMENTS_FAIL = [
+      "再试一次，你已经很棒了！",
+      "每次玩都会更厉害！",
+      "星星城堡相信你！",
+      "失败是魔法的练习哦！🌸",
+      "打起精神，下一局更闪耀！"
+    ];
 
     // Background Twinkling Star
     class TwinkleStar {
@@ -595,117 +994,284 @@
       }
     }
 
-    // Player (Cute Star)
-    class PlayerStar {
-      constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.targetX = x;
-        this.radius = 28;
-        this.speed = 7;
-        this.color = '#ffee93'; // Magical Pastel Gold
-        this.wingAngle = 0;
-        this.blinking = false;
-        this.blinkTimer = 0;
+    // Parallax Drifting background cloud
+    class DriftingCloud {
+      constructor(canvasWidth, canvasHeight) {
+        this.canvasWidth = canvasWidth;
+        this.canvasHeight = canvasHeight;
+        this.reset(true);
+      }
+
+      reset(randomX = false) {
+        this.x = randomX ? Math.random() * (this.canvasWidth + 200) - 100 : -150;
+        this.y = Math.random() * (this.canvasHeight * 0.45) + 30; // top half of screen
+        this.width = Math.random() * 80 + 80;
+        this.height = this.width * 0.45;
+        this.speed = Math.random() * 0.12 + 0.05;
+        this.alpha = Math.random() * 0.08 + 0.04; // subtle overlay
       }
 
       update() {
-        // Smoothly interpolate position towards targetX (for mouse/touch control)
-        const diff = this.targetX - this.x;
-        if (Math.abs(diff) > 0.1) {
-          this.x += diff * 0.25;
-        }
-
-        // Animate wings
-        this.wingAngle = Math.sin(Date.now() * 0.01) * 0.25;
-
-        // Blink eyes randomly
-        if (!this.blinking && Math.random() < 0.005) {
-          this.blinking = true;
-          this.blinkTimer = 0;
-        }
-        if (this.blinking) {
-          this.blinkTimer += 1;
-          if (this.blinkTimer > 10) {
-            this.blinking = false;
-          }
+        this.x += this.speed;
+        if (this.x > this.canvasWidth + 100) {
+          this.reset(false);
         }
       }
 
       draw(ctx) {
         ctx.save();
+        ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+        ctx.globalAlpha = this.alpha;
+        ctx.beginPath();
+        // Drawing a cloud using multiple overlapping circles
+        const r = this.height * 0.6;
+        ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
+        ctx.arc(this.x + this.width * 0.3, this.y - this.height * 0.15, r * 1.2, 0, Math.PI * 2);
+        ctx.arc(this.x + this.width * 0.6, this.y, r * 0.9, 0, Math.PI * 2);
+        ctx.arc(this.x + this.width * 0.3, this.y + this.height * 0.15, r * 0.9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // Static Star Castle silhouette drawn at bottom background
+    function drawStarCastle(ctx, w, h) {
+      ctx.save();
+      // Draw background castle in soft translucent blue-purple silhouette
+      ctx.fillStyle = 'rgba(43, 31, 76, 0.4)';
+      
+      const bottom = h;
+      
+      // Base bridge/walls
+      ctx.fillRect(w * 0.2, bottom - 40, w * 0.6, 40);
+
+      // Left Tower
+      ctx.fillRect(w * 0.22, bottom - 90, 30, 50);
+      drawSpire(ctx, w * 0.22 + 15, bottom - 90, 20, 35, '#ffb7c5');
+
+      // Right Tower
+      ctx.fillRect(w * 0.78 - 30, bottom - 90, 30, 50);
+      drawSpire(ctx, w * 0.78 - 15, bottom - 90, 20, 35, '#ffb7c5');
+
+      // Main Center Keep
+      ctx.fillRect(w * 0.38, bottom - 120, w * 0.24, 80);
+      drawSpire(ctx, w * 0.5, bottom - 120, 45, 60, '#ffee93');
+
+      // Glowing windows
+      ctx.fillStyle = 'rgba(255, 238, 147, 0.3)';
+      ctx.fillRect(w * 0.48 - 5, bottom - 80, 10, 15); // middle gate glow
+
+      ctx.restore();
+    }
+
+    function drawSpire(ctx, cx, topY, width, height, flagColor) {
+      ctx.beginPath();
+      ctx.moveTo(cx - width / 2, topY);
+      ctx.lineTo(cx, topY - height);
+      ctx.lineTo(cx + width / 2, topY);
+      ctx.closePath();
+      ctx.fill();
+
+      // Flag pole
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cx, topY - height);
+      ctx.lineTo(cx, topY - height - 12);
+      ctx.stroke();
+
+      // Small cute flag waving
+      ctx.fillStyle = flagColor;
+      ctx.beginPath();
+      ctx.moveTo(cx, topY - height - 12);
+      ctx.lineTo(cx + 12, topY - height - 8);
+      ctx.lineTo(cx, topY - height - 4);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Player (Cute Star Ship with "I" badge & thruster fire)
+    class PlayerStarShip {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.targetX = x;
+        this.radius = 28;
+        this.wingAngle = 0;
+        this.blinking = false;
+        this.blinkTimer = 0;
+
+        // Trail positions for motion trail
+        this.trail = [];
+        this.maxTrailLength = CONFIG.animation === 'high' ? 8 : 0;
+
+        // Shield status
+        this.shieldDuration = 0; // remaining shield frames/time
+      }
+
+      update(timeDelta) {
+        // Position interpolation
+        const speedFactor = CONFIG.difficulty === 'easy' ? 0.28 : 0.22;
+        const diff = this.targetX - this.x;
+        if (Math.abs(diff) > 0.05) {
+          this.x += diff * speedFactor;
+        }
+
+        // Motion trail updating
+        if (CONFIG.animation === 'high') {
+          this.trail.push({ x: this.x, y: this.y });
+          if (this.trail.length > 8) {
+            this.trail.shift();
+          }
+        } else {
+          this.trail = [];
+        }
+
+        // Animate wings
+        this.wingAngle = Math.sin(Date.now() * 0.01) * 0.2;
+
+        // Blinking
+        if (!this.blinking && Math.random() < 0.006) {
+          this.blinking = true;
+          this.blinkTimer = 0;
+        }
+        if (this.blinking) {
+          this.blinkTimer++;
+          if (this.blinkTimer > 12) {
+            this.blinking = false;
+          }
+        }
+
+        // Shield countdown
+        if (this.shieldDuration > 0) {
+          this.shieldDuration -= timeDelta;
+        }
+      }
+
+      draw(ctx) {
+        // Motion Trail
+        if (CONFIG.animation === 'high' && this.trail.length > 1) {
+          ctx.save();
+          for (let i = 0; i < this.trail.length; i++) {
+            const p = this.trail[i];
+            const ratio = i / this.trail.length;
+            ctx.globalAlpha = ratio * 0.15;
+            ctx.fillStyle = '#ffee93';
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, this.radius * (0.4 + ratio * 0.6), 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        ctx.save();
         ctx.translate(this.x, this.y);
 
-        // Glow Effect
-        ctx.shadowBlur = 15;
+        // Active Shield Visual bubble wrapper
+        if (this.shieldDuration > 0) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(0, 0, this.radius * 1.5, 0, Math.PI * 2);
+          
+          // Outer bubble rings
+          const shieldGradient = ctx.createRadialGradient(0, 0, this.radius * 1.2, 0, 0, this.radius * 1.55);
+          shieldGradient.addColorStop(0, 'rgba(160, 231, 229, 0)');
+          shieldGradient.addColorStop(0.8, 'rgba(160, 231, 229, 0.45)');
+          shieldGradient.addColorStop(1, 'rgba(255, 183, 197, 0.85)');
+          ctx.fillStyle = shieldGradient;
+          ctx.fill();
+
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Star Shadow Glow
+        ctx.shadowBlur = CONFIG.animation === 'high' ? 18 : 6;
         ctx.shadowColor = 'rgba(255, 238, 147, 0.8)';
 
-        // Draw Left Wing
+        // Cute mini thruster bubbles at bottom
+        if (CONFIG.animation === 'high') {
+          ctx.fillStyle = 'rgba(160, 231, 229, 0.8)';
+          ctx.beginPath();
+          ctx.arc(-8, 22 + Math.sin(Date.now() * 0.03) * 3, 4, 0, Math.PI * 2);
+          ctx.arc(8, 22 + Math.cos(Date.now() * 0.03) * 3, 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Wings (Drawn first to remain behind body)
         ctx.save();
-        ctx.translate(-15, 2);
-        ctx.rotate(-this.wingAngle - 0.2);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.shadowBlur = 0;
+        // Left
+        ctx.translate(-15, 4);
+        ctx.rotate(-this.wingAngle - 0.15);
         ctx.beginPath();
-        ctx.ellipse(0, 0, 18, 8, -Math.PI/6, 0, Math.PI * 2);
+        ctx.ellipse(0, 0, 20, 8, -Math.PI / 6, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 
-        // Draw Right Wing
         ctx.save();
-        ctx.translate(15, 2);
-        ctx.rotate(this.wingAngle + 0.2);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.shadowBlur = 0;
+        // Right
+        ctx.translate(15, 4);
+        ctx.rotate(this.wingAngle + 0.15);
         ctx.beginPath();
-        ctx.ellipse(0, 0, 18, 8, Math.PI/6, 0, Math.PI * 2);
+        ctx.ellipse(0, 0, 20, 8, Math.PI / 6, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 
-        // Draw Main Body (5-pointed Star)
-        this.drawFivePointedStar(ctx, 0, 0, 5, this.radius, this.radius * 0.45, this.color);
-
-        // Reset shadow for facial features
+        // Golden Star body
+        this.drawFivePointedStar(ctx, 0, 0, 5, this.radius, this.radius * 0.46, '#ffee93');
         ctx.shadowBlur = 0;
 
-        // Cute Blush Cheeks
-        ctx.fillStyle = 'rgba(255, 130, 160, 0.55)';
+        // Cute Pink Cheeks
+        ctx.fillStyle = 'rgba(255, 110, 150, 0.6)';
         ctx.beginPath();
-        ctx.arc(-11, 2, 5, 0, Math.PI * 2); // Left cheek
-        ctx.arc(11, 2, 5, 0, Math.PI * 2);  // Right cheek
+        ctx.arc(-11, 2, 5, 0, Math.PI * 2);
+        ctx.arc(11, 2, 5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Eyes
-        ctx.fillStyle = '#2f2254';
+        // Blinking Eyes
+        ctx.fillStyle = '#301f4c';
         if (this.blinking) {
-          // Closed blink lines
+          ctx.strokeStyle = '#301f4c';
           ctx.lineWidth = 2.5;
-          ctx.strokeStyle = '#2f2254';
           ctx.lineCap = 'round';
           ctx.beginPath();
           ctx.moveTo(-9, -2); ctx.lineTo(-5, -2);
           ctx.moveTo(5, -2); ctx.lineTo(9, -2);
           ctx.stroke();
         } else {
-          // Round cute eyes
           ctx.beginPath();
           ctx.arc(-7, -2, 3, 0, Math.PI * 2);
           ctx.arc(7, -2, 3, 0, Math.PI * 2);
           ctx.fill();
 
-          // White Eye glints
+          // Glints
           ctx.fillStyle = '#ffffff';
           ctx.beginPath();
-          ctx.arc(-8, -3, 1, 0, Math.PI * 2);
-          ctx.arc(6, -3, 1, 0, Math.PI * 2);
+          ctx.arc(-8, -3.5, 1, 0, Math.PI * 2);
+          ctx.arc(6, -3.5, 1, 0, Math.PI * 2);
           ctx.fill();
         }
 
-        // Happy Smiling Mouth
-        ctx.strokeStyle = '#2f2254';
-        ctx.lineWidth = 2;
+        // Smiling Mouth
+        ctx.strokeStyle = '#301f4c';
+        ctx.lineWidth = 2.5;
         ctx.lineCap = 'round';
         ctx.beginPath();
-        ctx.arc(0, 2, 4, 0, Math.PI); // smiling curve
+        ctx.arc(0, 2, 4, 0, Math.PI);
         ctx.stroke();
+
+        // 🌟 Iris Badge "I" on chest
+        ctx.fillStyle = '#ff8ea4';
+        ctx.font = 'bold 9px "Fredoka", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('I', 0, 11);
 
         ctx.restore();
       }
@@ -736,21 +1302,37 @@
       }
     }
 
-    // Translucent Bubble Projectile
+    // Bubbles (Including Special power-ups)
     class BubbleProjectile {
-      constructor(x, y) {
+      constructor(x, y, powerType = 'normal') {
         this.x = x;
         this.y = y;
-        this.radius = 11;
-        this.speed = 8;
-        // Cycle colors
-        const colors = [
-          'rgba(255, 183, 197, 0.75)', // Pink
-          'rgba(160, 231, 229, 0.75)', // Blue
-          'rgba(223, 178, 244, 0.75)', // Purple
-          'rgba(187, 242, 198, 0.75)'  // Green
-        ];
-        this.color = colors[Math.floor(Math.random() * colors.length)];
+        this.powerType = powerType; // 'normal' | 'rainbow' | 'star' | 'shield'
+        this.radius = 12;
+        this.speed = 8.5;
+
+        // Choose visual palettes
+        if (powerType === 'rainbow') {
+          this.color = 'rgba(255, 255, 255, 0.8)';
+          this.glowColor = '#dfb2f4';
+        } else if (powerType === 'star') {
+          this.color = 'rgba(255, 238, 147, 0.7)';
+          this.glowColor = '#ffee93';
+        } else if (powerType === 'shield') {
+          this.color = 'rgba(160, 231, 229, 0.7)';
+          this.glowColor = '#a0e7e5';
+        } else {
+          // Regular random colorful bubbles
+          const colors = [
+            { main: 'rgba(255, 183, 197, 0.7)', glow: '#ffb7c5' }, // pink
+            { main: 'rgba(160, 231, 229, 0.7)', glow: '#a0e7e5' }, // blue
+            { main: 'rgba(223, 178, 244, 0.7)', glow: '#dfb2f4' }, // purple
+            { main: 'rgba(187, 242, 198, 0.7)', glow: '#bbf2c6' }  // green
+          ];
+          const choice = colors[Math.floor(Math.random() * colors.length)];
+          this.color = choice.main;
+          this.glowColor = choice.glow;
+        }
       }
 
       update() {
@@ -759,76 +1341,232 @@
 
       draw(ctx) {
         ctx.save();
+        
+        ctx.shadowBlur = CONFIG.animation === 'high' ? 8 : 3;
+        ctx.shadowColor = this.glowColor;
 
-        // Glow
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = this.color;
+        if (this.powerType === 'rainbow') {
+          // Rainbow multi-gradient bubble
+          const radGrad = ctx.createRadialGradient(this.x, this.y, 1, this.x, this.y, this.radius);
+          radGrad.addColorStop(0, 'rgba(255,255,255,0.2)');
+          radGrad.addColorStop(0.3, 'rgba(160,231,229,0.5)');
+          radGrad.addColorStop(0.6, 'rgba(223,178,244,0.5)');
+          radGrad.addColorStop(0.9, 'rgba(255,183,197,0.7)');
+          radGrad.addColorStop(1, 'rgba(255,255,255,0.9)');
+          ctx.fillStyle = radGrad;
+        } else {
+          ctx.fillStyle = this.color;
+        }
 
-        // Draw bubble outline
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
         ctx.fill();
 
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        // 3D specular highlight sphere effect
         ctx.shadowBlur = 0;
+
+        // Custom internal icon overlays for powerups
+        if (this.powerType === 'star') {
+          // Draw small star inside bubble
+          ctx.fillStyle = '#ffee93';
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, 4, 0, Math.PI*2);
+          ctx.fill();
+        } else if (this.powerType === 'shield') {
+          // Draw mini circular shield band
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, 5, 0, Math.PI*2);
+          ctx.stroke();
+        }
+
+        // Spherical glint
         ctx.beginPath();
-        ctx.arc(this.x - 3, this.y - 3, 3, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.arc(this.x - 3.5, this.y - 3.5, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
         ctx.fill();
 
         ctx.restore();
       }
     }
 
-    // Cute Balloon Monsters & Meteors (Enemies)
-    class BalloonEnemy {
-      constructor(canvasWidth, level) {
-        this.radius = Math.random() * 8 + 18; // Size between 18 and 26
+    // Cute Balloon Power-ups that float down to be shot
+    class SpecialBubbleEnemy {
+      constructor(canvasWidth, type) {
+        this.type = type; // 'rainbow' | 'star' | 'shield'
+        this.radius = 20;
         this.x = this.radius + Math.random() * (canvasWidth - this.radius * 2);
         this.y = -this.radius * 2;
+        this.speed = Math.random() * 0.8 + 1.0;
+        
+        // Colors mapping
+        const colors = {
+          rainbow: { main: '#dfb2f4', border: '#ffffff' },
+          star: { main: '#ffee93', border: '#ffe45c' },
+          shield: { main: '#a0e7e5', border: '#ffffff' }
+        };
+        this.color = colors[type].main;
+        this.border = colors[type].border;
 
-        // Speed increases slightly with levels
-        const baseSpeed = Math.random() * 1 + 1.2;
-        this.speed = baseSpeed + Math.min(level * 0.15, 2);
-
-        // Different funny visual types
-        const types = [
-          { color: '#ffb7c5', face: 'happy' },   // Pastel Pink
-          { color: '#dfb2f4', face: 'silly' },   // Pastel Purple
-          { color: '#a0e7e5', face: 'wink' },    // Pastel Teal
-          { color: '#ffee93', face: 'giggle' }   // Pastel Gold
-        ];
-        const choice = types[Math.floor(Math.random() * types.length)];
-        this.color = choice.color;
-        this.faceType = choice.face;
-
-        // Sway movement characteristics
-        this.swayFreq = Math.random() * 0.03 + 0.01;
-        this.swayAmp = Math.random() * 1.5 + 0.5;
+        this.swayFreq = 0.02;
         this.phase = Math.random() * Math.PI * 2;
-
-        this.blinkTimer = 0;
-        this.isBlinking = false;
       }
 
       update() {
         this.y += this.speed;
-        this.x += Math.sin(this.y * this.swayFreq + this.phase) * this.swayAmp;
+        this.x += Math.sin(this.y * this.swayFreq + this.phase) * 1.2;
+      }
 
-        // Blinking facial animation
-        if (!this.isBlinking && Math.random() < 0.005) {
-          this.isBlinking = true;
+      draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        // Specular glow
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = this.color;
+
+        // Draw Outer sparkling bubble
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.fill();
+        ctx.strokeStyle = this.border;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        ctx.shadowBlur = 0;
+
+        // Inner item display
+        if (this.type === 'rainbow') {
+          // Colorful ring
+          ctx.strokeStyle = '#ff8ea4';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(0, 0, 9, 0, Math.PI, true);
+          ctx.stroke();
+          
+          ctx.strokeStyle = '#ffee93';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(0, 0, 6, 0, Math.PI, true);
+          ctx.stroke();
+        } else if (this.type === 'star') {
+          // Miniature Gold Star
+          ctx.fillStyle = '#ffee93';
+          ctx.beginPath();
+          ctx.arc(0, 0, 9, 0, Math.PI*2);
+          ctx.fill();
+        } else if (this.type === 'shield') {
+          // Shield shape
+          ctx.fillStyle = '#a0e7e5';
+          ctx.beginPath();
+          ctx.moveTo(0, -9);
+          ctx.lineTo(8, -5);
+          ctx.lineTo(6, 4);
+          ctx.lineTo(0, 9);
+          ctx.lineTo(-6, 4);
+          ctx.lineTo(-8, -5);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        // Highlight glint
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-6, -6, 4, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    // Enemies (Meteor, Cloud, Moon, Balloon, Boss)
+    class CuteEnemy {
+      constructor(canvasWidth, level, type = '') {
+        this.canvasWidth = canvasWidth;
+        this.level = level;
+        this.bossHpMax = 0;
+        this.hp = 1;
+
+        // Select cute monster types randomly if not specified
+        const enemyTypes = ['meteor', 'balloon', 'cloud', 'moon'];
+        this.type = type || enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+
+        // Speeds are capped for friendly play
+        const baseSpeed = CONFIG.difficulty === 'easy' ? 0.9 : 1.3;
+        this.speed = baseSpeed + Math.min(level * 0.1, 1.8);
+
+        // Customize sizes and features
+        if (this.type === 'boss') {
+          this.radius = 55;
+          this.x = canvasWidth / 2;
+          this.y = -120;
+          this.speed = 0.5 + Math.min(level * 0.05, 0.4);
+          this.bossHpMax = 8 + level * 2; // multi-hits
+          this.hp = this.bossHpMax;
+          this.color = '#dfb2f4'; // Large Purple Crown Monster
+          this.targetX = canvasWidth / 2;
+          this.bossMoveTimer = 0;
+        } else if (this.type === 'meteor') {
+          this.radius = Math.random() * 4 + 18;
+          this.x = this.radius + Math.random() * (canvasWidth - this.radius * 2);
+          this.y = -this.radius * 2;
+          this.color = '#c5a3e8'; // Pastel purple meteor
+          this.speed *= 1.15; // slightly faster
+        } else if (this.type === 'cloud') {
+          this.radius = Math.random() * 4 + 20;
+          this.x = this.radius + Math.random() * (canvasWidth - this.radius * 2);
+          this.y = -this.radius * 2;
+          this.color = '#a0e7e5'; // Pastel teal cloud
+        } else if (this.type === 'moon') {
+          this.radius = 22;
+          this.x = this.radius + Math.random() * (canvasWidth - this.radius * 2);
+          this.y = -this.radius * 2;
+          this.color = '#ffee93'; // Crescent Moon
+          this.speed *= 0.85; // slightly slower
+        } else { // 'balloon'
+          this.radius = Math.random() * 6 + 18;
+          this.x = this.radius + Math.random() * (canvasWidth - this.radius * 2);
+          this.y = -this.radius * 2;
+          this.color = '#ffb7c5'; // Pink balloon
+        }
+
+        // Sway movement
+        this.swayFreq = Math.random() * 0.02 + 0.01;
+        this.swayAmp = this.type === 'boss' ? 2.5 : Math.random() * 1.5 + 0.5;
+        this.phase = Math.random() * Math.PI * 2;
+
+        this.blink = false;
+        this.blinkTimer = 0;
+      }
+
+      update() {
+        if (this.type === 'boss') {
+          // Boss stays in upper screen half, moving horizontally
+          this.y += (150 - this.y) * 0.02; // ease down to y = 150
+          this.bossMoveTimer += 0.025;
+          this.x = (this.canvasWidth / 2) + Math.sin(this.bossMoveTimer + this.phase) * (this.canvasWidth * 0.3);
+        } else {
+          this.y += this.speed;
+          this.x += Math.sin(this.y * this.swayFreq + this.phase) * this.swayAmp;
+        }
+
+        // Blinking
+        if (!this.blink && Math.random() < 0.005) {
+          this.blink = true;
           this.blinkTimer = 0;
         }
-        if (this.isBlinking) {
+        if (this.blink) {
           this.blinkTimer++;
-          if (this.blinkTimer > 12) {
-            this.isBlinking = false;
+          if (this.blinkTimer > 10) {
+            this.blink = false;
           }
         }
       }
@@ -837,113 +1575,199 @@
         ctx.save();
         ctx.translate(this.x, this.y);
 
-        // 1. Draw Balloon Knot & String
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        // Wiggly line for the string
-        ctx.moveTo(0, this.radius);
-        ctx.bezierCurveTo(
-          Math.sin(Date.now() * 0.008) * 8, this.radius + 10,
-          -Math.sin(Date.now() * 0.008) * 8, this.radius + 20,
-          0, this.radius + 35
-        );
-        ctx.stroke();
+        // Blinking/Glow for Boss
+        if (this.type === 'boss') {
+          ctx.shadowBlur = 20;
+          ctx.shadowColor = 'rgba(223, 178, 244, 0.6)';
+        }
 
-        // Balloon Knot Triangle
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.moveTo(0, this.radius - 2);
-        ctx.lineTo(-6, this.radius + 6);
-        ctx.lineTo(6, this.radius + 6);
-        ctx.closePath();
-        ctx.fill();
-
-        // 2. Draw Main Balloon Body (Eggish Circle)
-        ctx.beginPath();
-        ctx.ellipse(0, 0, this.radius, this.radius * 1.05, 0, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-
-        // Subtle specular glow on balloon edge
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-
-        // Specular reflection spot
-        ctx.beginPath();
-        ctx.ellipse(-this.radius * 0.4, -this.radius * 0.4, this.radius * 0.25, this.radius * 0.15, -Math.PI/4, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-        ctx.fill();
-
-        // 3. Draw Unique Silly Faces
-        ctx.fillStyle = '#3b2c63';
-        ctx.strokeStyle = '#3b2c63';
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-
-        if (this.faceType === 'happy') {
-          // Draw two arched smiling eyes
+        if (this.type === 'boss') {
+          // Draw Giant Crown Balloon Monster
+          ctx.fillStyle = this.color;
           ctx.beginPath();
-          ctx.arc(-6, -2, 2.5, Math.PI, 0);
-          ctx.arc(6, -2, 2.5, Math.PI, 0);
+          ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Golden Crown on top
+          ctx.fillStyle = '#ffee93';
+          ctx.beginPath();
+          ctx.moveTo(-25, -this.radius + 5);
+          ctx.lineTo(-35, -this.radius - 20);
+          ctx.lineTo(-12, -this.radius - 8);
+          ctx.lineTo(0, -this.radius - 25);
+          ctx.lineTo(12, -this.radius - 8);
+          ctx.lineTo(35, -this.radius - 20);
+          ctx.lineTo(25, -this.radius + 5);
+          ctx.closePath();
+          ctx.fill();
+
+          // Crown jewel circles
+          ctx.fillStyle = '#ff8ea4';
+          ctx.beginPath();
+          ctx.arc(-35, -this.radius - 20, 3, 0, Math.PI*2);
+          ctx.arc(0, -this.radius - 25, 3, 0, Math.PI*2);
+          ctx.arc(35, -this.radius - 20, 3, 0, Math.PI*2);
+          ctx.fill();
+
+          // Big cute cheeks
+          ctx.fillStyle = 'rgba(255, 110, 150, 0.5)';
+          ctx.beginPath();
+          ctx.arc(-this.radius * 0.45, 10, 11, 0, Math.PI*2);
+          ctx.arc(this.radius * 0.45, 10, 11, 0, Math.PI*2);
+          ctx.fill();
+
+          // Big round eyes
+          ctx.fillStyle = '#3b2c63';
+          ctx.beginPath();
+          ctx.arc(-18, -6, 8, 0, Math.PI*2);
+          ctx.arc(18, -6, 8, 0, Math.PI*2);
+          ctx.fill();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(-16, -8, 3.5, 0, Math.PI*2);
+          ctx.arc(20, -8, 3.5, 0, Math.PI*2);
+          ctx.fill();
+
+          // Large laughing mouth
+          ctx.fillStyle = '#ff8ea4';
+          ctx.beginPath();
+          ctx.arc(0, 14, 15, 0, Math.PI);
+          ctx.fill();
+          ctx.strokeStyle = '#3b2c63';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(0, 14, 15, 0, Math.PI);
           ctx.stroke();
 
-          // Open mouth
+        } else if (this.type === 'meteor') {
+          // Drawn as a bumpy cute rock
+          ctx.fillStyle = this.color;
           ctx.beginPath();
-          ctx.arc(0, 4, 3.5, 0, Math.PI);
+          const points = 8;
+          for (let i = 0; i < points; i++) {
+            const angle = (i / points) * Math.PI * 2;
+            const r = this.radius + Math.sin(angle * 3 + this.phase) * 3;
+            const px = Math.cos(angle) * r;
+            const py = Math.sin(angle) * r;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
           ctx.fill();
-        } 
-        else if (this.faceType === 'silly') {
-          // Cross eyes
-          ctx.font = 'bold 12px sans-serif';
-          ctx.fillText('x', -10, 1);
-          ctx.fillText('x', 2, 1);
 
-          // Tongue out mouth
-          ctx.fillStyle = '#ff5e7e';
+          // Silly face (cross eyes)
+          ctx.strokeStyle = '#301f4c';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          // Left cross
+          ctx.moveTo(-10, -5); ctx.lineTo(-4, 1);
+          ctx.moveTo(-4, -5); ctx.lineTo(-10, 1);
+          // Right cross
+          ctx.moveTo(4, -5); ctx.lineTo(10, 1);
+          ctx.moveTo(10, -5); ctx.lineTo(4, 1);
+          ctx.stroke();
+
+          // Cute tiny mouth
+          ctx.fillStyle = '#ff8ea4';
           ctx.beginPath();
           ctx.arc(0, 5, 4, 0, Math.PI);
           ctx.fill();
-          ctx.strokeStyle = '#3b2c63';
-          ctx.stroke();
-        } 
-        else if (this.faceType === 'wink') {
-          if (this.isBlinking) {
-            // Blink horizontal line
-            ctx.beginPath();
-            ctx.moveTo(-10, -2); ctx.lineTo(-4, -2);
-            ctx.moveTo(4, -2); ctx.lineTo(10, -2);
-            ctx.stroke();
-          } else {
-            // Wink: Left eye open, Right eye winking line
-            ctx.beginPath();
-            ctx.arc(-7, -2, 2.5, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.moveTo(4, -3);
-            ctx.lineTo(9, -1);
-            ctx.lineTo(4, 1);
-            ctx.stroke();
-          }
-          // Small grin
-          ctx.beginPath();
-          ctx.arc(0, 4, 3, 0, Math.PI);
-          ctx.stroke();
-        } 
-        else { // giggle
-          // Happy squint eyes
-          ctx.beginPath();
-          ctx.moveTo(-9, 0); ctx.lineTo(-5, -4); ctx.lineTo(-1, 0);
-          ctx.moveTo(1, 0); ctx.lineTo(5, -4); ctx.lineTo(9, 0);
           ctx.stroke();
 
-          // Big happy open mouth showing teeth (or just flat pink)
-          ctx.fillStyle = '#ff8ea4';
+        } else if (this.type === 'cloud') {
+          // Drifting sleepy raincloud
+          ctx.fillStyle = this.color;
           ctx.beginPath();
-          ctx.arc(0, 2, 5, 0, Math.PI);
+          const r = this.radius * 0.55;
+          ctx.arc(-10, 0, r, 0, Math.PI*2);
+          ctx.arc(10, 0, r, 0, Math.PI*2);
+          ctx.arc(0, -6, r * 1.2, 0, Math.PI*2);
+          ctx.arc(0, 6, r * 0.9, 0, Math.PI*2);
+          ctx.closePath();
           ctx.fill();
+
+          // Sleepy closed eyelids
+          ctx.strokeStyle = '#301f4c';
+          ctx.lineWidth = 2;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.arc(-8, -1, 3, 0, Math.PI);
+          ctx.arc(8, -1, 3, 0, Math.PI);
+          ctx.stroke();
+
+          // Small sleeping Zzz floaters sometimes generated inside updates...
+        } else if (this.type === 'moon') {
+          // Crescent moon wearing a night cap
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(0, 0, this.radius, -Math.PI / 2, Math.PI / 2);
+          ctx.arc(5, 0, this.radius * 0.85, Math.PI / 2, -Math.PI / 2, true);
+          ctx.closePath();
+          ctx.fill();
+
+          // Nightcap
+          ctx.fillStyle = '#ffb7c5';
+          ctx.beginPath();
+          ctx.moveTo(-2, -this.radius + 2);
+          ctx.bezierCurveTo(-15, -this.radius - 8, -18, -this.radius + 10, -22, -this.radius + 4);
+          ctx.lineTo(-12, -this.radius + 16);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(-22, -this.radius + 4, 3, 0, Math.PI*2);
+          ctx.fill();
+
+          // Closed eye
+          ctx.strokeStyle = '#301f4c';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(-3, 0, 2.5, 0, Math.PI);
+          ctx.stroke();
+        } else {
+          // Balloon monster (Pink)
+          // String
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(0, this.radius);
+          ctx.bezierCurveTo(Math.sin(Date.now()*0.005)*5, this.radius+10, -Math.sin(Date.now()*0.005)*5, this.radius+20, 0, this.radius + 30);
+          ctx.stroke();
+
+          // Knot
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.moveTo(0, this.radius - 2);
+          ctx.lineTo(-5, this.radius + 5);
+          ctx.lineTo(5, this.radius + 5);
+          ctx.closePath();
+          ctx.fill();
+
+          // Balloon egg body
+          ctx.beginPath();
+          ctx.ellipse(0, 0, this.radius, this.radius * 1.05, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Face
+          ctx.fillStyle = '#301f4c';
+          ctx.beginPath();
+          ctx.arc(-6, -2, 2.5, 0, Math.PI * 2);
+          ctx.arc(6, -2, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(-7, -3, 1, 0, Math.PI * 2);
+          ctx.arc(5, -3, 1, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Cheerful open mouth
+          ctx.strokeStyle = '#301f4c';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(0, 3, 3, 0, Math.PI);
           ctx.stroke();
         }
 
@@ -951,83 +1775,144 @@
       }
     }
 
-    // Particle class (For sparks, pops, and floating texts)
-    class SparkParticle {
-      constructor(x, y, color, type = 'star', text = '') {
+    // Physical Falling Collectible Star items
+    class CollectibleStarItem {
+      constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.type = type; // 'star' | 'bubble' | 'text'
-        this.color = color;
-        this.text = text;
-
-        if (type === 'text') {
-          this.vx = (Math.random() - 0.5) * 1.5;
-          this.vy = -1.5 - Math.random() * 1.2;
-          this.alpha = 1.0;
-          this.decay = 0.015;
-          this.size = 14 + Math.floor(Math.random() * 4);
-        } else if (type === 'bubble') {
-          this.vx = (Math.random() - 0.5) * 4;
-          this.vy = (Math.random() - 0.5) * 4;
-          this.radius = Math.random() * 4 + 2;
-          this.alpha = 1.0;
-          this.decay = 0.035;
-        } else { // 'star' glitter
-          this.vx = (Math.random() - 0.5) * 6;
-          this.vy = (Math.random() - 0.5) * 6;
-          this.radius = Math.random() * 3 + 2;
-          this.alpha = 1.0;
-          this.decay = 0.025;
-          this.gravity = 0.08;
-        }
+        this.radius = 12;
+        this.speed = 2.5; // slow drift downwards
+        this.rotation = Math.random() * Math.PI * 2;
+        this.rotSpeed = Math.random() * 0.04 - 0.02;
+        this.glowPhase = 0;
       }
 
       update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        if (this.gravity) {
-          this.vy += this.gravity;
+        this.y += this.speed;
+        this.rotation += this.rotSpeed;
+        this.glowPhase += 0.15;
+      }
+
+      draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+
+        // Twinkling gold glow
+        ctx.shadowBlur = 10 + Math.sin(this.glowPhase) * 4;
+        ctx.shadowColor = 'rgba(255, 238, 147, 0.9)';
+
+        // Draw 5-pointed star
+        this.drawStarPath(ctx, 0, 0, 5, this.radius, this.radius * 0.45);
+        ctx.fillStyle = '#ffee93';
+        ctx.fill();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      drawStarPath(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+        let rot = Math.PI / 2 * 3;
+        let x = cx;
+        let y = cy;
+        let step = Math.PI / spikes;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - outerRadius);
+        for (let i = 0; i < spikes; i++) {
+          x = cx + Math.cos(rot) * outerRadius;
+          y = cy + Math.sin(rot) * outerRadius;
+          ctx.lineTo(x, y);
+          rot += step;
+
+          x = cx + Math.cos(rot) * innerRadius;
+          y = cy + Math.sin(rot) * innerRadius;
+          ctx.lineTo(x, y);
+          rot += step;
         }
-        this.alpha -= this.decay;
+        ctx.closePath();
+      }
+    }
+
+    // Advanced Particle System (Glitter, Pops, UI flying stars, Floating text)
+    class GameParticle {
+      constructor(options) {
+        this.x = options.x;
+        this.y = options.y;
+        this.type = options.type || 'spark'; // 'spark' | 'bubble' | 'text' | 'ui-star'
+        this.color = options.color || '#fff';
+        this.text = options.text || '';
+        this.alpha = 1.0;
+        this.decay = options.decay || 0.02;
+
+        // Custom behaviors
+        this.vx = options.vx !== undefined ? options.vx : (Math.random() - 0.5) * 5;
+        this.vy = options.vy !== undefined ? options.vy : (Math.random() - 0.5) * 5;
+        
+        this.radius = options.radius || Math.random() * 3 + 2;
+        this.gravity = options.gravity || 0;
+
+        // target properties for flying UI particles
+        this.tx = options.tx || 0;
+        this.ty = options.ty || 0;
+      }
+
+      update() {
+        if (this.type === 'ui-star') {
+          // Interpolate directly towards target screen coordinates
+          const dx = this.tx - this.x;
+          const dy = this.ty - this.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < 15) {
+            this.alpha = 0; // arrived
+          } else {
+            this.x += dx * 0.12;
+            this.y += dy * 0.12;
+          }
+        } else {
+          this.x += this.vx;
+          this.y += this.vy;
+          this.vy += this.gravity;
+          this.alpha -= this.decay;
+        }
       }
 
       draw(ctx) {
         if (this.alpha <= 0) return;
-
         ctx.save();
         ctx.globalAlpha = this.alpha;
 
         if (this.type === 'text') {
-          // Floating encouraging message
-          ctx.font = `bold ${this.size}px 'Fredoka', 'System-UI', sans-serif`;
+          ctx.font = `bold ${this.radius * 4.5}px "Fredoka", sans-serif`;
           ctx.fillStyle = this.color;
           ctx.textAlign = 'center';
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+          ctx.shadowBlur = 6;
+          ctx.shadowColor = 'rgba(255,255,255,0.7)';
           ctx.fillText(this.text, this.x, this.y);
-        } 
-        else if (this.type === 'bubble') {
-          // Fading bubbles
+        } else if (this.type === 'ui-star') {
+          // Draw bright mini star
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = '#ffee93';
+          ctx.fillStyle = '#ffee93';
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, 6, 0, Math.PI*2);
+          ctx.fill();
+        } else if (this.type === 'bubble') {
           ctx.beginPath();
           ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
           ctx.fillStyle = this.color;
           ctx.fill();
           ctx.strokeStyle = 'rgba(255,255,255,0.5)';
           ctx.stroke();
-        } 
-        else {
-          // Glitter sparkles (drawn as 4-pointed stars)
+        } else {
+          // Star Sparkles (glitters)
           ctx.fillStyle = this.color;
           ctx.beginPath();
-          ctx.moveTo(this.x, this.y - this.radius);
-          ctx.lineTo(this.x + this.radius/2, this.y - this.radius/2);
-          ctx.lineTo(this.x + this.radius, this.y);
-          ctx.lineTo(this.x + this.radius/2, this.y + this.radius/2);
-          ctx.lineTo(this.x, this.y + this.radius);
-          ctx.lineTo(this.x - this.radius/2, this.y + this.radius/2);
-          ctx.lineTo(this.x - this.radius, this.y);
-          ctx.lineTo(this.x - this.radius/2, this.y - this.radius/2);
-          ctx.closePath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
           ctx.fill();
         }
 
@@ -1037,63 +1922,87 @@
 
 
     // ==========================================
-    // GAME ENGINE & LOGIC
+    // MAIN ENGINE GAME CONTROLLER
     // ==========================================
     class GameEngine {
       constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
 
-        // Target logical resolution
         this.baseWidth = 600;
         this.baseHeight = 800;
-
-        // Game state variables
-        this.state = 'START'; // START | PLAYING | PAUSED | GAMEOVER
-        this.score = 0;
-        this.level = 1;
-        this.maxHearts = 5;
-        this.hearts = 5;
-
-        // Timers & intervals
-        this.lastTime = 0;
-        this.spawnTimer = 0;
-        this.spawnInterval = 2000; // start with 2 seconds
-        this.shootCooldown = 280; // ms between bubble shots
-        this.lastShootTime = 0;
-
-        // Input monitoring
-        this.keys = {};
-        this.mouseX = this.baseWidth / 2;
-
-        // Entity Lists
-        this.player = null;
-        this.bubbles = [];
-        this.enemies = [];
-        this.particles = [];
-        this.stars = [];
 
         // UI references
         this.scoreText = document.getElementById('score-text');
         this.levelText = document.getElementById('level-text');
         this.heartsPanel = document.getElementById('hearts-panel');
         this.finalScoreText = document.getElementById('final-score');
-
-        // Screens
+        this.comboBadge = document.getElementById('combo-badge');
+        
         this.startScreen = document.getElementById('start-screen');
         this.pauseScreen = document.getElementById('pause-screen');
+        this.settingsScreen = document.getElementById('settings-screen');
         this.gameOverScreen = document.getElementById('game-over-screen');
+        this.tutorialScreen = document.getElementById('tutorial-screen');
+
+        // State Machine
+        this.state = 'START'; // START | PLAYING | PAUSED | SETTINGS | GAMEOVER | TUTORIAL
+
+        // Game parameters
+        this.score = 0;
+        this.level = 1;
+        this.hearts = 5;
+        this.maxHearts = 5;
+        this.combo = 0;
+        this.comboScoreMultiplier = 1;
+
+        // Timers & spawner rates
+        this.lastTime = 0;
+        this.spawnTimer = 0;
+        this.spawnInterval = 2000;
+        this.specialSpawnTimer = 0;
+        this.specialSpawnInterval = 10000; // special bubble every 10s
+
+        // Shooting rate limits
+        this.shootCooldown = 260; // milliseconds
+        this.lastShootTime = 0;
+
+        // Boss status
+        this.bossActive = false;
+        this.currentBoss = null;
+
+        // Inputs
+        this.keys = {};
+        this.mouseX = this.baseWidth / 2;
+
+        // Entity Registries
+        this.player = null;
+        this.bubbles = [];
+        this.enemies = [];
+        this.collectibleStars = [];
+        this.particles = [];
+        
+        // Static background layers
+        this.twinkleStars = [];
+        this.clouds = [];
+        this.levelUpFlashAlpha = 0;
 
         this.initResize();
         this.initEvents();
-        this.createBackgroundStars();
-        this.resetGame();
+        this.createBackgroundElements();
+        
+        loadSettings();
       }
 
-      createBackgroundStars() {
-        this.stars = [];
-        for (let i = 0; i < 50; i++) {
-          this.stars.push(new TwinkleStar(this.baseWidth, this.baseHeight));
+      createBackgroundElements() {
+        this.twinkleStars = [];
+        for (let i = 0; i < 45; i++) {
+          this.twinkleStars.push(new TwinkleStar(this.baseWidth, this.baseHeight));
+        }
+        
+        this.clouds = [];
+        for (let i = 0; i < 4; i++) {
+          this.clouds.push(new DriftingCloud(this.baseWidth, this.baseHeight));
         }
       }
 
@@ -1101,12 +2010,18 @@
         this.score = 0;
         this.level = 1;
         this.hearts = this.maxHearts;
-        this.spawnInterval = 2000;
+        this.combo = 0;
+        this.comboScoreMultiplier = 1;
+        this.bossActive = false;
+        this.currentBoss = null;
+        this.spawnInterval = CONFIG.difficulty === 'easy' ? 2200 : 1800;
         this.spawnTimer = 0;
+        this.specialSpawnTimer = 0;
 
-        this.player = new PlayerStar(this.baseWidth / 2, this.baseHeight - 70);
+        this.player = new PlayerStarShip(this.baseWidth / 2, this.baseHeight - 70);
         this.bubbles = [];
         this.enemies = [];
+        this.collectibleStars = [];
         this.particles = [];
 
         this.updateUI();
@@ -1115,16 +2030,24 @@
       updateUI() {
         this.scoreText.innerText = this.score;
         this.levelText.innerText = `关卡 ${this.level}`;
+        
+        // Combo text
+        if (this.combo > 1) {
+          this.comboBadge.innerText = `Combo x${this.combo}`;
+          this.comboBadge.classList.add('active');
+        } else {
+          this.comboBadge.classList.remove('active');
+        }
 
-        // Redraw Hearts Panel
+        // Draw HUD Hearts
         this.heartsPanel.innerHTML = '';
         for (let i = 0; i < this.maxHearts; i++) {
           const heart = document.createElement('span');
           if (i < this.hearts) {
-            heart.innerText = '❤️'; // Filled Heart
+            heart.innerText = '❤️';
           } else {
-            heart.innerText = '🤍'; // Empty Heart
-            heart.style.opacity = '0.5';
+            heart.innerText = '🤍';
+            heart.style.opacity = '0.35';
           }
           this.heartsPanel.appendChild(heart);
         }
@@ -1133,13 +2056,34 @@
       setState(newState) {
         this.state = newState;
 
-        // Show/hide screen overlays
+        // Toggle overlays visibilities
         this.startScreen.classList.toggle('hidden', newState !== 'START');
         this.pauseScreen.classList.toggle('hidden', newState !== 'PAUSED');
+        this.settingsScreen.classList.toggle('hidden', newState !== 'SETTINGS');
         this.gameOverScreen.classList.toggle('hidden', newState !== 'GAMEOVER');
+        this.tutorialScreen.classList.toggle('hidden', newState !== 'TUTORIAL');
 
-        if (newState === 'GAMEOVER') {
+        // Handles menu focus and game pauses
+        if (newState === 'START') {
+          document.getElementById('menu-highscore').innerText = CONFIG.highScore;
+        } else if (newState === 'GAMEOVER') {
           this.finalScoreText.innerText = this.score;
+          
+          // Update High Score if broken
+          if (this.score > CONFIG.highScore) {
+            CONFIG.highScore = this.score;
+            saveSettings();
+          }
+          document.getElementById('game-over-highscore').innerText = CONFIG.highScore;
+
+          // Select Fail encouragement phrase
+          const failMsg = ENCOURAGEMENTS_FAIL[Math.floor(Math.random() * ENCOURAGEMENTS_FAIL.length)];
+          document.getElementById('encouragement-box').innerText = failMsg;
+
+          // Title configuration
+          const title = document.getElementById('game-over-title');
+          title.innerText = this.score >= 50 ? "守护完成" : "休息一下";
+
           sound.playGameOver();
         } else if (newState === 'PLAYING') {
           sound.init();
@@ -1148,23 +2092,19 @@
 
       initResize() {
         const resize = () => {
-          // Adjust canvas internal sizing for crisp CSS boundaries (maintaining 3:4 aspect ratio)
           const rect = this.canvas.getBoundingClientRect();
           const dpr = window.devicePixelRatio || 1;
 
           this.canvas.width = rect.width * dpr;
           this.canvas.height = rect.height * dpr;
 
-          // Scale contexts to fit target base coordinate system
           this.ctx.resetTransform();
           this.ctx.scale(
             (rect.width * dpr) / this.baseWidth,
             (rect.height * dpr) / this.baseHeight
           );
         };
-
         window.addEventListener('resize', resize);
-        // Small delay to allow element metrics to calculate on page load
         setTimeout(resize, 100);
       }
 
@@ -1173,7 +2113,18 @@
         window.addEventListener('keydown', (e) => {
           this.keys[e.code] = true;
 
-          // Quick Pause bindings
+          // Start screen Enter shortcut
+          if (e.code === 'Enter') {
+            if (this.state === 'START') {
+              this.resetGame();
+              this.setState('PLAYING');
+            } else if (this.state === 'GAMEOVER') {
+              this.resetGame();
+              this.setState('PLAYING');
+            }
+          }
+
+          // Toggle pauses
           if (e.code === 'Escape' || e.code === 'KeyP') {
             if (this.state === 'PLAYING') {
               this.setState('PAUSED');
@@ -1182,9 +2133,15 @@
             }
           }
 
-          // Shoot binding (Space)
+          // Restart
+          if (e.code === 'KeyR' && this.state === 'PAUSED') {
+            this.resetGame();
+            this.setState('PLAYING');
+          }
+
+          // Shoot bubbles (Space)
           if (e.code === 'Space' && this.state === 'PLAYING') {
-            e.preventDefault(); // prevent scrolling
+            e.preventDefault();
             this.shootBubble();
           }
         });
@@ -1193,14 +2150,13 @@
           this.keys[e.code] = false;
         });
 
-        // Mouse/Touch controls (Tracking position relative to Canvas client layout)
+        // Relative client coord translators
         const getRelativeX = (clientX) => {
           const rect = this.canvas.getBoundingClientRect();
           const relativeX = ((clientX - rect.left) / rect.width) * this.baseWidth;
           return Math.max(25, Math.min(this.baseWidth - 25, relativeX));
         };
 
-        // Handles touch/mouse movement
         const handleMove = (clientX) => {
           if (this.state === 'PLAYING') {
             const rx = getRelativeX(clientX);
@@ -1209,7 +2165,7 @@
           }
         };
 
-        // Mouse Listeners
+        // Desktop mouse event listeners
         this.canvas.addEventListener('mousemove', (e) => {
           handleMove(e.clientX);
         });
@@ -1221,7 +2177,7 @@
           }
         });
 
-        // Touch Listeners
+        // Touch event listeners
         this.canvas.addEventListener('touchmove', (e) => {
           if (e.touches.length > 0) {
             handleMove(e.touches[0].clientX);
@@ -1235,21 +2191,34 @@
           }
         }, { passive: true });
 
-        // Bind interactive UI Buttons
+        // HUD & Overlays controls
         document.getElementById('btn-start').addEventListener('click', () => {
-          sound.init();
-          this.resetGame();
-          this.setState('PLAYING');
+          if (!CONFIG.tutorialShown) {
+            this.showTutorialSlide(0);
+            this.setState('TUTORIAL');
+          } else {
+            this.resetGame();
+            this.setState('PLAYING');
+          }
         });
 
-        document.getElementById('btn-pause').addEventListener('click', () => {
+        document.getElementById('btn-pause-toggle').addEventListener('click', (e) => {
+          e.stopPropagation();
           if (this.state === 'PLAYING') {
             this.setState('PAUSED');
           }
         });
 
+        document.getElementById('btn-settings-toggle').addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (this.state === 'PLAYING') {
+            this.setState('SETTINGS');
+          } else if (this.state === 'START') {
+            this.setState('SETTINGS');
+          }
+        });
+
         document.getElementById('btn-resume').addEventListener('click', () => {
-          sound.init();
           this.setState('PLAYING');
         });
 
@@ -1263,162 +2232,567 @@
           this.setState('PLAYING');
         });
 
-        // Mute Button Handler
-        const muteBtn = document.getElementById('btn-mute');
-        muteBtn.addEventListener('click', () => {
-          const muted = sound.toggleMute();
-          muteBtn.innerText = muted ? '🔇' : '🔊';
+        // Settings actions
+        document.getElementById('btn-settings-close').addEventListener('click', () => {
+          saveSettings();
+          this.setState(this.player ? 'PAUSED' : 'START');
+        });
+
+        // Settings togglers
+        document.getElementById('setting-sound').addEventListener('change', (e) => {
+          CONFIG.sound = e.target.checked;
+          sound.init();
+        });
+
+        document.getElementById('btn-reset-score').addEventListener('click', () => {
+          if (confirm('确认要清除最高守护得分吗？')) {
+            CONFIG.highScore = 0;
+            saveSettings();
+            applySettingsToUI();
+          }
+        });
+
+        // Difficulty Option Buttons
+        const diffGroup = document.getElementById('setting-difficulty');
+        diffGroup.addEventListener('click', (e) => {
+          if (e.target.classList.contains('option-btn')) {
+            CONFIG.difficulty = e.target.getAttribute('data-val');
+            applySettingsToUI();
+          }
+        });
+
+        // Animation Option Buttons
+        const animGroup = document.getElementById('setting-animation');
+        animGroup.addEventListener('click', (e) => {
+          if (e.target.classList.contains('option-btn')) {
+            CONFIG.animation = e.target.getAttribute('data-val');
+            if (this.player) {
+              this.player.maxTrailLength = CONFIG.animation === 'high' ? 8 : 0;
+            }
+            applySettingsToUI();
+          }
+        });
+
+        // Tutorial steps flow
+        let activeSlideIdx = 0;
+        const slides = document.querySelectorAll('.tutorial-slide');
+        const dots = document.querySelectorAll('.dot');
+        const btnNext = document.getElementById('btn-tut-next');
+        const btnPrev = document.getElementById('btn-tut-prev');
+
+        this.showTutorialSlide = (idx) => {
+          activeSlideIdx = idx;
+          slides.forEach((s, sIdx) => s.classList.toggle('active', sIdx === idx));
+          dots.forEach((d, dIdx) => d.classList.toggle('active', dIdx === idx));
+
+          btnPrev.style.display = idx === 0 ? 'none' : 'block';
+          btnNext.innerText = idx === slides.length - 1 ? '开始守护' : '下一步';
+        };
+
+        btnNext.addEventListener('click', () => {
+          if (activeSlideIdx < slides.length - 1) {
+            this.showTutorialSlide(activeSlideIdx + 1);
+          } else {
+            CONFIG.tutorialShown = true;
+            saveSettings();
+            this.resetGame();
+            this.setState('PLAYING');
+          }
+        });
+
+        btnPrev.addEventListener('click', () => {
+          if (activeSlideIdx > 0) {
+            this.showTutorialSlide(activeSlideIdx - 1);
+          }
+        });
+
+        document.getElementById('btn-tut-skip').addEventListener('click', () => {
+          CONFIG.tutorialShown = true;
+          saveSettings();
+          this.resetGame();
+          this.setState('PLAYING');
+        });
+
+        document.getElementById('btn-show-tutorial').addEventListener('click', () => {
+          this.showTutorialSlide(0);
+          this.setState('TUTORIAL');
         });
       }
 
       shootBubble() {
         const now = Date.now();
         if (now - this.lastShootTime >= this.shootCooldown) {
-          // Launch Bubble from Player position
+          // Calculate if shooting special power bubble
           this.bubbles.push(new BubbleProjectile(this.player.x, this.player.y - 20));
           sound.playShoot();
           this.lastShootTime = now;
         }
       }
 
-      spawnEnemy() {
-        this.enemies.push(new BalloonEnemy(this.baseWidth, this.level));
+      spawnNormalEnemy() {
+        if (this.bossActive) return; // Halt spawns when boss is on-screen
+        this.enemies.push(new CuteEnemy(this.baseWidth, this.level));
       }
 
-      // Check bubble-enemy circle-to-circle collisions
+      spawnSpecialBubble() {
+        if (this.bossActive) return;
+        const types = ['rainbow', 'star', 'shield'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        this.enemies.push(new SpecialBubbleEnemy(this.baseWidth, type));
+      }
+
+      spawnBossChallenge() {
+        this.bossActive = true;
+        this.currentBoss = new CuteEnemy(this.baseWidth, this.level, 'boss');
+        this.enemies.push(this.currentBoss);
+
+        // Giant warning notification floating word
+        this.particles.push(new GameParticle({
+          x: this.baseWidth / 2,
+          y: this.baseHeight / 2 - 80,
+          color: '#ff5e7e',
+          type: 'text',
+          radius: 6.5,
+          text: '✨ 大气球怪挑战！✨',
+          decay: 0.01
+        }));
+      }
+
+      // Bubble Collision Resolution loops
       checkCollisions() {
         for (let b = this.bubbles.length - 1; b >= 0; b--) {
           const bubble = this.bubbles[b];
+          let bubblePopped = false;
 
           for (let e = this.enemies.length - 1; e >= 0; e--) {
             const enemy = this.enemies[e];
 
-            // Radial distances
             const dx = bubble.x - enemy.x;
             const dy = bubble.y - enemy.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            // Collide hit
+            // Trigger hit checks
             if (dist < bubble.radius + enemy.radius) {
-              // 1. Remove bubble and enemy
+              bubblePopped = true;
               this.bubbles.splice(b, 1);
-              this.enemies.splice(e, 1);
 
-              // 2. Play sound effects
-              sound.playPop();
+              // 1. Check if special item bubble hit
+              if (enemy instanceof SpecialBubbleEnemy) {
+                this.enemies.splice(e, 1);
+                this.activateSpecialBubble(enemy);
+                break;
+              }
 
-              // 3. Calculate Score gains
-              this.score += 10;
+              // 2. regular enemy hit
+              if (enemy.type === 'boss') {
+                enemy.hp -= 1;
+                sound.playPop();
+                this.combo += 1;
+                this.updateUI();
+
+                // Small flash particle on boss body
+                for (let i = 0; i < 4; i++) {
+                  this.particles.push(new GameParticle({
+                    x: bubble.x,
+                    y: bubble.y,
+                    color: '#ffee93'
+                  }));
+                }
+
+                if (enemy.hp <= 0) {
+                  // Boss defeated
+                  this.enemies.splice(e, 1);
+                  this.defeatBoss(enemy);
+                }
+              } else {
+                // Common Enemy Defeat
+                this.enemies.splice(e, 1);
+                this.defeatCommonEnemy(enemy);
+              }
+
+              break;
+            }
+          }
+        }
+
+        // Projectile offscreen miss combo reset check
+        for (let b = this.bubbles.length - 1; b >= 0; b--) {
+          if (this.bubbles[b].y < -20) {
+            this.bubbles.splice(b, 1);
+            
+            // Miss resets combo smoothly
+            if (this.combo > 0) {
+              this.combo = 0;
               this.updateUI();
-
-              // Check level progress
-              if (this.score % 100 === 0) {
-                this.level += 1;
-                this.spawnInterval = Math.max(600, 2000 - this.level * 180);
-                sound.playLevelUp();
-
-                // Level up float animation text
-                this.particles.push(new SparkParticle(
-                  this.baseWidth / 2, 
-                  this.baseHeight / 2 - 100, 
-                  '#a0e7e5', 
-                  'text', 
-                  `✨ LEVEL ${this.level} ✨`
-                ));
-              }
-
-              // 4. Generate visual glitter explosion particles
-              for (let i = 0; i < 12; i++) {
-                this.particles.push(new SparkParticle(enemy.x, enemy.y, enemy.color, 'star'));
-              }
-              for (let i = 0; i < 6; i++) {
-                this.particles.push(new SparkParticle(enemy.x, enemy.y, 'rgba(255,255,255,0.7)', 'bubble'));
-              }
-
-              // 5. Encourgement floating text pops randomly
-              if (Math.random() < 0.4 || this.score % 50 === 0) {
-                const words = ENCOURAGING_WORDS[Math.floor(Math.random() * ENCOURAGING_WORDS.length)];
-                const wordColors = ['#ffb7c5', '#ffee93', '#a0e7e5', '#dfb2f4', '#bbf2c6'];
-                const textColor = wordColors[Math.floor(Math.random() * wordColors.length)];
-
-                this.particles.push(new SparkParticle(
-                  enemy.x, 
-                  enemy.y - 15, 
-                  textColor, 
-                  'text', 
-                  words
-                ));
-              }
-
-              break; // exit inner loop for this bubble
             }
           }
         }
       }
 
-      update(deltaTime) {
-        // Update twinkling background stars
-        this.stars.forEach(star => star.update());
+      // Player to Item collection overlaps checks
+      checkItemCollections() {
+        for (let s = this.collectibleStars.length - 1; s >= 0; s--) {
+          const star = this.collectibleStars[s];
+          const dx = this.player.x - star.x;
+          const dy = this.player.y - star.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < this.player.radius + star.radius) {
+            this.collectibleStars.splice(s, 1);
+            
+            // Audio cue
+            sound.playBling();
+
+            // Reward gains
+            const bonusScore = 15;
+            this.score += bonusScore;
+            
+            // Drop floating star collection indicators
+            this.particles.push(new GameParticle({
+              x: star.x,
+              y: star.y - 10,
+              type: 'text',
+              color: '#ffee93',
+              text: '星星能量 +15!',
+              radius: 3.5,
+              decay: 0.02
+            }));
+
+            // Launch flying star UI elements
+            if (CONFIG.animation === 'high') {
+              this.particles.push(new GameParticle({
+                x: star.x,
+                y: star.y,
+                type: 'ui-star',
+                tx: 65, // coordinates matching HUD scoreboard item
+                ty: 30
+              }));
+            }
+
+            // High rate recovery
+            if (this.hearts < this.maxHearts && Math.random() < 0.2) {
+              this.hearts = Math.min(this.maxHearts, this.hearts + 1);
+              this.particles.push(new GameParticle({
+                x: this.player.x,
+                y: this.player.y - 30,
+                type: 'text',
+                color: '#ff5e7e',
+                text: '❤️ 爱心恢复!',
+                radius: 4,
+                decay: 0.015
+              }));
+            }
+
+            this.updateUI();
+          }
+        }
+      }
+
+      defeatCommonEnemy(enemy) {
+        sound.playPop();
+        
+        // Add combos
+        this.combo += 1;
+        this.score += 10 * this.combo; // multiplier
+        this.updateUI();
+
+        // Explosion particles
+        const particlesAmt = CONFIG.animation === 'high' ? 12 : 3;
+        for (let i = 0; i < particlesAmt; i++) {
+          this.particles.push(new GameParticle({ x: enemy.x, y: enemy.y, color: enemy.color }));
+        }
+
+        // Randomly drop collectible gold stars
+        if (Math.random() < 0.28) {
+          this.collectibleStars.push(new CollectibleStarItem(enemy.x, enemy.y));
+        }
+
+        // Encourgement messages floating
+        if (Math.random() < 0.35 || this.score % 60 === 0) {
+          const phrase = ENCOURAGEMENTS_HIT[Math.floor(Math.random() * ENCOURAGEMENTS_HIT.length)];
+          const colors = ['#ffee93', '#ffb7c5', '#a0e7e5', '#dfb2f4', '#bbf2c6'];
+          
+          this.particles.push(new GameParticle({
+            x: enemy.x,
+            y: enemy.y - 12,
+            type: 'text',
+            text: phrase,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            radius: 3.5 + Math.random(),
+            decay: 0.018
+          }));
+        }
+
+        this.checkLevelUps();
+      }
+
+      defeatBoss(boss) {
+        this.bossActive = false;
+        this.currentBoss = null;
+        sound.playVictory();
+
+        // Level up!
+        this.level += 1;
+        this.score += 150; // Big bonus
+        this.updateUI();
+
+        // 1. Giant screen flashing
+        this.levelUpFlashAlpha = 0.6;
+
+        // 2. Drop tons of collectible stars
+        const starDrops = 5;
+        for (let i = 0; i < starDrops; i++) {
+          const drop = new CollectibleStarItem(boss.x + (Math.random() - 0.5) * 80, boss.y + (Math.random() - 0.5) * 40);
+          drop.speed = 1.8 + Math.random() * 1.2;
+          this.collectibleStars.push(drop);
+        }
+
+        // 3. Huge burst of colors particles
+        const burstCount = CONFIG.animation === 'high' ? 30 : 8;
+        const colors = ['#ffee93', '#ffb7c5', '#a0e7e5', '#dfb2f4', '#bbf2c6'];
+        for (let i = 0; i < burstCount; i++) {
+          this.particles.push(new GameParticle({
+            x: boss.x,
+            y: boss.y,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            vx: (Math.random() - 0.5) * 10,
+            vy: (Math.random() - 0.5) * 10
+          }));
+        }
+
+        // Victory Float text
+        this.particles.push(new GameParticle({
+          x: this.baseWidth / 2,
+          y: this.baseHeight / 2 - 50,
+          type: 'text',
+          color: '#ffee93',
+          text: '✨ 守护大胜利！ ✨',
+          radius: 6,
+          decay: 0.01
+        }));
+      }
+
+      checkLevelUps() {
+        const pointsRequired = this.level * 100;
+        if (this.score >= pointsRequired && !this.bossActive) {
+          // Increment Level
+          this.level += 1;
+          this.spawnInterval = Math.max(700, 2000 - this.level * 150);
+          sound.playLevelUp();
+
+          // Level Up flash triggers
+          this.levelUpFlashAlpha = 0.5;
+
+          this.particles.push(new GameParticle({
+            x: this.baseWidth / 2,
+            y: this.baseHeight / 2 - 100,
+            type: 'text',
+            color: '#a0e7e5',
+            text: `🌟 关卡提升 LEVEL ${this.level} 🌟`,
+            radius: 5,
+            decay: 0.015
+          }));
+
+          this.updateUI();
+
+          // Trigger Boss Challenges every 5 levels
+          if (this.level % 5 === 0) {
+            this.spawnBossChallenge();
+          }
+        }
+      }
+
+      activateSpecialBubble(item) {
+        sound.playBling();
+        
+        if (item.type === 'rainbow') {
+          // Rainbow Pop Shockwave: Destroys nearby small enemies
+          this.particles.push(new GameParticle({
+            x: item.x,
+            y: item.y,
+            type: 'text',
+            color: '#dfb2f4',
+            text: '🌈 彩虹爆破!',
+            radius: 4,
+            decay: 0.015
+          }));
+
+          // Trigger Ring expansion visually
+          let explosionRadius = 140;
+          
+          for (let e = this.enemies.length - 1; e >= 0; e--) {
+            const enemy = this.enemies[e];
+            if (enemy.type === 'boss') continue; // Boss immune to instant kill
+
+            const dx = item.x - enemy.x;
+            const dy = item.y - enemy.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < explosionRadius) {
+              this.enemies.splice(e, 1);
+              this.defeatCommonEnemy(enemy);
+            }
+          }
+
+          // Generate blast visual particles ring
+          const ringSparks = CONFIG.animation === 'high' ? 24 : 6;
+          for (let i = 0; i < ringSparks; i++) {
+            const angle = (i / ringSparks) * Math.PI * 2;
+            const spd = 6;
+            this.particles.push(new GameParticle({
+              x: item.x,
+              y: item.y,
+              color: `hsl(${i * 15}, 100%, 75%)`,
+              vx: Math.cos(angle) * spd,
+              vy: Math.sin(angle) * spd,
+              decay: 0.03
+            }));
+          }
+
+        } else if (item.type === 'star') {
+          // Star Bubble: Huge Score Boost
+          const extraPts = 50;
+          this.score += extraPts;
+          this.updateUI();
+
+          this.particles.push(new GameParticle({
+            x: item.x,
+            y: item.y,
+            type: 'text',
+            color: '#ffee93',
+            text: '✨ 黄金加分 +50! ✨',
+            radius: 4.5,
+            decay: 0.012
+          }));
+
+          // Spray shiny golden stars
+          for (let i = 0; i < 8; i++) {
+            this.particles.push(new GameParticle({
+              x: item.x,
+              y: item.y,
+              color: '#ffee93',
+              decay: 0.02
+            }));
+          }
+
+        } else if (item.type === 'shield') {
+          // Shield Bubble: Player Invulnerability for 8 seconds
+          this.player.shieldDuration = 8000; // 8 seconds duration
+          
+          this.particles.push(new GameParticle({
+            x: item.x,
+            y: item.y,
+            type: 'text',
+            color: '#a0e7e5',
+            text: '🛡️ 星光护盾 8秒!',
+            radius: 4,
+            decay: 0.015
+          }));
+        }
+      }
+
+      update(timeDelta) {
+        // Background elements update
+        this.twinkleStars.forEach(star => star.update());
+        this.clouds.forEach(cloud => cloud.update());
+
+        // Level Up Flash decay
+        if (this.levelUpFlashAlpha > 0) {
+          this.levelUpFlashAlpha -= 0.015;
+        }
 
         if (this.state !== 'PLAYING') return;
 
-        // A/D Keyboard controls for desktop fallback
+        // Player A/D keyboard bounds
+        const speed = CONFIG.difficulty === 'easy' ? 6.5 : 7.5;
         if (this.keys['KeyA'] || this.keys['ArrowLeft']) {
-          this.player.targetX = Math.max(25, this.player.x - this.player.speed);
+          this.player.targetX = Math.max(25, this.player.x - speed);
         }
         if (this.keys['KeyD'] || this.keys['ArrowRight']) {
-          this.player.targetX = Math.min(this.baseWidth - 25, this.player.x + this.player.speed);
+          this.player.targetX = Math.min(this.baseWidth - 25, this.player.x + speed);
         }
 
-        // Update player animations
-        this.player.update();
+        this.player.update(timeDelta);
 
-        // Update bubble movements
+        // Projectiles update
         for (let i = this.bubbles.length - 1; i >= 0; i--) {
           this.bubbles[i].update();
-          // Remove out-of-screen bubbles
-          if (this.bubbles[i].y < -20) {
-            this.bubbles.splice(i, 1);
-          }
         }
 
-        // Update and spawn enemy balloons
-        this.spawnTimer += deltaTime;
+        // Enemies updates & Spawning
+        this.spawnTimer += timeDelta;
         if (this.spawnTimer >= this.spawnInterval) {
-          this.spawnEnemy();
+          this.spawnNormalEnemy();
           this.spawnTimer = 0;
+        }
+
+        // Special bubble items Spawning
+        this.specialSpawnTimer += timeDelta;
+        if (this.specialSpawnTimer >= this.specialSpawnInterval) {
+          this.spawnSpecialBubble();
+          this.specialSpawnTimer = 0;
         }
 
         for (let i = this.enemies.length - 1; i >= 0; i--) {
           const enemy = this.enemies[i];
           enemy.update();
 
-          // Check if enemy slipped past the screen bottom
+          // Out-of-bounds cross bottom triggers life deduct
           if (enemy.y > this.baseHeight + enemy.radius) {
             this.enemies.splice(i, 1);
-            this.hearts -= 1;
+
+            // Ignore damage if shield active
+            if (this.player.shieldDuration > 0) {
+              this.particles.push(new GameParticle({
+                x: enemy.x,
+                y: this.baseHeight - 30,
+                type: 'text',
+                color: '#a0e7e5',
+                text: '🛡️ 护盾防御!',
+                radius: 3.5,
+                decay: 0.02
+              }));
+              continue;
+            }
+
+            // Boss leaking loses 2 hearts instead of 1
+            const lifeDamage = enemy.type === 'boss' ? 2 : 1;
+            this.hearts -= lifeDamage;
+            this.combo = 0; // reset combo on dmg
             this.updateUI();
+
             sound.playLoseLife();
 
-            // Flash Screen / Floating loss warning
-            this.particles.push(new SparkParticle(
-              this.baseWidth / 2, 
-              this.baseHeight - 150, 
-              '#ff5e7e', 
-              'text', 
-              '🌟 星星能量流失! -1'
-            ));
+            this.particles.push(new GameParticle({
+              x: this.baseWidth / 2,
+              y: this.baseHeight - 120,
+              type: 'text',
+              color: '#ff5e7e',
+              text: `城堡受损! -${lifeDamage}`,
+              radius: 4,
+              decay: 0.015
+            }));
 
+            // Check defeat
             if (this.hearts <= 0) {
               this.setState('GAMEOVER');
             }
           }
         }
 
-        // Check bubble vs enemy hits
-        this.checkCollisions();
+        // Star drop items updates
+        for (let i = this.collectibleStars.length - 1; i >= 0; i--) {
+          const star = this.collectibleStars[i];
+          star.update();
+          if (star.y > this.baseHeight + star.radius) {
+            this.collectibleStars.splice(i, 1);
+          }
+        }
 
-        // Update active particles
+        this.checkCollisions();
+        this.checkItemCollections();
+
+        // Particles updates
         for (let i = this.particles.length - 1; i >= 0; i--) {
           this.particles[i].update();
           if (this.particles[i].alpha <= 0) {
@@ -1428,19 +2802,40 @@
       }
 
       draw() {
-        // Clear canvas with space darkness background
+        // Clear frame
         this.ctx.clearRect(0, 0, this.baseWidth, this.baseHeight);
 
-        // Draw Twinkling Background Stars
-        this.stars.forEach(star => star.draw(this.ctx));
+        // Draw static/twinkling night sky background stars
+        this.twinkleStars.forEach(star => star.draw(this.ctx));
 
-        // Draw active game elements
+        // Draw parallax drifting background clouds
+        this.clouds.forEach(cloud => cloud.draw(this.ctx));
+
+        // Draw Star Castle silhouette at bottom
+        drawStarCastle(this.ctx, this.baseWidth, this.baseHeight);
+
+        // Draw falling collectible stars
+        this.collectibleStars.forEach(star => star.draw(this.ctx));
+
+        // Draw projectiles & enemies
         this.bubbles.forEach(bubble => bubble.draw(this.ctx));
         this.enemies.forEach(enemy => enemy.draw(this.ctx));
-        this.particles.forEach(particle => particle.draw(this.ctx));
 
-        if (this.state === 'PLAYING' || this.state === 'PAUSED') {
+        // Draw player
+        if (this.state === 'PLAYING' || this.state === 'PAUSED' || this.state === 'SETTINGS') {
           this.player.draw(this.ctx);
+        }
+
+        // Draw Active Particles
+        this.particles.forEach(p => p.draw(this.ctx));
+
+        // Draw level up screen-size flash overlays
+        if (this.levelUpFlashAlpha > 0) {
+          this.ctx.save();
+          this.ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+          this.ctx.globalAlpha = this.levelUpFlashAlpha;
+          this.ctx.fillRect(0, 0, this.baseWidth, this.baseHeight);
+          this.ctx.restore();
         }
       }
 
@@ -1452,8 +2847,7 @@
           const elapsed = timestamp - lastTimestamp;
           lastTimestamp = timestamp;
 
-          // Limit delta time checks to avoid huge physics jumps when tab loses focus
-          const delta = Math.min(elapsed, 100);
+          const delta = Math.min(elapsed, 80);
 
           this.update(delta);
           this.draw();
@@ -1465,7 +2859,7 @@
       }
     }
 
-    // Launch game on load
+    // Launch!
     window.addEventListener('DOMContentLoaded', () => {
       const game = new GameEngine();
       game.start();
