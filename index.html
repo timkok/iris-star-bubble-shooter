@@ -15,18 +15,17 @@
        DESIGN SYSTEM & CSS VARIABLES
        ========================================== */
     :root {
-      --sky-top: #172554;     /* Deep navy blue */
-      --sky-mid: #1e1b4b;     /* Twilight purple */
-      --sky-bottom: #4c1d95;  /* Royal violet */
-      --pastel-pink: #f9a8d4;
-      --pastel-blue: #93c5fd;
-      --pastel-yellow: #fde68a;
-      --pastel-green: #86efac;
-      --text-white: #f8fafc;
-      --text-purple: #38255c;
-      --glass-panel: rgba(255, 255, 255, 0.14);
-      --glass-border: rgba(255, 255, 255, 0.25);
-      --shadow-color: rgba(23, 20, 50, 0.4);
+      --bg-deep: #0f172a;       /* Deep slate */
+      --bg-purple: #1e1b4b;     /* Indigo-purple */
+      --pink: #f9a8d4;          /* Soft pink */
+      --blue: #93c5fd;          /* Dreamy light blue */
+      --mint: #86efac;          /* Light mint green */
+      --yellow: #fde68a;        /* Cream yellow */
+      --panel: rgba(255, 255, 255, 0.13); /* Glassmorphism background */
+      --panel-border: rgba(255, 255, 255, 0.22);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --shadow: rgba(15, 23, 42, 0.45);
     }
 
     * {
@@ -35,12 +34,12 @@
       padding: 0;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: none; /* Disables double tap zoom and default scroll behavior */
+      touch-action: none; /* Disables default zoom and scroll */
     }
 
     body {
-      background: linear-gradient(135deg, var(--sky-top), var(--sky-mid));
-      color: var(--text-white);
+      background: var(--bg-deep);
+      color: var(--text);
       font-family: 'Fredoka', 'System-UI', -apple-system, sans-serif;
       overflow: hidden;
       width: 100vw;
@@ -57,11 +56,11 @@
       height: 100vh;
       max-width: 600px;
       max-height: 800px;
-      background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 60%, var(--sky-bottom) 100%);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 100px rgba(76, 29, 149, 0.3);
+      background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-purple) 60%, #3b0764 100%);
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7), 0 0 120px rgba(76, 29, 149, 0.25);
       overflow: hidden;
-      border-radius: 24px;
-      border: 4px solid var(--glass-border);
+      border-radius: 28px;
+      border: 4px solid var(--panel-border);
     }
 
     @media (max-width: 600px), (max-height: 800px) {
@@ -82,7 +81,7 @@
     }
 
     /* ==========================================
-       UI DASHBOARD (HUD) OVERLAY
+       UI HUD OVERLAY (TOP BAR)
        ========================================== */
     #hud-overlay {
       position: absolute;
@@ -92,130 +91,108 @@
       padding: 16px 20px;
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
       pointer-events: none;
       z-index: 10;
     }
 
-    .hud-left {
+    /* Single horizontal capsule glass bar */
+    .hud-capsule {
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1.5px solid var(--panel-border);
+      padding: 8px 16px;
+      border-radius: 24px;
       display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .hud-right {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 8px;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 10px 25px var(--shadow);
       pointer-events: auto;
     }
 
-    /* Glassmorphism Badge elements */
-    .hud-card {
-      background: var(--glass-panel);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1.5px solid var(--glass-border);
-      padding: 6px 16px;
-      border-radius: 20px;
+    .hud-stat {
+      font-weight: 700;
+      font-size: 15px;
       display: flex;
       align-items: center;
-      gap: 8px;
-      box-shadow: 0 8px 24px var(--shadow-color);
-      font-weight: 600;
-      font-size: 15px;
+      gap: 6px;
       letter-spacing: 0.5px;
-      pointer-events: none;
     }
 
-    #score-badge {
-      color: var(--pastel-yellow);
-      font-size: 18px;
-      font-weight: 700;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    #score-text {
+    #hud-score-val {
+      color: var(--yellow);
+      transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       display: inline-block;
-      transition: transform 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    #level-badge {
-      color: var(--pastel-blue);
-      font-size: 14px;
+    #hud-level-val {
+      color: var(--blue);
     }
 
-    .hearts-container {
+    .hud-hearts {
       display: flex;
       gap: 4px;
-      font-size: 20px;
+      font-size: 18px;
       color: #f472b6;
-      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
     }
 
-    /* Interactive Buttons in HUD */
-    .hud-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .btn-hud-round {
-      width: 40px;
-      height: 40px;
+    /* Round Candy Buttons */
+    .btn-hud-action {
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
-      background: var(--glass-panel);
-      border: 1.5px solid var(--glass-border);
-      color: var(--text-white);
+      background: var(--panel);
+      border: 1.5px solid var(--panel-border);
+      color: var(--text);
       display: flex;
       justify-content: center;
       align-items: center;
       cursor: pointer;
       font-size: 16px;
-      box-shadow: 0 8px 20px var(--shadow-color);
+      box-shadow: 0 10px 20px var(--shadow);
       transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      pointer-events: auto;
     }
 
-    .btn-hud-round:hover {
+    .btn-hud-action:hover {
       transform: scale(1.1) translateY(-2px);
       background: rgba(255, 255, 255, 0.22);
       border-color: #fff;
     }
 
-    .btn-hud-round:active {
+    .btn-hud-action:active {
       transform: scale(0.95) translateY(0);
     }
 
-    /* Combo counter badge floating in HUD */
-    #combo-container {
-      display: inline-block;
+    /* Bouncing Combo HUD Badge */
+    #hud-combo {
       background: linear-gradient(135deg, #ec4899, #f472b6);
       border: 2px solid #fff;
       color: #fff;
-      padding: 4px 12px;
-      border-radius: 16px;
-      font-size: 13px;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 12px;
       font-weight: 700;
-      margin-left: 8px;
-      box-shadow: 0 6px 15px rgba(236, 72, 153, 0.4);
+      box-shadow: 0 6px 12px rgba(236, 72, 153, 0.4);
       transform: scale(0);
       transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      vertical-align: middle;
     }
 
-    #combo-container.active {
+    #hud-combo.active {
       transform: scale(1);
-      animation: comboJump 0.35s ease-out;
+      animation: comboPop 0.35s ease-out;
     }
 
-    @keyframes comboJump {
+    @keyframes comboPop {
       0% { transform: scale(1); }
       50% { transform: scale(1.3) rotate(-6deg); }
       100% { transform: scale(1); }
     }
 
     /* ==========================================
-       SCREENS / OVERLAY STYLING
+       SCREENS & GAME OVERLAY CARDS
        ========================================== */
     .screen-overlay {
       position: absolute;
@@ -223,9 +200,9 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(22, 18, 51, 0.86);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(15, 12, 33, 0.88);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -241,68 +218,93 @@
       pointer-events: none;
     }
 
-    /* Magical Animated Title */
+    /* Start Screen Layout: Highly styled */
+    #start-screen {
+      padding-top: 40px;
+    }
+
     .title-magical {
       font-size: 38px;
       font-weight: 700;
-      color: var(--pastel-yellow);
-      text-shadow: 0 0 15px rgba(253, 230, 138, 0.5), 0 6px 0px #b45309;
-      margin-bottom: 8px;
-      animation: floatTitle 3.5s ease-in-out infinite;
+      color: var(--yellow);
+      text-shadow: 0 0 15px rgba(253, 230, 138, 0.4), 0 5px 0px #b45309;
+      margin-bottom: 4px;
+      animation: floatTitle 3s ease-in-out infinite;
       letter-spacing: 0.5px;
     }
 
     .subtitle-magical {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 500;
-      color: var(--pastel-pink);
+      color: var(--pink);
       margin-bottom: 24px;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
     }
 
     @keyframes floatTitle {
       0%, 100% { transform: translateY(0) rotate(-1.5deg); }
-      50% { transform: translateY(-8px) rotate(1.5deg); }
+      50% { transform: translateY(-6px) rotate(1.5deg); }
     }
 
-    /* Game Cards / Dialogue Boxes */
-    .panel-card {
-      background: var(--glass-panel);
-      border: 2px solid var(--glass-border);
+    /* Interactive Game Cards (Start Menu) */
+    .menu-panel {
+      background: var(--panel);
+      border: 2px solid var(--panel-border);
       padding: 24px;
-      border-radius: 24px;
-      max-width: 450px;
+      border-radius: 28px;
+      max-width: 460px;
       width: 100%;
-      margin-bottom: 28px;
-      font-size: 14px;
-      line-height: 1.6;
-      color: #e2e8f0;
-      box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.05), 0 15px 35px rgba(0, 0, 0, 0.3);
+      margin-bottom: 24px;
+      box-shadow: inset 0 2px 8px rgba(255,255,255,0.05), 0 15px 35px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .panel-card h3 {
-      color: var(--pastel-blue);
-      margin-bottom: 14px;
-      font-size: 19px;
+    /* Simplified instruction cards row */
+    .instructions-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin: 16px 0;
+    }
+
+    .instruction-card {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 12px 6px;
+      border-radius: 18px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .instruction-icon {
+      font-size: 24px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .instruction-text {
+      font-size: 11px;
       font-weight: 600;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      color: #cbd5e1;
     }
 
-    /* Magical Game Buttons */
+    /* Play buttons */
     .btn-magical-main {
       font-family: 'Fredoka', sans-serif;
       font-weight: 700;
-      font-size: 20px;
+      font-size: 22px;
       color: var(--text-purple);
-      background: linear-gradient(135deg, var(--pastel-yellow), var(--pastel-pink));
+      background: linear-gradient(135deg, var(--yellow), var(--pink));
       border: 2px solid #fff;
-      padding: 12px 40px;
+      padding: 14px 44px;
       border-radius: 30px;
       cursor: pointer;
-      box-shadow: 0 10px 25px rgba(249, 168, 212, 0.4), inset 0 -3px 0px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 10px 25px rgba(249, 168, 212, 0.35), inset 0 -3px 0px rgba(0, 0, 0, 0.15);
       transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      letter-spacing: 0.5px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -310,13 +312,13 @@
     }
 
     .btn-magical-main:hover {
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 12px 30px rgba(249, 168, 212, 0.6), inset 0 -3px 0px rgba(0, 0, 0, 0.15);
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 12px 30px rgba(249, 168, 212, 0.5), inset 0 -3px 0px rgba(0, 0, 0, 0.15);
     }
 
     .btn-magical-main:active {
       transform: translateY(1px) scale(0.98);
-      box-shadow: 0 5px 15px rgba(249, 168, 212, 0.3);
+      box-shadow: 0 5px 15px rgba(249, 168, 212, 0.25);
     }
 
     .btn-group-row {
@@ -324,22 +326,23 @@
       gap: 12px;
       justify-content: center;
       width: 100%;
-      max-width: 450px;
+      max-width: 460px;
+      margin-top: 10px;
     }
 
     .btn-magical-outline {
       font-family: 'Fredoka', sans-serif;
       font-weight: 600;
       font-size: 16px;
-      color: var(--text-white);
+      color: var(--text);
       background: rgba(255, 255, 255, 0.08);
-      border: 1.5px solid var(--glass-border);
+      border: 1.5px solid var(--panel-border);
       padding: 12px 28px;
       border-radius: 25px;
       cursor: pointer;
       flex: 1;
       transition: all 0.2s ease;
-      box-shadow: 0 8px 20px var(--shadow-color);
+      box-shadow: 0 8px 20px var(--shadow);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -347,22 +350,19 @@
     }
 
     .btn-magical-outline:hover {
-      background: rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.16);
       border-color: #fff;
       transform: translateY(-2px);
     }
 
-    .btn-magical-outline:active {
-      transform: translateY(0);
-    }
-
     /* ==========================================
-       SETTINGS PANEL & SLIDERS
+       SETTINGS & OVERLAY FORMS
        ========================================== */
     .setting-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      width: 100%;
       padding: 14px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
@@ -377,17 +377,17 @@
 
     .setting-title {
       font-weight: 600;
-      font-size: 16px;
+      font-size: 15px;
       color: #faf5ff;
     }
 
     .setting-detail {
-      font-size: 12px;
-      color: #94a3b8;
+      font-size: 11px;
+      color: var(--muted);
       margin-top: 2px;
     }
 
-    /* IOS Style Toggle Switch */
+    /* Switch styling */
     .toggle-switch {
       position: relative;
       display: inline-block;
@@ -408,7 +408,7 @@
       background-color: rgba(255, 255, 255, 0.15);
       transition: 0.3s;
       border-radius: 34px;
-      border: 1px solid var(--glass-border);
+      border: 1px solid var(--panel-border);
     }
 
     .toggle-slider:before {
@@ -425,14 +425,14 @@
     }
 
     input:checked + .toggle-slider {
-      background: linear-gradient(135deg, var(--pastel-blue), var(--pastel-pink));
+      background: linear-gradient(135deg, var(--blue), var(--pink));
     }
 
     input:checked + .toggle-slider:before {
       transform: translateX(22px);
     }
 
-    /* Option tabs / group */
+    /* Option tabs */
     .pill-tabs {
       display: flex;
       background: rgba(0, 0, 0, 0.25);
@@ -447,7 +447,7 @@
       font-size: 13px;
       border: none;
       background: transparent;
-      color: #94a3b8;
+      color: var(--muted);
       padding: 6px 14px;
       border-radius: 12px;
       cursor: pointer;
@@ -455,26 +455,25 @@
     }
 
     .tab-btn.active {
-      background: var(--glass-panel);
+      background: var(--panel);
       color: #fff;
       box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
     }
 
-    /* ==========================================
-       TUTORIAL SCREEN & CARDS
-       ========================================== */
-    .tutorial-container {
+    /* Tutorial containers */
+    .tutorial-box {
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 280px;
+      min-height: 250px;
       justify-content: space-between;
+      width: 100%;
     }
 
     .tut-slides {
       position: relative;
       width: 100%;
-      min-height: 200px;
+      min-height: 180px;
     }
 
     .tut-slide {
@@ -485,7 +484,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.25s ease;
     }
 
     .tut-slide.active {
@@ -493,136 +492,107 @@
       pointer-events: auto;
     }
 
-    .tut-visual {
-      font-size: 64px;
+    .tut-graphic {
+      font-size: 60px;
       margin-bottom: 12px;
-      filter: drop-shadow(0 4px 10px rgba(255, 255, 255, 0.15));
-      animation: floatGraphic 2s ease-in-out infinite;
+      filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.15));
+      animation: floatGraphic 2.5s ease-in-out infinite;
     }
 
     @keyframes floatGraphic {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+      50% { transform: translateY(-8px); }
     }
 
     .tut-desc {
-      font-size: 15px;
+      font-size: 14px;
       color: #cbd5e1;
       max-width: 320px;
-      line-height: 1.6;
+      line-height: 1.5;
     }
 
     .tut-dots {
       display: flex;
       gap: 8px;
-      margin-top: 16px;
+      margin-top: 14px;
     }
 
     .tut-dot {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.2);
       transition: 0.2s ease;
     }
 
     .tut-dot.active {
-      background: var(--pastel-yellow);
+      background: var(--yellow);
       transform: scale(1.3);
     }
 
-    /* Floating record score summary details */
-    .record-score {
+    .record-val {
       font-size: 26px;
       font-weight: 700;
-      color: var(--pastel-yellow);
+      color: var(--yellow);
       display: block;
       margin-top: 4px;
-      text-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      text-shadow: 0 3px 6px rgba(0,0,0,0.2);
     }
 
-    .record-label {
-      font-size: 13px;
-      color: #94a3b8;
-      margin-top: 8px;
-    }
-
-    /* Mobile controllers indicators helper */
+    /* Mobile indicator tips */
     #mobile-controls-tip {
       position: absolute;
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.45);
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
       pointer-events: none;
-      animation: hintFade 2s infinite;
+      animation: hintFade 2.5s infinite;
       text-align: center;
       z-index: 5;
     }
 
     @keyframes hintFade {
-      0%, 100% { opacity: 0.4; }
+      0%, 100% { opacity: 0.35; }
       50% { opacity: 0.95; }
     }
 
-    /* Touch screen controllers overlay bars at the very bottom */
-    #touch-zones {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 100px;
-      display: none;
-      pointer-events: auto;
-      z-index: 8;
-    }
-
-    .touch-zone-btn {
-      flex: 1;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.03);
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 28px;
-      color: rgba(255, 255, 255, 0.25);
-    }
-
-    .touch-zone-btn:active {
-      background: rgba(255, 255, 255, 0.08);
-      color: rgba(255, 255, 255, 0.5);
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation: none !important;
+        transition: none !important;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Game Box viewport wrapper -->
+  <!-- Game Container Box viewport -->
   <div id="game-container">
     
-    <!-- Top HUD Overlays -->
+    <!-- Top HUD Overlay Capsule -->
     <div id="hud-overlay">
-      <div class="hud-left">
-        <div class="hud-card" id="score-badge">
+      <div class="hud-capsule">
+        <div class="hud-stat" id="hud-score">
           <span>✨</span>
-          <span id="score-text">0</span>
-          <span id="combo-container">Combo x1</span>
+          <span id="hud-score-val">0</span>
+          <span id="hud-combo">Combo x1</span>
         </div>
-        <div class="hud-card" id="level-badge" style="margin-top: 6px;">
+        <div class="hud-stat" id="hud-level">
           <span>🌟</span>
-          <span id="level-text">关卡 1</span>
+          <span id="hud-level-val">1</span>
         </div>
-      </div>
-      <div class="hud-right">
-        <div id="hearts-panel" class="hearts-container">
+        <div class="hud-hearts" id="hud-hearts-panel">
           <!-- Populated by JS -->
         </div>
-        <div class="hud-actions" style="margin-top: 6px;">
-          <button id="btn-pause-toggle" class="btn-hud-round" title="暂停游戏">⏸</button>
-          <button id="btn-settings-toggle" class="btn-hud-round" title="游戏设置">⚙️</button>
+        <div class="hud-stat" style="color: var(--pink); font-size: 13px;">
+          <span>🏆</span>
+          <span id="hud-highscore-val">0</span>
         </div>
       </div>
+      
+      <button id="btn-pause-toggle" class="btn-hud-action" title="暂停游戏">⏸</button>
     </div>
 
     <!-- Canvas viewport -->
@@ -631,45 +601,61 @@
     <!-- 1. Start Screen Menu -->
     <div id="start-screen" class="screen-overlay">
       <h1 class="title-magical">Iris 的星星泡泡守护者</h1>
-      <p class="subtitle-magical">✨ 用七彩魔法泡泡，守护唯美夜空城堡 ✨</p>
+      <p class="subtitle-magical">✨ 用魔法泡泡守护城堡 ✨</p>
       
-      <div class="panel-card" style="margin-bottom: 24px;">
-        <p style="font-size: 15px; color: #cbd5e1;">夜空中飘来了调皮的小陨石和淘气怪，<br>快来控制星星飞船，收集遗落的光芒吧！🌸</p>
-        <div class="record-label">最高守护得分记录</div>
-        <div class="record-score"><span id="menu-highscore">0</span></div>
+      <div class="menu-panel">
+        <!-- 3-item instruction cards -->
+        <div class="instructions-row">
+          <div class="instruction-card">
+            <span class="instruction-icon">🛹</span>
+            <span class="instruction-text">左右移动</span>
+          </div>
+          <div class="instruction-card">
+            <span class="instruction-icon">🫧</span>
+            <span class="instruction-text">发射泡泡</span>
+          </div>
+          <div class="instruction-card">
+            <span class="instruction-icon">🌟</span>
+            <span class="instruction-text">收集星星</span>
+          </div>
+        </div>
+
+        <div style="font-size: 12px; color: var(--muted); margin-top: 10px;">最高守护得分</div>
+        <div class="record-val" id="menu-highscore">0</div>
       </div>
 
       <div class="btn-group-row">
-        <button id="btn-show-tutorial" class="btn-magical-outline">📚 怎么玩</button>
-        <button id="btn-start" class="btn-magical-main" style="flex: 1.3;">🚀 开始守护</button>
+        <button id="btn-show-tutorial" class="btn-magical-outline">📚 教学</button>
+        <button id="btn-start" class="btn-magical-main" style="flex: 1.4;">🚀 开始守护</button>
+        <button id="btn-settings-toggle" class="btn-hud-action" style="pointer-events: auto;">⚙️</button>
       </div>
     </div>
 
-    <!-- 2. Onboarding Tutorial slides -->
+    <!-- 2. Onboarding Tutorial Slides -->
     <div id="tutorial-screen" class="screen-overlay hidden">
-      <h1 class="title-magical" style="font-size: 32px; color: var(--pastel-blue);">守护城堡教学</h1>
-      <p class="subtitle-magical" style="margin-bottom: 16px;">跟随魔法教学，3秒轻松上手</p>
+      <h1 class="title-magical" style="font-size: 32px; color: var(--blue);">守护城堡教学</h1>
+      <p class="subtitle-magical" style="margin-bottom: 16px;">跟随魔法指令，3秒轻松上手</p>
       
-      <div class="panel-card" style="min-height: 280px; margin-bottom: 20px;">
-        <div class="tutorial-container">
+      <div class="menu-panel" style="min-height: 270px; margin-bottom: 20px;">
+        <div class="tutorial-box">
           <div class="tut-slides">
             <!-- Slide 1 -->
             <div class="tut-slide active" data-slide="0">
-              <div class="tut-visual">🛹</div>
+              <div class="tut-graphic">🛹</div>
               <h3>第一步：控制小星星移动</h3>
-              <p class="tut-desc">电脑玩家：使用键盘左右方向键或 <b>A/D</b> 键。<br>触屏/鼠标：在屏幕上<b>按住并左右拖动</b>。</p>
+              <p class="tut-desc">按键盘左右方向键或 <b>A/D</b> 键移动。<br>手机/鼠标玩家：在屏幕上 <b>左右拖动</b>。</p>
             </div>
             <!-- Slide 2 -->
             <div class="tut-slide" data-slide="1">
-              <div class="tut-visual">🫧</div>
+              <div class="tut-graphic">🫧</div>
               <h3>第二步：发射魔法泡泡</h3>
-              <p class="tut-desc">电脑玩家：按 <b>空格键</b> 或 <b>鼠标左键</b> 点击。<br>触屏玩家：<b>轻触屏幕任意位置</b> 即可发射泡泡。</p>
+              <p class="tut-desc">按键盘 <b>空格键</b> 射击。<br>触屏玩家：<b>轻触屏幕任意位置</b> 发射泡泡。</p>
             </div>
             <!-- Slide 3 -->
             <div class="tut-slide" data-slide="2">
-              <div class="tut-visual">🏰</div>
-              <h3>第三步：消除怪物，收集奖励</h3>
-              <p class="tut-desc">泡泡击中怪兽即可将其净化为星光！漏掉怪兽会损耗爱心。被打爆的怪兽会掉落<b>金色星星</b>，接住能加分并回血！</p>
+              <div class="tut-graphic">🏰</div>
+              <h3>第三步：消除怪兽，接住星星</h3>
+              <p class="tut-desc">泡泡打中怪兽即可将其净化！漏掉怪兽损耗心。打爆怪兽掉落<b>金色星星</b>，接住加分并回血！</p>
             </div>
           </div>
           <div class="tut-dots">
@@ -683,33 +669,33 @@
       <div class="btn-group-row">
         <button id="btn-tut-skip" class="btn-magical-outline" style="border-color: transparent;">跳过</button>
         <button id="btn-tut-prev" class="btn-magical-outline" style="display: none;">◀ 上一步</button>
-        <button id="btn-tut-next" class="btn-magical-main" style="flex: 1.3;">下一步 ▶</button>
+        <button id="btn-tut-next" class="btn-magical-main" style="flex: 1.4;">下一步 ▶</button>
       </div>
     </div>
 
     <!-- 3. Pause Screen overlay -->
     <div id="pause-screen" class="screen-overlay hidden">
-      <h1 class="title-magical" style="color: var(--pastel-blue); font-size: 32px;">休息一下 🌸</h1>
-      <div class="panel-card">
-        <p style="font-size: 16px; color: #e2e8f0;">星星飞船正在蓄能中，城堡非常安全...</p>
-        <p style="margin-top: 10px; font-size: 13px; color: #94a3b8;">电脑玩家可按键盘 <b>P</b> 或 <b>Esc</b> 快速恢复守护</p>
+      <h1 class="title-magical" style="color: var(--blue); font-size: 32px;">休息一下 🌸</h1>
+      <div class="menu-panel">
+        <p style="font-size: 15px; color: #cbd5e1;">星星城堡很安全，飞船正在蓄能中...</p>
+        <p style="margin-top: 10px; font-size: 13px; color: var(--muted);">按键盘 <b>P</b> 或 <b>Esc</b> 键可快速继续守护</p>
       </div>
       <div class="btn-group-row">
         <button id="btn-restart-pause" class="btn-magical-outline">重新开始</button>
-        <button id="btn-resume" class="btn-magical-main" style="flex: 1.3;">继续守护 🚀</button>
+        <button id="btn-resume" class="btn-magical-main" style="flex: 1.4;">继续守护 🚀</button>
       </div>
     </div>
 
     <!-- 4. Settings Screen panel overlay -->
     <div id="settings-screen" class="screen-overlay hidden">
-      <h1 class="title-magical" style="font-size: 32px; color: var(--pastel-pink);">游戏设置 ⚙️</h1>
+      <h1 class="title-magical" style="font-size: 32px; color: var(--pink);">游戏设置 ⚙️</h1>
       
-      <div class="panel-card" style="margin-bottom: 20px;">
+      <div class="menu-panel" style="margin-bottom: 20px;">
         <!-- Sounds -->
         <div class="setting-item">
           <div class="setting-info">
-            <div class="setting-title">游戏声效 🔊</div>
-            <div class="setting-detail">开启泡泡爆破与吃星星的可爱音效</div>
+            <div class="setting-title">游戏音效 🔊</div>
+            <div class="setting-detail">开启泡泡净化与吃星星的可爱效果</div>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="setting-sound" checked>
@@ -721,7 +707,7 @@
         <div class="setting-item">
           <div class="setting-info">
             <div class="setting-title">游戏难度 🧸</div>
-            <div class="setting-detail">简单更适合 10 岁的 Iris 畅玩</div>
+            <div class="setting-detail">简单难度更适合 10 岁 Iris 畅玩</div>
           </div>
           <div class="pill-tabs" id="setting-difficulty">
             <button class="tab-btn active" data-val="easy">简单</button>
@@ -733,7 +719,7 @@
         <div class="setting-item">
           <div class="setting-info">
             <div class="setting-title">特效表现 ✨</div>
-            <div class="setting-detail">节能模式将关闭拖尾并优化画质</div>
+            <div class="setting-detail">低画质将关闭拖尾并缩减 80% 粒子</div>
           </div>
           <div class="pill-tabs" id="setting-animation">
             <button class="tab-btn active" data-val="high">精致</button>
@@ -744,30 +730,30 @@
         <!-- Reset score -->
         <div class="setting-item">
           <div class="setting-info">
-            <div class="setting-title">清除高分 🗑️</div>
-            <div class="setting-detail">将最高守护记录清零</div>
+            <div class="setting-title">清除记录 🗑️</div>
+            <div class="setting-detail">将本地最高守护得分清零</div>
           </div>
-          <button id="btn-reset-score" class="btn-magical-outline" style="padding: 6px 14px; font-size: 13px; flex: none;">清空</button>
+          <button id="btn-reset-score" class="btn-magical-outline" style="padding: 6px 14px; font-size: 13px; flex: none;">重置</button>
         </div>
       </div>
 
-      <button id="btn-settings-close" class="btn-magical-main" style="padding: 10px 40px; font-size: 16px;">确认并保存</button>
+      <button id="btn-settings-close" class="btn-magical-main" style="padding: 10px 40px; font-size: 16px;">确认返回</button>
     </div>
 
     <!-- 5. Game Over Screen -->
     <div id="game-over-screen" class="screen-overlay hidden">
-      <h1 class="title-magical" style="color: var(--pastel-pink); text-shadow: 0 0 15px rgba(249, 168, 212, 0.5), 0 6px 0px #ab5869;" id="game-over-title">本次守护结束</h1>
+      <h1 class="title-magical" style="color: var(--pink); text-shadow: 0 0 15px rgba(249, 168, 212, 0.5), 0 5px 0px #ab5869;" id="game-over-title">本次守护结束</h1>
       
-      <div class="panel-card">
+      <div class="menu-panel">
         <div class="score-summary">
-          <span style="font-size: 15px; color: #cbd5e1;">你在夜空中的守护得分</span>
-          <span id="final-score" style="font-size: 44px; font-weight: 700; color: var(--pastel-yellow); display: block; margin-top: 4px;">0</span>
+          <span style="font-size: 14px; color: #cbd5e1;">本次守护得分</span>
+          <span id="final-score" style="font-size: 44px; font-weight: 700; color: var(--yellow); display: block; margin-top: 4px;">0</span>
         </div>
-        <div class="record-label" style="margin-top: 14px;">历史最高守护纪录</div>
-        <div class="record-score" style="font-size: 20px; color: var(--pastel-blue);"><span id="game-over-highscore">0</span></div>
+        <div style="font-size: 12px; color: var(--muted); margin-top: 14px;">最高守护纪录</div>
+        <div class="record-val" style="font-size: 20px; color: var(--blue);" id="game-over-highscore">0</div>
       </div>
 
-      <div class="encouragement-msg" id="encouragement-box" style="font-size: 18px; color: var(--pastel-pink); margin-bottom: 24px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+      <div class="encouragement-msg" id="encouragement-box" style="font-size: 18px; color: var(--pink); margin-bottom: 24px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.35);">
         再试一次，你已经很棒了！
       </div>
       <button id="btn-retry" class="btn-magical-main">💫 再守护一次</button>
@@ -775,13 +761,7 @@
 
     <!-- Touch screens buttons helper tip -->
     <div id="mobile-controls-tip">
-      🖱️ 拖拽星星移动 · 点击任意位置发射泡泡
-    </div>
-
-    <!-- Mobile split Touch Area zones (invisible visual buttons) -->
-    <div id="touch-zones">
-      <div class="touch-zone-btn" id="zone-left">◀</div>
-      <div class="touch-zone-btn" id="zone-right">▶</div>
+      🖱️ 滑动屏幕控制飞船 · 轻触屏幕发射泡泡
     </div>
   </div>
 
@@ -809,7 +789,7 @@
           CONFIG.highScore = parseInt(savedScore, 10) || 0;
         }
       } catch (e) {
-        console.warn('LocalStorage blocked or inaccessible:', e);
+        console.warn('LocalStorage unavailable:', e);
       }
       applySettingsToUI();
     }
@@ -831,6 +811,7 @@
     function applySettingsToUI() {
       document.getElementById('setting-sound').checked = CONFIG.sound;
       document.getElementById('menu-highscore').innerText = CONFIG.highScore;
+      document.getElementById('hud-highscore-val').innerText = CONFIG.highScore;
 
       const diffGroup = document.getElementById('setting-difficulty');
       Array.from(diffGroup.children).forEach(btn => {
@@ -874,8 +855,8 @@
         gain.connect(this.ctx.destination);
 
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(380, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(750, this.ctx.currentTime + 0.08);
+        osc.frequency.setValueAtTime(390, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(780, this.ctx.currentTime + 0.08);
 
         gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.08);
@@ -895,21 +876,21 @@
         gain.connect(this.ctx.destination);
 
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(520, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.14);
+        osc.frequency.setValueAtTime(540, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(140, this.ctx.currentTime + 0.13);
 
         gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.14);
+        gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.13);
 
         osc.start();
-        osc.stop(this.ctx.currentTime + 0.14);
+        osc.stop(this.ctx.currentTime + 0.13);
       }
 
       playBling() {
         if (!CONFIG.sound || !this.ctx) return;
         this.init();
 
-        const notes = [587.33, 880.00]; // D5, A5
+        const notes = [587.33, 880.00]; 
         notes.forEach((freq, idx) => {
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
@@ -921,10 +902,10 @@
           osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.04);
 
           gain.gain.setValueAtTime(0.06, this.ctx.currentTime + idx * 0.04);
-          gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + idx * 0.04 + 0.16);
+          gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + idx * 0.04 + 0.15);
 
           osc.start(this.ctx.currentTime + idx * 0.04);
-          osc.stop(this.ctx.currentTime + idx * 0.04 + 0.16);
+          osc.stop(this.ctx.currentTime + idx * 0.04 + 0.15);
         });
       }
 
@@ -932,7 +913,7 @@
         if (!CONFIG.sound || !this.ctx) return;
         this.init();
 
-        const notes = [293.66, 369.99, 440.00, 587.33, 739.99]; // D4, F#4, A4, D5, F#5 (Happy D Major Chord)
+        const notes = [293.66, 369.99, 440.00, 587.33, 739.99]; 
         const step = 0.08;
 
         notes.forEach((freq, idx) => {
@@ -978,7 +959,7 @@
         if (!CONFIG.sound || !this.ctx) return;
         this.init();
 
-        const notes = [392.00, 493.88, 587.33, 659.25, 783.99, 987.77]; // G Major Fanfare
+        const notes = [392.00, 493.88, 587.33, 659.25, 783.99, 987.77]; 
         const step = 0.065;
 
         notes.forEach((freq, idx) => {
@@ -1004,7 +985,7 @@
         if (!CONFIG.sound || !this.ctx) return;
         this.init();
 
-        const notes = [329.63, 293.66, 261.63, 220.00]; // Sad melody (E4, D4, C4, A3)
+        const notes = [329.63, 293.66, 261.63, 220.00]; 
         const duration = 0.18;
 
         notes.forEach((freq, idx) => {
@@ -1029,32 +1010,10 @@
     const sound = new SoundController();
 
     // ==========================================
-    // TEXT ENCOURAGEMENTS DATA
-    // ==========================================
-    const ENCOURAGEMENTS_HIT = [
-      "太棒了，Iris! 🌟",
-      "漂亮的一击！🌸",
-      "星星能量 +1! ✨",
-      "你守护了夜空！💖",
-      "超级瞄准！🎯",
-      "魔法大爆发！🫧",
-      "闪耀星芒！🤩",
-      "太好玩啦！🦄"
-    ];
-
-    const ENCOURAGEMENTS_FAIL = [
-      "再试一次，你已经很棒了！✨",
-      "每次玩都会更厉害哦！🎈",
-      "星星城堡相信你！🏰",
-      "失败也是魔法的练习！🌸",
-      "加油，Iris！城堡以你为荣！💖"
-    ];
-
-    // ==========================================
-    // BACKGROUND PARALLAX LAYER SYSTEM
+    // BACKGROUND PARALLAX SYSTEM
     // ==========================================
 
-    // Twinkling Pixel Star
+    // Twinkling Star
     class PixelStar {
       constructor(w, h) {
         this.w = w;
@@ -1066,9 +1025,9 @@
       reset() {
         this.x = Math.random() * this.w;
         this.y = -5;
-        this.size = Math.random() * 1.5 + 0.8;
-        this.speed = Math.random() * 0.12 + 0.05; // drifts down slowly
-        this.twinkleSpeed = Math.random() * 0.02 + 0.006;
+        this.size = Math.random() * 1.6 + 0.8;
+        this.speed = Math.random() * 0.12 + 0.05; 
+        this.twinkleSpeed = Math.random() * 0.015 + 0.005;
         this.alpha = Math.random();
         this.alphaSign = 1;
       }
@@ -1100,7 +1059,7 @@
       }
     }
 
-    // Large Glowing Sparkle Star (4-pointed star drawn dynamically)
+    // Large Glowing Sparkle Star
     class GlowingSparkleStar {
       constructor(w, h) {
         this.w = w;
@@ -1112,11 +1071,11 @@
       reset() {
         this.x = Math.random() * this.w;
         this.y = -20;
-        this.radius = Math.random() * 5 + 6;
-        this.speed = Math.random() * 0.08 + 0.03;
+        this.radius = Math.random() * 6 + 6;
+        this.speed = Math.random() * 0.07 + 0.03;
         this.rotation = Math.random() * Math.PI;
-        this.rotSpeed = Math.random() * 0.005 - 0.0025;
-        this.alpha = Math.random() * 0.4 + 0.4;
+        this.rotSpeed = Math.random() * 0.004 - 0.002;
+        this.alpha = Math.random() * 0.4 + 0.45;
         this.glowPhase = Math.random() * Math.PI;
       }
 
@@ -1138,15 +1097,13 @@
         const twinkleScale = 0.8 + Math.sin(this.glowPhase) * 0.25;
         const r = this.radius * twinkleScale;
         
-        // Draw glow back
         if (CONFIG.animation === 'high') {
-          ctx.shadowBlur = 12;
-          ctx.shadowColor = 'rgba(253, 230, 138, 0.85)';
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = 'rgba(253, 230, 138, 0.9)';
         }
-        ctx.fillStyle = 'rgba(253, 230, 138, 0.8)';
+        ctx.fillStyle = 'rgba(253, 230, 138, 0.85)';
         ctx.globalAlpha = this.alpha;
 
-        // Draw 4-pointed sparkle star shape
         ctx.beginPath();
         ctx.moveTo(0, -r);
         ctx.quadraticCurveTo(0, 0, r, 0);
@@ -1160,7 +1117,7 @@
       }
     }
 
-    // Drifting background Cloud (Circular, layered puff cloud)
+    // Drifting Puff Cloud
     class DriftingPuffCloud {
       constructor(w, h) {
         this.w = w;
@@ -1170,10 +1127,10 @@
 
       reset(randomX = false) {
         this.x = randomX ? Math.random() * (this.w + 300) - 150 : -200;
-        this.y = Math.random() * (this.h * 0.5) + 30; // restricted to upper sky
-        this.radius = Math.random() * 30 + 35; // Cloud sizes
+        this.y = Math.random() * (this.h * 0.45) + 30; 
+        this.radius = Math.random() * 30 + 35; 
         this.speed = Math.random() * 0.12 + 0.04;
-        this.alpha = Math.random() * 0.08 + 0.06; // soft visibility
+        this.alpha = Math.random() * 0.08 + 0.06; 
       }
 
       update() {
@@ -1185,11 +1142,10 @@
 
       draw(ctx) {
         ctx.save();
-        ctx.fillStyle = 'rgba(238, 233, 255, 1)'; // Lavender white cloud
+        ctx.fillStyle = 'rgba(238, 233, 255, 1)'; 
         ctx.globalAlpha = this.alpha;
         ctx.beginPath();
         
-        // Render detailed fluffy rounded bubble cloud
         const r = this.radius;
         ctx.arc(this.x, this.y, r * 0.6, 0, Math.PI * 2);
         ctx.arc(this.x + r * 0.5, this.y - r * 0.2, r * 0.8, 0, Math.PI * 2);
@@ -1203,7 +1159,7 @@
       }
     }
 
-    // Occasional Falling Shooting Star
+    // Shooting Star
     class ShootingStarItem {
       constructor(w, h) {
         this.w = w;
@@ -1213,8 +1169,7 @@
       }
 
       resetTimer() {
-        // triggers every 12 to 24 seconds
-        this.triggerTimer = Math.random() * 12000 + 12000; 
+        this.triggerTimer = Math.random() * 10000 + 12000; 
       }
 
       trigger() {
@@ -1222,7 +1177,7 @@
         this.x = Math.random() * (this.w * 0.7);
         this.y = -10;
         this.vx = Math.random() * 3 + 4.5;
-        this.vy = this.vx * (0.8 + Math.random() * 0.2); // diagonal slide
+        this.vy = this.vx * (0.8 + Math.random() * 0.2); 
         this.length = Math.random() * 40 + 50;
         this.alpha = 1.0;
       }
@@ -1238,7 +1193,7 @@
 
         this.x += this.vx;
         this.y += this.vy;
-        this.alpha -= 0.02;
+        this.alpha -= 0.025;
 
         if (this.alpha <= 0 || this.x > this.w || this.y > this.h) {
           this.active = false;
@@ -1251,7 +1206,6 @@
         ctx.save();
         ctx.globalAlpha = this.alpha;
 
-        // Draw fading tail line
         const grad = ctx.createLinearGradient(
           this.x, this.y, 
           this.x - this.vx * 8, this.y - this.vy * 8
@@ -1271,39 +1225,37 @@
       }
     }
 
-    // Detailed Castle Painting on Background
+    // Detailed Castle
     function paintDetailedCastle(ctx, w, h) {
       ctx.save();
       
       const bottom = h;
 
-      // Base Castle Glow back
       if (CONFIG.animation === 'high') {
         ctx.shadowBlur = 30;
-        ctx.shadowColor = 'rgba(76, 29, 149, 0.4)';
+        ctx.shadowColor = 'rgba(76, 29, 149, 0.55)';
       }
 
-      // Draw Silhouette color layers
-      ctx.fillStyle = '#2e2556'; // deep lavender silhouette
-      ctx.fillRect(w * 0.12, bottom - 30, w * 0.76, 30); // main base bridge
+      // Draw Silhouette Castle
+      ctx.fillStyle = '#2f215c'; 
+      ctx.fillRect(w * 0.12, bottom - 30, w * 0.76, 30); 
 
-      // Left Spire tower
+      // Left Spire
       ctx.fillRect(w * 0.16, bottom - 75, 24, 45);
       paintSpireRoof(ctx, w * 0.16 + 12, bottom - 75, 18, 30, '#ffb7c5');
 
-      // Right Spire tower
+      // Right Spire
       ctx.fillRect(w * 0.84 - 24, bottom - 75, 24, 45);
       paintSpireRoof(ctx, w * 0.84 - 12, bottom - 75, 18, 30, '#ffb7c5');
 
       // Double-layered Walls in middle
-      ctx.fillStyle = '#261e47'; // darker overlap layer
+      ctx.fillStyle = '#251a4f'; 
       ctx.fillRect(w * 0.24, bottom - 60, w * 0.52, 30);
       
-      // Left Guard wall turret
+      // Turrets
       ctx.fillRect(w * 0.28, bottom - 95, 20, 35);
       paintSpireRoof(ctx, w * 0.28 + 10, bottom - 95, 16, 22, '#a0e7e5');
 
-      // Right Guard wall turret
       ctx.fillRect(w * 0.72 - 20, bottom - 95, 20, 35);
       paintSpireRoof(ctx, w * 0.72 - 10, bottom - 95, 16, 22, '#a0e7e5');
 
@@ -1311,20 +1263,20 @@
       ctx.fillRect(w * 0.36, bottom - 125, w * 0.28, 65);
       paintSpireRoof(ctx, w * 0.5, bottom - 125, 45, 60, '#fde68a');
 
-      // Castle details: Arched glowing windows
+      // Arched windows lights
       ctx.shadowBlur = 0;
-      ctx.fillStyle = 'rgba(253, 230, 138, 0.55)'; // Window lights
+      ctx.fillStyle = 'rgba(253, 230, 138, 0.65)'; 
       ctx.fillRect(w * 0.44 - 3, bottom - 100, 6, 12);
       ctx.fillRect(w * 0.56 - 3, bottom - 100, 6, 12);
       ctx.fillRect(w * 0.5 - 4, bottom - 118, 8, 12);
 
-      // Cute Arched main castle gates
-      ctx.fillStyle = '#1e163b';
+      // Gates
+      ctx.fillStyle = '#1a1033';
       ctx.beginPath();
       ctx.arc(w * 0.5, bottom - 2, 16, Math.PI, 0);
       ctx.fill();
 
-      // Mini golden gate locks
+      // Gate lock
       ctx.fillStyle = '#fde68a';
       ctx.beginPath();
       ctx.arc(w * 0.5, bottom - 16, 2.5, 0, Math.PI*2);
@@ -1341,7 +1293,6 @@
       ctx.closePath();
       ctx.fill();
 
-      // Flag post
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
@@ -1349,7 +1300,6 @@
       ctx.lineTo(cx, bottomY - h - 14);
       ctx.stroke();
 
-      // Flag
       ctx.fillStyle = flagColor;
       ctx.beginPath();
       ctx.moveTo(cx, bottomY - h - 14);
@@ -1361,7 +1311,7 @@
 
 
     // ==========================================
-    // PLAYER STAR SHIP (WITH badges & spring dynamics)
+    // PLAYER STAR SHIP (Magical flying hoverboard star)
     // ==========================================
     class PlayerStarShip {
       constructor(x, y) {
@@ -1370,49 +1320,43 @@
         this.targetX = x;
         this.radius = 28;
         
-        // Rotational movement lean
         this.rotation = 0;
 
-        // Visual squash & stretch animation spring dynamics
+        // Squash/Stretch coefficients
         this.scaleX = 1.0;
         this.scaleY = 1.0;
 
-        // Blinking
         this.blink = false;
         this.blinkTimer = 0;
 
-        // Invincibility flashing timers
         this.shieldDuration = 0;
         this.hurtTimer = 0;
 
-        // Jet engine particle emissions
         this.engineEmissionTimer = 0;
       }
 
       triggerShootSquash() {
-        // Compress ship slightly downwards on fire
         this.scaleX = 1.25;
         this.scaleY = 0.75;
       }
 
       triggerHurt() {
-        this.hurtTimer = 35; // Flashing frames
+        this.hurtTimer = 35; 
       }
 
       update(timeDelta) {
-        // Linear movement interpolation towards input
         const ease = CONFIG.difficulty === 'easy' ? 0.22 : 0.18;
         const dx = this.targetX - this.x;
         this.x += dx * ease;
 
-        // Lean slightly according to speed velocity
-        this.rotation = dx * 0.007;
+        // Lean
+        this.rotation = dx * 0.0075;
 
-        // Spring equations for squash/stretch recovery
+        // Recover spring scales
         this.scaleX += (1.0 - this.scaleX) * 0.15;
         this.scaleY += (1.0 - this.scaleY) * 0.15;
 
-        // Random blinking
+        // Blinks
         if (!this.blink && Math.random() < 0.006) {
           this.blink = true;
           this.blinkTimer = 0;
@@ -1422,19 +1366,16 @@
           if (this.blinkTimer > 10) this.blink = false;
         }
 
-        // Subtract shield timers
         if (this.shieldDuration > 0) {
           this.shieldDuration -= timeDelta;
         }
 
-        // Subtract hurt timer
         if (this.hurtTimer > 0) {
           this.hurtTimer--;
         }
       }
 
       draw(ctx) {
-        // Skip frame draws for hurt flashes
         if (this.hurtTimer > 0 && Math.floor(this.hurtTimer / 3) % 2 === 0) {
           return;
         }
@@ -1444,7 +1385,7 @@
         ctx.rotate(this.rotation);
         ctx.scale(this.scaleX, this.scaleY);
 
-        // 1. Draw Active protective rainbow shield wrapper
+        // 1. Rainbow Shield
         if (this.shieldDuration > 0) {
           ctx.save();
           ctx.beginPath();
@@ -1452,54 +1393,51 @@
           
           const shieldGrad = ctx.createRadialGradient(0, -6, this.radius * 1.1, 0, -6, this.radius * 1.6);
           shieldGrad.addColorStop(0, 'rgba(160, 231, 229, 0)');
-          shieldGrad.addColorStop(0.7, 'rgba(147, 197, 253, 0.4)'); // Sky Blue
-          shieldGrad.addColorStop(0.9, 'rgba(249, 168, 212, 0.7)'); // Pink
+          shieldGrad.addColorStop(0.7, 'rgba(147, 197, 253, 0.45)'); 
+          shieldGrad.addColorStop(0.9, 'rgba(249, 168, 212, 0.7)'); 
           shieldGrad.addColorStop(1, 'rgba(255, 255, 255, 0.95)');
           
           ctx.fillStyle = shieldGrad;
           ctx.fill();
           
-          ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+          ctx.strokeStyle = 'rgba(255,255,255,0.75)';
           ctx.lineWidth = 2.5;
           ctx.stroke();
           ctx.restore();
         }
 
-        // Draw base: Pink magical skateboard/spaceship wing board
+        // 2. Skateboard/Hoverboard wings base
         ctx.save();
-        ctx.fillStyle = '#f9a8d4'; // Pink
+        ctx.fillStyle = '#f9a8d4'; 
         ctx.shadowBlur = CONFIG.animation === 'high' ? 12 : 3;
         ctx.shadowColor = '#f9a8d4';
         
         ctx.beginPath();
-        // Wings board base ellipse shape
         ctx.ellipse(0, 10, this.radius * 1.3, 10, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Skateboard tip loops
-        ctx.fillStyle = '#fdb2d9';
+        ctx.fillStyle = '#fcd34d';
         ctx.beginPath();
         ctx.arc(-this.radius * 1.3, 8, 4, 0, Math.PI*2);
         ctx.arc(this.radius * 1.3, 8, 4, 0, Math.PI*2);
         ctx.fill();
         ctx.restore();
 
-        // 2. Main Pilot: Glowing Cream Yellow Star
+        // 3. Gold Pilot Star
         ctx.save();
         if (CONFIG.animation === 'high') {
           ctx.shadowBlur = 18;
-          ctx.shadowColor = 'rgba(253, 230, 138, 0.85)';
+          ctx.shadowColor = 'rgba(253, 230, 138, 0.95)';
         }
         
-        // Rounded star shape
-        this.drawRoundedStar(ctx, 0, -6, 5, this.radius, this.radius * 0.46, 5);
+        // Draw 5-pointed pilot star
+        this.drawRoundedStar(ctx, 0, -6, 5, this.radius, this.radius * 0.48);
         ctx.fillStyle = '#fde68a';
         ctx.fill();
         ctx.restore();
 
-        // Facial details (Offset from star center 0, -6)
-        // Cute blush cheeks
-        ctx.fillStyle = 'rgba(249, 110, 150, 0.55)';
+        // Blush cheeks
+        ctx.fillStyle = 'rgba(249, 110, 150, 0.6)';
         ctx.beginPath();
         ctx.arc(-11, -4, 4.5, 0, Math.PI*2);
         ctx.arc(11, -4, 4.5, 0, Math.PI*2);
@@ -1521,7 +1459,6 @@
           ctx.arc(7, -8, 3, 0, Math.PI*2);
           ctx.fill();
 
-          // glint
           ctx.fillStyle = '#fff';
           ctx.beginPath();
           ctx.arc(-8, -9.5, 1, 0, Math.PI*2);
@@ -1537,7 +1474,7 @@
         ctx.arc(0, -4, 3.5, 0, Math.PI);
         ctx.stroke();
 
-        // Cute badge with letter "I" on chest
+        // Iris badge "I" on chest
         ctx.fillStyle = '#ec4899';
         ctx.font = 'bold 9px "Fredoka", sans-serif';
         ctx.textAlign = 'center';
@@ -1547,8 +1484,7 @@
         ctx.restore();
       }
 
-      // Draw rounded pointed star
-      drawRoundedStar(ctx, cx, cy, spikes, outerRadius, innerRadius, cornerRadius) {
+      drawRoundedStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
         let rot = Math.PI / 2 * 3;
         let x = cx;
         let y = cy;
@@ -1579,17 +1515,16 @@
       constructor(x, y, type = 'normal') {
         this.x = x;
         this.y = y;
-        this.type = type; // 'normal' | 'rainbow' | 'star' | 'shield'
+        this.type = type; 
         this.radius = 12;
         this.speed = 9.0;
         this.rotAngle = 0;
 
-        // Custom colors configurations
         const bubbleStyles = {
-          normal: { color: 'rgba(147, 197, 253, 0.75)', glow: '#93c5fd' }, // pastel blue
-          rainbow: { color: 'rgba(255, 255, 255, 0.95)', glow: '#ffffff' }, // shiny
-          star: { color: 'rgba(253, 230, 138, 0.8)', glow: '#fde68a' }, // gold star
-          shield: { color: 'rgba(134, 239, 172, 0.8)', glow: '#86efac' } // green
+          normal: { color: 'rgba(147, 197, 253, 0.75)', glow: '#93c5fd' }, 
+          rainbow: { color: 'rgba(255, 255, 255, 0.95)', glow: '#ffffff' }, 
+          star: { color: 'rgba(253, 230, 138, 0.8)', glow: '#fde68a' }, 
+          shield: { color: 'rgba(134, 239, 172, 0.8)', glow: '#86efac' } 
         };
 
         this.color = bubbleStyles[type].color;
@@ -1608,7 +1543,6 @@
         ctx.shadowColor = this.glow;
 
         if (this.type === 'rainbow') {
-          // Rainbow color radial gradient
           const radial = ctx.createRadialGradient(this.x, this.y, 2, this.x, this.y, this.radius);
           radial.addColorStop(0, '#ffffff');
           radial.addColorStop(0.3, 'rgba(147, 197, 253, 0.65)');
@@ -1630,7 +1564,6 @@
 
         ctx.shadowBlur = 0;
 
-        // Custom icon centers
         if (this.type === 'star') {
           ctx.fillStyle = '#fde68a';
           ctx.beginPath();
@@ -1644,7 +1577,7 @@
           ctx.stroke();
         }
 
-        // Spherical gloss light reflection
+        // Reflection glint
         ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
         ctx.beginPath();
         ctx.arc(this.x - 3.5, this.y - 3.5, 3, 0, Math.PI*2);
@@ -1656,7 +1589,7 @@
 
 
     // ==========================================
-    // CUTE ENEMIES (With idle animations)
+    // CUTE ENEMIES (With custom shapes & blinks)
     // ==========================================
     class CuteMischiefEnemy {
       constructor(canvasWidth, level, type = '') {
@@ -1668,11 +1601,9 @@
         const enemyClasses = ['meteor', 'balloon', 'cloud', 'moon'];
         this.type = type || enemyClasses[Math.floor(Math.random() * enemyClasses.length)];
 
-        // Speed settings (capped to keep it fun and manageable)
         const speedBase = CONFIG.difficulty === 'easy' ? 0.95 : 1.3;
         this.speed = speedBase + Math.min(level * 0.1, 1.6);
 
-        // Customize sizes and specific properties
         if (this.type === 'boss') {
           this.radius = 58;
           this.x = canvasWidth / 2;
@@ -1680,7 +1611,7 @@
           this.speed = 0.55 + Math.min(level * 0.05, 0.35);
           this.bossHpMax = 8 + level * 2;
           this.hp = this.bossHpMax;
-          this.color = '#dfb2f4'; // Crown monster
+          this.color = '#dfb2f4'; 
           this.swayFreq = 0.015;
           this.phase = Math.random() * Math.PI*2;
           this.bossTime = 0;
@@ -1688,27 +1619,26 @@
           this.radius = Math.random() * 4 + 18;
           this.x = this.radius + Math.random() * (canvasWidth - this.radius * 2);
           this.y = -this.radius * 2;
-          this.color = '#dfb2f4'; // Pastel purple meteor
-          this.speed *= 1.1; // meteor is speedier
+          this.color = '#dfb2f4'; 
+          this.speed *= 1.1; 
         } else if (this.type === 'cloud') {
           this.radius = Math.random() * 4 + 20;
           this.x = this.radius + Math.random() * (canvasWidth - this.radius * 2);
           this.y = -this.radius * 2;
-          this.color = '#93c5fd'; // Pastel Blue
+          this.color = '#93c5fd'; 
         } else if (this.type === 'moon') {
           this.radius = 22;
           this.x = this.radius + Math.random() * (canvasWidth - this.radius * 2);
           this.y = -this.radius * 2;
-          this.color = '#fde68a'; // Golden Crescent Moon
-          this.speed *= 0.85; // moon sleeps, moves slower
-        } else { // 'balloon'
+          this.color = '#fde68a'; 
+          this.speed *= 0.85; 
+        } else { 
           this.radius = Math.random() * 5 + 18;
           this.x = this.radius + Math.random() * (canvasWidth - this.radius * 2);
           this.y = -this.radius * 2;
-          this.color = '#f9a8d4'; // Cute Pink Balloon
+          this.color = '#f9a8d4'; 
         }
 
-        // Idle animation phases
         this.wobblePhase = Math.random() * Math.PI * 2;
         this.wobbleSpeed = Math.random() * 0.04 + 0.03;
         this.rotation = 0;
@@ -1719,25 +1649,21 @@
 
       update(timeDelta) {
         if (this.type === 'boss') {
-          // Boss moves slowly downwards and hovers side to side
           this.y += (160 - this.y) * 0.02;
           this.bossTime += 0.02;
           this.x = (this.canvasWidth / 2) + Math.sin(this.bossTime + this.phase) * (this.canvasWidth * 0.32);
         } else {
           this.y += this.speed;
-          // sway side-to-side dynamically
           this.x += Math.sin(this.y * 0.015 + this.wobblePhase) * 1.3;
         }
 
-        // Idle wobble rotation/scaling phases
         this.wobblePhase += this.wobbleSpeed;
         if (this.type === 'meteor') {
-          this.rotation += 0.008; // meteors spin slowly
+          this.rotation += 0.008; 
         } else {
-          this.rotation = Math.sin(this.wobblePhase) * 0.08; // general slow wobble lean
+          this.rotation = Math.sin(this.wobblePhase) * 0.08; 
         }
 
-        // Eye blinks
         if (!this.blink && Math.random() < 0.004) {
           this.blink = true;
           this.blinkTimer = 0;
@@ -1754,226 +1680,217 @@
         ctx.rotate(this.rotation);
 
         const idleScale = 1.0 + Math.sin(this.wobblePhase) * 0.04;
-        ctx.scale(idleScale, 2.0 - idleScale); // subtle breathing scaling squash/stretch!
+        ctx.scale(idleScale, 2.0 - idleScale); 
 
         if (this.type === 'boss') {
-          // Glow
-          ctx.shadowBlur = CONFIG.animation === 'high' ? 24 : 8;
-          ctx.shadowColor = 'rgba(223, 178, 244, 0.7)';
-
-          // Giant Purple Crown Monster body
-          ctx.fillStyle = this.color;
-          ctx.beginPath();
-          ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Crown
-          ctx.fillStyle = '#fde68a';
-          ctx.beginPath();
-          ctx.moveTo(-25, -this.radius + 5);
-          ctx.lineTo(-34, -this.radius - 22);
-          ctx.lineTo(-12, -this.radius - 10);
-          ctx.lineTo(0, -this.radius - 28);
-          ctx.lineTo(12, -this.radius - 10);
-          ctx.lineTo(34, -this.radius - 22);
-          ctx.lineTo(25, -this.radius + 5);
-          ctx.closePath();
-          ctx.fill();
-
-          // Jewels on crown
-          ctx.fillStyle = '#f9a8d4';
-          ctx.beginPath();
-          ctx.arc(-34, -this.radius - 22, 3.5, 0, Math.PI*2);
-          ctx.arc(0, -this.radius - 28, 3.5, 0, Math.PI*2);
-          ctx.arc(34, -this.radius - 22, 3.5, 0, Math.PI*2);
-          ctx.fill();
-
-          // Face
-          // Blush cheeks
-          ctx.fillStyle = 'rgba(249, 110, 150, 0.5)';
-          ctx.beginPath();
-          ctx.arc(-this.radius * 0.45, 10, 10, 0, Math.PI*2);
-          ctx.arc(this.radius * 0.45, 10, 10, 0, Math.PI*2);
-          ctx.fill();
-
-          // Big round eyes
-          ctx.fillStyle = '#38255c';
-          ctx.beginPath();
-          ctx.arc(-18, -6, 7.5, 0, Math.PI*2);
-          ctx.arc(18, -6, 7.5, 0, Math.PI*2);
-          ctx.fill();
-
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(-16, -8, 3, 0, Math.PI*2);
-          ctx.arc(20, -8, 3, 0, Math.PI*2);
-          ctx.fill();
-
-          // Smiling laughing mouth
-          ctx.fillStyle = '#f9a8d4';
-          ctx.beginPath();
-          ctx.arc(0, 14, 15, 0, Math.PI);
-          ctx.fill();
-          ctx.strokeStyle = '#38255c';
-          ctx.lineWidth = 2.5;
-          ctx.beginPath();
-          ctx.arc(0, 14, 15, 0, Math.PI);
-          ctx.stroke();
-
+          this.drawBossEnemy(ctx);
         } else if (this.type === 'meteor') {
-          // Bumpy Purple Rock
-          ctx.fillStyle = this.color;
-          ctx.beginPath();
-          const pts = 8;
-          for (let i = 0; i < pts; i++) {
-            const angle = (i / pts) * Math.PI * 2;
-            const r = this.radius + Math.sin(angle * 4 + this.wobblePhase) * 2.5;
-            const px = Math.cos(angle) * r;
-            const py = Math.sin(angle) * r;
-            if (i === 0) ctx.moveTo(px, py);
-            else ctx.lineTo(px, py);
-          }
-          ctx.closePath();
-          ctx.fill();
-
-          // Silly face (cross eyes)
-          ctx.strokeStyle = '#38255c';
-          ctx.lineWidth = 2.5;
-          ctx.lineCap = 'round';
-          ctx.beginPath();
-          ctx.moveTo(-9, -5); ctx.lineTo(-4, 0);
-          ctx.moveTo(-4, -5); ctx.lineTo(-9, 0);
-          ctx.moveTo(4, -5); ctx.lineTo(9, 0);
-          ctx.moveTo(9, -5); ctx.lineTo(4, 0);
-          ctx.stroke();
-
-          // Open mouth w/ cheeky tongue
-          ctx.fillStyle = '#f9a8d4';
-          ctx.beginPath();
-          ctx.arc(0, 5, 4, 0, Math.PI);
-          ctx.fill();
-          ctx.strokeStyle = '#38255c';
-          ctx.stroke();
-
+          this.drawMeteorEnemy(ctx);
         } else if (this.type === 'cloud') {
-          // Cute round soft cloud
-          ctx.fillStyle = this.color;
-          ctx.beginPath();
-          const r = this.radius * 0.55;
-          ctx.arc(-10, 0, r, 0, Math.PI*2);
-          ctx.arc(10, 0, r, 0, Math.PI*2);
-          ctx.arc(0, -6, r * 1.1, 0, Math.PI*2);
-          ctx.arc(0, 5, r * 0.9, 0, Math.PI*2);
-          ctx.closePath();
-          ctx.fill();
-
-          // Raindrops sparks emitting down
-          if (CONFIG.animation === 'high' && Math.random() < 0.04) {
-            // Emits visual raindrop particle
-          }
-
-          // Sad/sleepy eyes
-          ctx.strokeStyle = '#38255c';
-          ctx.lineWidth = 2;
-          ctx.lineCap = 'round';
-          ctx.beginPath();
-          ctx.arc(-8, -1, 2.5, 0, Math.PI);
-          ctx.arc(8, -1, 2.5, 0, Math.PI);
-          ctx.stroke();
-
-          // Little pouting mouth
-          ctx.beginPath();
-          ctx.arc(0, 4, 2, 0, Math.PI, true);
-          ctx.stroke();
-
+          this.drawCloudEnemy(ctx);
         } else if (this.type === 'moon') {
-          // Sleepy crescent moon
-          ctx.fillStyle = this.color;
-          ctx.beginPath();
-          ctx.arc(0, 0, this.radius, -Math.PI/2, Math.PI/2);
-          ctx.arc(6, 0, this.radius * 0.85, Math.PI/2, -Math.PI/2, true);
-          ctx.closePath();
-          ctx.fill();
-
-          // Nightcap
-          ctx.fillStyle = '#f9a8d4';
-          ctx.beginPath();
-          ctx.moveTo(-2, -this.radius + 3);
-          ctx.bezierCurveTo(-14, -this.radius - 8, -18, -this.radius + 8, -20, -this.radius + 4);
-          ctx.lineTo(-10, -this.radius + 15);
-          ctx.closePath();
-          ctx.fill();
-
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(-20, -this.radius + 4, 3, 0, Math.PI*2);
-          ctx.fill();
-
-          // Sleepy closed eye lines
-          ctx.strokeStyle = '#38255c';
-          ctx.lineWidth = 1.8;
-          ctx.beginPath();
-          ctx.arc(-3, 0, 2.5, 0, Math.PI);
-          ctx.stroke();
-
+          this.drawMoonEnemy(ctx);
         } else {
-          // Balloon monster (Pink)
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.moveTo(0, this.radius);
-          ctx.bezierCurveTo(
-            Math.sin(this.wobblePhase)*5, this.radius + 8,
-            -Math.sin(this.wobblePhase)*5, this.radius + 18,
-            0, this.radius + 28
-          );
-          ctx.stroke();
-
-          // Balloon knot
-          ctx.fillStyle = this.color;
-          ctx.beginPath();
-          ctx.moveTo(0, this.radius - 2);
-          ctx.lineTo(-5, this.radius + 4);
-          ctx.lineTo(5, this.radius + 4);
-          ctx.closePath();
-          ctx.fill();
-
-          // Balloon body
-          ctx.beginPath();
-          ctx.ellipse(0, 0, this.radius, this.radius * 1.05, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Face
-          ctx.fillStyle = '#38255c';
-          if (this.blink) {
-            ctx.strokeStyle = '#38255c';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(-8, -2); ctx.lineTo(-4, -2);
-            ctx.moveTo(4, -2); ctx.lineTo(8, -2);
-            ctx.stroke();
-          } else {
-            ctx.beginPath();
-            ctx.arc(-6, -2, 2.5, 0, Math.PI*2);
-            ctx.arc(6, -2, 2.5, 0, Math.PI*2);
-            ctx.fill();
-            
-            ctx.fillStyle = '#fff';
-            ctx.beginPath();
-            ctx.arc(-7, -3, 0.8, 0, Math.PI*2);
-            ctx.arc(5, -3, 0.8, 0, Math.PI*2);
-            ctx.fill();
-          }
-
-          // Smiling mouth
-          ctx.strokeStyle = '#38255c';
-          ctx.lineWidth = 1.8;
-          ctx.beginPath();
-          ctx.arc(0, 3, 3.5, 0, Math.PI);
-          ctx.stroke();
+          this.drawBalloonEnemy(ctx);
         }
 
         ctx.restore();
+      }
+
+      // 1. Draw Meteor
+      drawMeteorEnemy(ctx) {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        const pts = 8;
+        for (let i = 0; i < pts; i++) {
+          const angle = (i / pts) * Math.PI * 2;
+          const r = this.radius + Math.sin(angle * 4 + this.wobblePhase) * 2.5;
+          const px = Math.cos(angle) * r;
+          const py = Math.sin(angle) * r;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = '#38255c';
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(-9, -5); ctx.lineTo(-4, 0);
+        ctx.moveTo(-4, -5); ctx.lineTo(-9, 0);
+        ctx.moveTo(4, -5); ctx.lineTo(9, 0);
+        ctx.moveTo(9, -5); ctx.lineTo(4, 0);
+        ctx.stroke();
+
+        ctx.fillStyle = '#f9a8d4';
+        ctx.beginPath();
+        ctx.arc(0, 5, 4, 0, Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = '#38255c';
+        ctx.stroke();
+      }
+
+      // 2. Draw Balloon
+      drawBalloonEnemy(ctx) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(0, this.radius);
+        ctx.bezierCurveTo(
+          Math.sin(this.wobblePhase)*5, this.radius + 8,
+          -Math.sin(this.wobblePhase)*5, this.radius + 18,
+          0, this.radius + 28
+        );
+        ctx.stroke();
+
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.moveTo(0, this.radius - 2);
+        ctx.lineTo(-5, this.radius + 4);
+        ctx.lineTo(5, this.radius + 4);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.ellipse(0, 0, this.radius, this.radius * 1.05, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#38255c';
+        if (this.blink) {
+          ctx.strokeStyle = '#38255c';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(-8, -2); ctx.lineTo(-4, -2);
+          ctx.moveTo(4, -2); ctx.lineTo(8, -2);
+          ctx.stroke();
+        } else {
+          ctx.beginPath();
+          ctx.arc(-6, -2, 2.5, 0, Math.PI*2);
+          ctx.arc(6, -2, 2.5, 0, Math.PI*2);
+          ctx.fill();
+          
+          ctx.fillStyle = '#fff';
+          ctx.beginPath();
+          ctx.arc(-7, -3, 0.8, 0, Math.PI*2);
+          ctx.arc(5, -3, 0.8, 0, Math.PI*2);
+          ctx.fill();
+        }
+
+        ctx.strokeStyle = '#38255c';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(0, 3, 3.5, 0, Math.PI);
+        ctx.stroke();
+      }
+
+      // 3. Draw Cloud
+      drawCloudEnemy(ctx) {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        const r = this.radius * 0.55;
+        ctx.arc(-10, 0, r, 0, Math.PI*2);
+        ctx.arc(10, 0, r, 0, Math.PI*2);
+        ctx.arc(0, -6, r * 1.1, 0, Math.PI*2);
+        ctx.arc(0, 5, r * 0.9, 0, Math.PI*2);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = '#38255c';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.arc(-8, -1, 2.5, 0, Math.PI);
+        ctx.arc(8, -1, 2.5, 0, Math.PI);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(0, 4, 2, 0, Math.PI, true);
+        ctx.stroke();
+      }
+
+      // 4. Draw Moon
+      drawMoonEnemy(ctx) {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, -Math.PI/2, Math.PI/2);
+        ctx.arc(6, 0, this.radius * 0.85, Math.PI/2, -Math.PI/2, true);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#f9a8d4';
+        ctx.beginPath();
+        ctx.moveTo(-2, -this.radius + 3);
+        ctx.bezierCurveTo(-14, -this.radius - 8, -18, -this.radius + 8, -20, -this.radius + 4);
+        ctx.lineTo(-10, -this.radius + 15);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-20, -this.radius + 4, 3, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#38255c';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(-3, 0, 2.5, 0, Math.PI);
+        ctx.stroke();
+      }
+
+      // Draw Boss
+      drawBossEnemy(ctx) {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#fde68a';
+        ctx.beginPath();
+        ctx.moveTo(-25, -this.radius + 5);
+        ctx.lineTo(-34, -this.radius - 22);
+        ctx.lineTo(-12, -this.radius - 10);
+        ctx.lineTo(0, -this.radius - 28);
+        ctx.lineTo(12, -this.radius - 10);
+        ctx.lineTo(34, -this.radius - 22);
+        ctx.lineTo(25, -this.radius + 5);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#f9a8d4';
+        ctx.beginPath();
+        ctx.arc(-34, -this.radius - 22, 3.5, 0, Math.PI*2);
+        ctx.arc(0, -this.radius - 28, 3.5, 0, Math.PI*2);
+        ctx.arc(34, -this.radius - 22, 3.5, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = 'rgba(249, 110, 150, 0.5)';
+        ctx.beginPath();
+        ctx.arc(-this.radius * 0.45, 10, 10, 0, Math.PI*2);
+        ctx.arc(this.radius * 0.45, 10, 10, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = '#38255c';
+        ctx.beginPath();
+        ctx.arc(-18, -6, 7.5, 0, Math.PI*2);
+        ctx.arc(18, -6, 7.5, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-16, -8, 3, 0, Math.PI*2);
+        ctx.arc(20, -8, 3, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = '#f9a8d4';
+        ctx.beginPath();
+        ctx.arc(0, 14, 15, 0, Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = '#38255c';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(0, 14, 15, 0, Math.PI);
+        ctx.stroke();
       }
     }
 
@@ -1983,7 +1900,7 @@
     // ==========================================
     class PowerBubbleItem {
       constructor(canvasWidth, type) {
-        this.type = type; // 'rainbow' | 'star' | 'shield'
+        this.type = type; 
         this.radius = 20;
         this.x = this.radius + Math.random() * (canvasWidth - this.radius * 2);
         this.y = -this.radius * 2;
@@ -2014,11 +1931,9 @@
         ctx.translate(this.x, this.y);
         ctx.rotate(Math.sin(this.wobble) * 0.1);
 
-        // Specular glow back
         ctx.shadowBlur = CONFIG.animation === 'high' ? 14 : 5;
         ctx.shadowColor = this.color;
 
-        // Draw bubble shield aura
         ctx.beginPath();
         ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(255, 255, 255, 0.16)';
@@ -2029,9 +1944,7 @@
 
         ctx.shadowBlur = 0;
 
-        // Custom center icon
         if (this.type === 'rainbow') {
-          // Draw rainbow ring
           ctx.strokeStyle = '#f9a8d4';
           ctx.lineWidth = 3.5;
           ctx.beginPath();
@@ -2044,13 +1957,11 @@
           ctx.arc(0, 0, 6, 0, Math.PI, true);
           ctx.stroke();
         } else if (this.type === 'star') {
-          // Draw small star inside
           ctx.fillStyle = '#fde68a';
           ctx.beginPath();
           ctx.arc(0, 0, 9, 0, Math.PI*2);
           ctx.fill();
         } else if (this.type === 'shield') {
-          // Draw shield polygon
           ctx.fillStyle = '#86efac';
           ctx.beginPath();
           ctx.moveTo(0, -9);
@@ -2067,7 +1978,6 @@
           ctx.stroke();
         }
 
-        // Spherical bubble light reflection
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.arc(-7, -7, 4.5, 0, Math.PI*2);
@@ -2106,7 +2016,6 @@
         ctx.shadowBlur = CONFIG.animation === 'high' ? 12 + Math.sin(this.glowPhase) * 4 : 4;
         ctx.shadowColor = 'rgba(253, 230, 138, 0.9)';
 
-        // Draw 5-pointed gold star
         this.drawStar(ctx, 0, 0, 5, this.radius, this.radius * 0.45);
         ctx.fillStyle = '#fde68a';
         ctx.fill();
@@ -2149,7 +2058,7 @@
       constructor(options) {
         this.x = options.x;
         this.y = options.y;
-        this.type = options.type || 'spark'; // 'spark' | 'bubble' | 'text' | 'ui-star'
+        this.type = options.type || 'spark'; 
         this.color = options.color || '#fff';
         this.text = options.text || '';
         this.alpha = 1.0;
@@ -2161,27 +2070,23 @@
         this.radius = options.radius || Math.random() * 3 + 2.5;
         this.gravity = options.gravity || 0;
 
-        // Path parameters for flying UI star particles
         this.tx = options.tx || 0;
         this.ty = options.ty || 0;
         this.startX = this.x;
         this.startY = this.y;
-        this.flyProgress = 0; // 0 to 1
+        this.flyProgress = 0; 
       }
 
       update(timeDelta) {
         if (this.type === 'ui-star') {
-          // Fly using smooth Bezier curve arc to the Score counter in HUD
           this.flyProgress += 0.035;
           if (this.flyProgress >= 1.0) {
-            this.alpha = 0; // trigger arrival check
+            this.alpha = 0; 
           } else {
-            // Cubic bezier curve path calculation
-            const cpX = (this.startX + this.tx) / 2 - 80; // arc bend leftwards
+            const cpX = (this.startX + this.tx) / 2 - 80; 
             const cpY = (this.startY + this.ty) / 2 - 40;
 
             const t = this.flyProgress;
-            // Bezier formula
             this.x = (1 - t) * (1 - t) * this.startX + 2 * (1 - t) * t * cpX + t * t * this.tx;
             this.y = (1 - t) * (1 - t) * this.startY + 2 * (1 - t) * t * cpY + t * t * this.ty;
           }
@@ -2206,13 +2111,11 @@
           ctx.shadowBlur = CONFIG.animation === 'high' ? 8 : 2;
           ctx.shadowColor = 'rgba(255, 255, 255, 0.7)';
           
-          // Draw with soft rotation
           ctx.translate(this.x, this.y);
           ctx.rotate(Math.sin(this.alpha * 5) * 0.1);
           ctx.fillText(this.text, 0, 0);
 
         } else if (this.type === 'ui-star') {
-          // Drawing glowing mini UI collection star
           ctx.shadowBlur = 10;
           ctx.shadowColor = '#fde68a';
           ctx.fillStyle = '#fde68a';
@@ -2221,7 +2124,6 @@
           ctx.fill();
 
         } else if (this.type === 'bubble') {
-          // Expanding pops bubbles rings
           ctx.beginPath();
           ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
           ctx.strokeStyle = this.color;
@@ -2229,7 +2131,6 @@
           ctx.stroke();
 
         } else {
-          // Standard glitter sparks
           ctx.fillStyle = this.color;
           ctx.beginPath();
           ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
@@ -2252,60 +2153,68 @@
         this.baseWidth = 600;
         this.baseHeight = 800;
 
-        // UI badges bindings
-        this.scoreText = document.getElementById('score-text');
-        this.levelText = document.getElementById('level-text');
-        this.heartsPanel = document.getElementById('hearts-panel');
+        // UI HUD
+        this.scoreText = document.getElementById('hud-score-val');
+        this.levelText = document.getElementById('hud-level-val');
+        this.heartsPanel = document.getElementById('hud-hearts-panel');
         this.finalScoreText = document.getElementById('final-score');
-        this.comboContainer = document.getElementById('combo-container');
-
+        this.comboBadge = document.getElementById('hud-combo');
+        this.highScoreValText = document.getElementById('hud-highscore-val');
+        
         this.startScreen = document.getElementById('start-screen');
         this.pauseScreen = document.getElementById('pause-screen');
         this.settingsScreen = document.getElementById('settings-screen');
         this.gameOverScreen = document.getElementById('game-over-screen');
         this.tutorialScreen = document.getElementById('tutorial-screen');
 
-        this.state = 'START'; // START | PLAYING | PAUSED | SETTINGS | GAMEOVER | TUTORIAL
+        this.state = 'START'; 
 
-        // Core logic registers
+        // Core registers
         this.score = 0;
         this.level = 1;
         this.hearts = 5;
         this.maxHearts = 5;
         this.combo = 0;
 
-        // Timing configurations
+        // Timers
         this.spawnTimer = 0;
         this.spawnInterval = 2000;
         this.specialSpawnTimer = 0;
-        this.specialSpawnInterval = 10000; // items spawn every 10s
+        this.specialSpawnInterval = 10000; 
 
-        this.shootCooldown = 260; // cooldown
+        this.shootCooldown = 260; 
         this.lastShootTime = 0;
 
         // Boss stages
         this.bossActive = false;
         this.currentBoss = null;
 
-        // Hurt screen shake parameters
         this.screenShakeTime = 0;
 
         // Inputs
         this.keys = {};
         this.mouseX = this.baseWidth / 2;
 
-        // Entity tables
+        // Entities
         this.player = null;
         this.bubbles = [];
         this.enemies = [];
         this.collectibleStars = [];
         this.particles = [];
 
-        // Parallax environment layers
+        // Environments
         this.backgroundStars = [];
         this.clouds = [];
         this.shootingStar = null;
         this.levelFlashAlpha = 0;
+
+        // Interactive preview star for Start menu main visual
+        this.menuPreviewStar = {
+          x: this.baseWidth / 2,
+          y: this.baseHeight / 2 - 50,
+          rotation: 0,
+          wobble: 0
+        };
 
         this.initResize();
         this.initEvents();
@@ -2316,11 +2225,11 @@
 
       createEnvironment() {
         this.backgroundStars = [];
-        // Twinkling pixels
+        // Twinkles
         for (let i = 0; i < 40; i++) {
           this.backgroundStars.push(new PixelStar(this.baseWidth, this.baseHeight));
         }
-        // Glowing large stars
+        // Big sparkle stars
         for (let i = 0; i < 10; i++) {
           this.backgroundStars.push(new GlowingSparkleStar(this.baseWidth, this.baseHeight));
         }
@@ -2331,7 +2240,6 @@
           this.clouds.push(new DriftingPuffCloud(this.baseWidth, this.baseHeight));
         }
 
-        // Shooting star handler
         this.shootingStar = new ShootingStarItem(this.baseWidth, this.baseHeight);
       }
 
@@ -2359,17 +2267,16 @@
 
       updateUI() {
         this.scoreText.innerText = this.score;
-        this.levelText.innerText = `关卡 ${this.level}`;
+        this.levelText.innerText = this.level;
+        this.highScoreValText.innerText = CONFIG.highScore;
 
-        // Combo badge toggle
         if (this.combo > 1) {
-          this.comboContainer.innerText = `Combo x${this.combo}`;
-          this.comboContainer.classList.add('active');
+          this.comboBadge.innerText = `Combo x${this.combo}`;
+          this.comboBadge.classList.add('active');
         } else {
-          this.comboContainer.classList.remove('active');
+          this.comboBadge.classList.remove('active');
         }
 
-        // Update Hearts container panel
         this.heartsPanel.innerHTML = '';
         for (let i = 0; i < this.maxHearts; i++) {
           const heart = document.createElement('span');
@@ -2402,7 +2309,6 @@
           }
           document.getElementById('game-over-highscore').innerText = CONFIG.highScore;
 
-          // Fail phrases selection
           const msg = ENCOURAGEMENTS_FAIL[Math.floor(Math.random() * ENCOURAGEMENTS_FAIL.length)];
           document.getElementById('encouragement-box').innerText = msg;
 
@@ -2434,7 +2340,6 @@
       }
 
       initEvents() {
-        // Keyboard mapping
         window.addEventListener('keydown', (e) => {
           this.keys[e.code] = true;
 
@@ -2476,7 +2381,6 @@
           this.keys[e.code] = false;
         });
 
-        // Touch position tracker
         const getRelativeX = (clientX) => {
           const rect = this.canvas.getBoundingClientRect();
           const rx = ((clientX - rect.left) / rect.width) * this.baseWidth;
@@ -2502,7 +2406,6 @@
           }
         });
 
-        // Touch controls dragging follow with vertical finger offsets (so finger doesn't block player ship)
         this.canvas.addEventListener('touchmove', (e) => {
           if (e.touches.length > 0) {
             handleInputMove(e.touches[0].clientX);
@@ -2516,7 +2419,6 @@
           }
         }, { passive: true });
 
-        // HUD / Overlay button maps
         document.getElementById('btn-start').addEventListener('click', () => {
           sound.init();
           if (!CONFIG.tutorialShown) {
@@ -2537,9 +2439,7 @@
 
         document.getElementById('btn-settings-toggle').addEventListener('click', (e) => {
           e.stopPropagation();
-          if (this.state === 'PLAYING' || this.state === 'START') {
-            this.setState('SETTINGS');
-          }
+          this.setState('SETTINGS');
         });
 
         document.getElementById('btn-resume').addEventListener('click', () => {
@@ -2556,7 +2456,6 @@
           this.setState('PLAYING');
         });
 
-        // Settings actions
         document.getElementById('btn-settings-close').addEventListener('click', () => {
           saveSettings();
           this.setState(this.player ? 'PAUSED' : 'START');
@@ -2575,7 +2474,6 @@
           }
         });
 
-        // Difficulty pill buttons
         const diffGroup = document.getElementById('setting-difficulty');
         diffGroup.addEventListener('click', (e) => {
           if (e.target.classList.contains('tab-btn')) {
@@ -2584,7 +2482,6 @@
           }
         });
 
-        // Animations detail tab buttons
         const animGroup = document.getElementById('setting-animation');
         animGroup.addEventListener('click', (e) => {
           if (e.target.classList.contains('tab-btn')) {
@@ -2593,7 +2490,6 @@
           }
         });
 
-        // Onboarding Tutorial steps handlers
         let currentSlideIdx = 0;
         const slides = document.querySelectorAll('.tut-slide');
         const dots = document.querySelectorAll('.tut-dot');
@@ -2642,7 +2538,6 @@
       shootBubble() {
         const now = Date.now();
         if (now - this.lastShootTime >= this.shootCooldown) {
-          // 8% chance to fire a specialized bubble
           let shootType = 'normal';
           const r = Math.random();
           if (r < 0.03) {
@@ -2654,7 +2549,7 @@
           }
 
           this.bubbles.push(new CandyBubble(this.player.x, this.player.y - 12, shootType));
-          this.player.triggerShootSquash(); // squash animation
+          this.player.triggerShootSquash(); 
           sound.playShoot();
           this.lastShootTime = now;
         }
@@ -2677,7 +2572,6 @@
         this.currentBoss = new CuteMischiefEnemy(this.baseWidth, this.level, 'boss');
         this.enemies.push(this.currentBoss);
 
-        // Notify text floats
         this.particles.push(new GameParticle({
           x: this.baseWidth / 2,
           y: this.baseHeight / 2 - 80,
@@ -2700,25 +2594,21 @@
             const dy = bubble.y - enemy.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            // Trigger hit checks
             if (dist < bubble.radius + enemy.radius) {
               this.bubbles.splice(b, 1);
 
-              // 1. Check if hit item bubble
               if (enemy instanceof PowerBubbleItem) {
                 this.enemies.splice(e, 1);
                 this.activatePowerBubble(enemy);
                 break;
               }
 
-              // 2. Boss hit handling
               if (enemy.type === 'boss') {
                 enemy.hp--;
                 sound.playPop();
                 this.combo++;
                 this.updateUI();
 
-                // Hit flashes sparks
                 for (let i = 0; i < 5; i++) {
                   this.particles.push(new GameParticle({
                     x: bubble.x,
@@ -2732,7 +2622,6 @@
                   this.defeatBoss(enemy);
                 }
               } else {
-                // Common Enemy pop
                 this.enemies.splice(e, 1);
                 this.defeatCommonEnemy(enemy);
               }
@@ -2742,7 +2631,6 @@
           }
         }
 
-        // Missed bubbles resets combo smoothly
         for (let b = this.bubbles.length - 1; b >= 0; b--) {
           if (this.bubbles[b].y < -20) {
             this.bubbles.splice(b, 1);
@@ -2757,31 +2645,38 @@
       defeatCommonEnemy(enemy) {
         sound.playPop();
 
-        // Increment combos and score
         this.combo++;
         this.score += 10 * this.combo;
         this.updateUI();
 
-        // Juice pops sparks
-        const sparklesAmt = CONFIG.animation === 'high' ? 14 : 4;
-        for (let i = 0; i < sparklesAmt; i++) {
+        // 8-14 tiny dots and stars
+        const sparksCount = CONFIG.animation === 'high' ? 10 : 3;
+        for (let i = 0; i < sparksCount; i++) {
           this.particles.push(new GameParticle({
             x: enemy.x,
             y: enemy.y,
             color: enemy.color,
-            gravity: 0.08
+            radius: Math.random() * 2.5 + 2
           }));
         }
 
-        // Drop physical falling collectible stars
+        // Circular pop ring wave
+        this.particles.push(new GameParticle({
+          x: enemy.x,
+          y: enemy.y,
+          type: 'bubble',
+          color: enemy.color,
+          radius: enemy.radius * 0.8,
+          decay: 0.05
+        }));
+
         if (Math.random() < 0.28) {
           this.collectibleStars.push(new FallingStarItem(enemy.x, enemy.y));
         }
 
-        // Floats words triggers
         if (Math.random() < 0.35 || this.score % 50 === 0) {
           const phrase = ENCOURAGEMENTS_HIT[Math.floor(Math.random() * ENCOURAGEMENTS_HIT.length)];
-          const palette = ['#fde68a', '#f9a8d4', '#93c5fd', '#86efac', '#e2e8f0'];
+          const palette = ['#fde68a', '#f9a8d4', '#93c5fd', '#86efac'];
           this.particles.push(new GameParticle({
             x: enemy.x,
             y: enemy.y - 12,
@@ -2801,15 +2696,12 @@
         this.currentBoss = null;
         sound.playVictory();
 
-        // Large reward gains
         this.level++;
         this.score += 120;
         this.updateUI();
 
-        // triggers screen flashing overlay
         this.levelFlashAlpha = 0.5;
 
-        // Drops multiple stars
         const starsCount = 5;
         for (let i = 0; i < starsCount; i++) {
           const item = new FallingStarItem(boss.x + (Math.random() - 0.5) * 80, boss.y + (Math.random() - 0.5) * 40);
@@ -2817,7 +2709,6 @@
           this.collectibleStars.push(item);
         }
 
-        // Spray tons of visuals particles
         const sparkles = CONFIG.animation === 'high' ? 35 : 10;
         const colorPalette = ['#fde68a', '#f9a8d4', '#93c5fd', '#86efac'];
         for (let i = 0; i < sparkles; i++) {
@@ -2830,7 +2721,6 @@
           }));
         }
 
-        // Float notification
         this.particles.push(new GameParticle({
           x: this.baseWidth / 2,
           y: this.baseHeight / 2 - 40,
@@ -2849,10 +2739,8 @@
           this.spawnInterval = Math.max(700, 2000 - this.level * 160);
           sound.playLevelUp();
 
-          // Screen flashes
           this.levelFlashAlpha = 0.45;
 
-          // HUD floating notifications
           this.particles.push(new GameParticle({
             x: this.baseWidth / 2,
             y: this.baseHeight / 2 - 80,
@@ -2865,7 +2753,6 @@
 
           this.updateUI();
 
-          // Boss triggering check
           if (this.level % 5 === 0) {
             this.triggerBossChallenge();
           }
@@ -2876,7 +2763,6 @@
         sound.playBling();
 
         if (item.type === 'rainbow') {
-          // Shockwave clears surrounding enemies
           this.particles.push(new GameParticle({
             x: item.x,
             y: item.y,
@@ -2887,7 +2773,6 @@
             decay: 0.016
           }));
 
-          // Trigger blast shockwave rings
           let blastRange = 135;
           for (let e = this.enemies.length - 1; e >= 0; e--) {
             const enemy = this.enemies[e];
@@ -2903,7 +2788,6 @@
             }
           }
 
-          // Sparks particles rings
           const sparks = CONFIG.animation === 'high' ? 24 : 6;
           for (let i = 0; i < sparks; i++) {
             const angle = (i / sparks) * Math.PI * 2;
@@ -2919,7 +2803,6 @@
           }
 
         } else if (item.type === 'star') {
-          // Star Bubble: Award +50 points
           this.score += 50;
           this.updateUI();
 
@@ -2933,7 +2816,6 @@
             decay: 0.012
           }));
 
-          // Sparks
           for (let i = 0; i < 8; i++) {
             this.particles.push(new GameParticle({
               x: item.x,
@@ -2944,7 +2826,6 @@
           }
 
         } else if (item.type === 'shield') {
-          // Shield Bubble: Give shield for 8s
           this.player.shieldDuration = 8000;
 
           this.particles.push(new GameParticle({
@@ -2966,7 +2847,6 @@
           const dy = this.player.y - star.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          // overlaps checks
           if (dist < this.player.radius + star.radius) {
             this.collectibleStars.splice(s, 1);
             sound.playBling();
@@ -2974,7 +2854,6 @@
             this.score += 15;
             this.updateUI();
 
-            // Display floating score float
             this.particles.push(new GameParticle({
               x: star.x,
               y: star.y - 12,
@@ -2985,18 +2864,16 @@
               decay: 0.02
             }));
 
-            // Launch flying star animation to Score counter HUD
             if (CONFIG.animation === 'high') {
               this.particles.push(new GameParticle({
                 x: star.x,
                 y: star.y,
                 type: 'ui-star',
-                tx: 65, // coords match hud-score container
+                tx: 65, 
                 ty: 30
               }));
             }
 
-            // Life recoveries
             if (this.hearts < this.maxHearts && Math.random() < 0.22) {
               this.hearts = Math.min(this.maxHearts, this.hearts + 1);
               this.particles.push(new GameParticle({
@@ -3019,14 +2896,12 @@
         this.combo = 0;
         this.updateUI();
 
-        // Star ship hurt flash frames
         this.player.triggerHurt();
-        
         sound.playLoseLife();
 
-        // Screen shake frame timers
         this.screenShakeTime = 16; 
 
+        // Hurt screen warm glow indicator
         this.particles.push(new GameParticle({
           x: this.baseWidth / 2,
           y: this.baseHeight - 120,
@@ -3043,32 +2918,31 @@
       }
 
       update(timeDelta) {
-        // Twinkling stars updates
         this.backgroundStars.forEach(star => star.update());
-        
-        // Drifting clouds updates
         this.clouds.forEach(cloud => cloud.update());
-
-        // Shooting star update
         this.shootingStar.update(timeDelta);
 
-        // Flash overlays decay
         if (this.levelFlashAlpha > 0) {
           this.levelFlashAlpha -= 0.018;
         }
 
-        // Screen shake decay
         if (this.screenShakeTime > 0) {
           this.screenShakeTime--;
         }
 
+        // Preview animation in Menu state
+        if (this.state === 'START') {
+          this.menuPreviewStar.wobble += 0.025;
+          this.menuPreviewStar.y = (this.baseHeight / 2 - 130) + Math.sin(this.menuPreviewStar.wobble) * 12;
+          this.menuPreviewStar.rotation = Math.sin(this.menuPreviewStar.wobble * 0.5) * 0.15;
+          return;
+        }
+
         if (this.state !== 'PLAYING') return;
 
-        // Engine gold bubbles emissions (only in High detail mode)
         if (CONFIG.animation === 'high') {
           this.player.engineEmissionTimer += timeDelta;
           if (this.player.engineEmissionTimer >= 80) {
-            // Emits visual yellow spark under the ship
             this.particles.push(new GameParticle({
               x: this.player.x + (Math.random() - 0.5) * 16,
               y: this.player.y + 12,
@@ -3082,7 +2956,6 @@
           }
         }
 
-        // Keyboard controls
         const speed = CONFIG.difficulty === 'easy' ? 6.5 : 7.6;
         if (this.keys['KeyA'] || this.keys['ArrowLeft']) {
           this.player.targetX = Math.max(25, this.player.x - speed);
@@ -3093,12 +2966,10 @@
 
         this.player.update(timeDelta);
 
-        // Projectiles updates
         for (let i = this.bubbles.length - 1; i >= 0; i--) {
           this.bubbles[i].update();
         }
 
-        // Spawner timers updates
         this.spawnTimer += timeDelta;
         if (this.spawnTimer >= this.spawnInterval) {
           this.spawnNormalEnemy();
@@ -3111,16 +2982,13 @@
           this.specialSpawnTimer = 0;
         }
 
-        // Enemies updates loops
         for (let i = this.enemies.length - 1; i >= 0; i--) {
           const enemy = this.enemies[i];
           enemy.update(timeDelta);
 
-          // Leaking cross bottom limits
           if (enemy.y > this.baseHeight + enemy.radius) {
             this.enemies.splice(i, 1);
 
-            // Skip damage if shield is up
             if (this.player.shieldDuration > 0) {
               this.particles.push(new GameParticle({
                 x: enemy.x,
@@ -3134,13 +3002,11 @@
               continue;
             }
 
-            // Hurt
             const lifeDmg = enemy.type === 'boss' ? 2 : 1;
             this.triggerHurtImpact(lifeDmg);
           }
         }
 
-        // Collectibles updates
         for (let i = this.collectibleStars.length - 1; i >= 0; i--) {
           const star = this.collectibleStars[i];
           star.update();
@@ -3152,15 +3018,13 @@
         this.checkCollisions();
         this.checkItemCollections();
 
-        // Particles updates & arrival counter checking
         for (let i = this.particles.length - 1; i >= 0; i--) {
           const p = this.particles[i];
           p.update(timeDelta);
           
           if (p.alpha <= 0) {
-            // Check flying UI star arrival
             if (p.type === 'ui-star') {
-              const scoreEl = document.getElementById('score-text');
+              const scoreEl = document.getElementById('hud-score-val');
               scoreEl.style.transform = 'scale(1.3)';
               setTimeout(() => scoreEl.style.transform = 'scale(1)', 120);
             }
@@ -3172,43 +3036,105 @@
       draw() {
         this.ctx.save();
 
-        // Screen Shake offset translations
         if (this.screenShakeTime > 0 && CONFIG.animation === 'high') {
           const shakeAmt = Math.sin(this.screenShakeTime) * 6;
           this.ctx.translate(shakeAmt, 0);
         }
 
-        // Clear canvas
         this.ctx.clearRect(0, 0, this.baseWidth, this.baseHeight);
 
-        // Draw Twinkling night sky stars
+        // 1. Draw Twinkling stars background layers
         this.backgroundStars.forEach(star => star.draw(this.ctx));
-
-        // Draw shooting stars
         this.shootingStar.draw(this.ctx);
 
-        // Draw clouds
+        // 2. Draw fuzzy Nebulae layers (glows)
+        if (CONFIG.animation === 'high') {
+          this.drawFuzzyNebula(this.baseWidth * 0.3, this.baseHeight * 0.25, 120, 'rgba(249, 168, 212, 0.15)');
+          this.drawFuzzyNebula(this.baseWidth * 0.7, this.baseHeight * 0.45, 140, 'rgba(147, 197, 253, 0.15)');
+        }
+
+        // 3. Draw clouds
         this.clouds.forEach(cloud => cloud.draw(this.ctx));
 
-        // Draw background fairytale castle silhouette
+        // 4. Draw Star Castle silhouette
         paintDetailedCastle(this.ctx, this.baseWidth, this.baseHeight);
 
-        // Draw items
-        this.collectibleStars.forEach(star => star.draw(this.ctx));
+        // 5. Draw elements in START/PLAY states
+        if (this.state === 'START') {
+          // Render Main Visual Star ship floating on start screen
+          this.ctx.save();
+          this.ctx.translate(this.menuPreviewStar.x, this.menuPreviewStar.y);
+          this.ctx.rotate(this.menuPreviewStar.rotation);
+          this.ctx.scale(1.2, 1.2);
+          
+          // Draw hoverboard
+          this.ctx.fillStyle = '#f9a8d4';
+          this.ctx.beginPath();
+          this.ctx.ellipse(0, 10, 36, 10, 0, 0, Math.PI * 2);
+          this.ctx.fill();
+          
+          // Pilot star
+          this.ctx.fillStyle = '#fde68a';
+          this.ctx.shadowBlur = 24;
+          this.ctx.shadowColor = 'rgba(253, 230, 138, 0.95)';
+          this.ctx.beginPath();
+          let rot = Math.PI / 2 * 3;
+          let step = Math.PI / 5;
+          this.ctx.moveTo(0, -6 - 28);
+          for (let i = 0; i < 5; i++) {
+            let px = Math.cos(rot) * 28;
+            let py = -6 + Math.sin(rot) * 28;
+            this.ctx.lineTo(px, py);
+            rot += step;
+            px = Math.cos(rot) * 13;
+            py = -6 + Math.sin(rot) * 13;
+            this.ctx.lineTo(px, py);
+            rot += step;
+          }
+          this.ctx.closePath();
+          this.ctx.fill();
 
-        // Draw projectiles & enemies
-        this.bubbles.forEach(bubble => bubble.draw(this.ctx));
-        this.enemies.forEach(enemy => enemy.draw(this.ctx));
+          // Cheeks and smile
+          this.ctx.fillStyle = 'rgba(249, 110, 150, 0.55)';
+          this.ctx.beginPath();
+          this.ctx.arc(-11, -4, 4.5, 0, Math.PI*2);
+          this.ctx.arc(11, -4, 4.5, 0, Math.PI*2);
+          this.ctx.fill();
+          
+          this.ctx.fillStyle = '#38255c';
+          this.ctx.beginPath();
+          this.ctx.arc(-7, -8, 3, 0, Math.PI*2);
+          this.ctx.arc(7, -8, 3, 0, Math.PI*2);
+          this.ctx.fill();
+          this.ctx.strokeStyle = '#38255c';
+          this.ctx.lineWidth = 2.5;
+          this.ctx.beginPath();
+          this.ctx.arc(0, -4, 3.5, 0, Math.PI);
+          this.ctx.stroke();
 
-        // Draw player
-        if (this.state === 'PLAYING' || this.state === 'PAUSED' || this.state === 'SETTINGS') {
-          this.player.draw(this.ctx);
+          // Logo badge
+          this.ctx.fillStyle = '#ec4899';
+          this.ctx.font = 'bold 9px "Fredoka", sans-serif';
+          this.ctx.textAlign = 'center';
+          this.ctx.textBaseline = 'middle';
+          this.ctx.fillText('I', 0, 4);
+
+          this.ctx.restore();
+        } else {
+          // Normal game states drawing
+          this.collectibleStars.forEach(star => star.draw(this.ctx));
+          this.bubbles.forEach(bubble => bubble.draw(this.ctx));
+          this.enemies.forEach(enemy => enemy.draw(this.ctx));
+
+          if (this.state === 'PLAYING' || this.state === 'PAUSED' || this.state === 'SETTINGS') {
+            this.player.draw(this.ctx);
+          }
         }
 
         // Draw particles
         this.particles.forEach(p => p.draw(this.ctx));
 
-        // Draw level flash overlay
+        // Draw level flash
         if (this.levelFlashAlpha > 0 && CONFIG.animation === 'high') {
           this.ctx.save();
           this.ctx.fillStyle = '#ffffff';
@@ -3217,6 +3143,27 @@
           this.ctx.restore();
         }
 
+        // Screen hurt flash overlay (red border flash)
+        if (this.screenShakeTime > 0 && CONFIG.animation === 'high') {
+          this.ctx.save();
+          this.ctx.strokeStyle = 'rgba(236, 72, 153, 0.4)';
+          this.ctx.lineWidth = 15;
+          this.ctx.strokeRect(0, 0, this.baseWidth, this.baseHeight);
+          this.ctx.restore();
+        }
+
+        this.ctx.restore();
+      }
+
+      drawFuzzyNebula(cx, cy, radius, color) {
+        this.ctx.save();
+        const grad = this.ctx.createRadialGradient(cx, cy, 5, cx, cy, radius);
+        grad.addColorStop(0, color);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        this.ctx.fillStyle = grad;
+        this.ctx.beginPath();
+        this.ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        this.ctx.fill();
         this.ctx.restore();
       }
 
@@ -3228,7 +3175,6 @@
           const elapsed = timestamp - lastTimestamp;
           lastTimestamp = timestamp;
 
-          // Limit delta physics increments
           const delta = Math.min(elapsed, 80);
 
           this.update(delta);
@@ -3240,7 +3186,7 @@
       }
     }
 
-    // Launch Game!
+    // Launch!
     window.addEventListener('DOMContentLoaded', () => {
       const game = new GameEngine();
       game.start();
