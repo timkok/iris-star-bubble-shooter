@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Iris 的星星泡泡守护者</title>
+  <meta name="iris-build" content="polished-game-menu-v2">
   <style>
     :root {
       color-scheme: light;
@@ -191,6 +192,29 @@
       font-weight: 900;
     }
 
+    .menu-status {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 12px auto 0;
+    }
+
+    .menu-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 32px;
+      padding: 5px 11px;
+      border: 2px solid rgba(255, 255, 255, 0.86);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      color: #4a3f9b;
+      font-size: clamp(13px, 3vw, 15px);
+      font-weight: 900;
+      box-shadow: 0 7px 16px rgba(73, 64, 145, 0.14);
+    }
+
     .menu-art-window {
       height: clamp(190px, 35vh, 310px);
       margin: clamp(10px, 2.5vw, 16px) auto;
@@ -311,6 +335,11 @@
     <section class="start-card">
       <h1>Iris 的星星泡泡守护者</h1>
       <p class="subtitle">用魔法泡泡守护星星城堡</p>
+      <div class="menu-status" aria-label="游戏状态">
+        <span class="menu-chip">最高分 <span id="bestScore">0</span></span>
+        <span class="menu-chip">爱心 💛💛💛</span>
+        <span class="menu-chip">星星城堡</span>
+      </div>
       <div class="menu-art-window" aria-hidden="true"></div>
       <div class="icon-row" aria-label="游戏操作">
         <div class="icon-card"><span>↔</span><span>移动</span></div>
@@ -332,6 +361,7 @@
       const ctx = canvas.getContext("2d");
       const ui = {
         score: document.getElementById("score"),
+        bestScore: document.getElementById("bestScore"),
         level: document.getElementById("level"),
         hearts: document.getElementById("hearts"),
         energy: document.getElementById("energy"),
@@ -351,6 +381,7 @@
         paused: false,
         gameOver: false,
         score: 0,
+        bestScore: Number(localStorage.getItem("irisStarBubbleBest") || 0),
         level: 1,
         hearts: 3,
         energy: 0,
@@ -435,6 +466,7 @@
 
       function updateHud() {
         ui.score.textContent = state.score;
+        ui.bestScore.textContent = state.bestScore;
         ui.level.textContent = state.level;
         ui.energy.textContent = state.energy;
         ui.hearts.textContent = "💛".repeat(Math.max(0, state.hearts)) || "♡";
@@ -592,6 +624,9 @@
       function endGame() {
         state.gameOver = true;
         state.running = false;
+        state.bestScore = Math.max(state.bestScore, state.score);
+        localStorage.setItem("irisStarBubbleBest", String(state.bestScore));
+        updateHud();
         document.body.classList.add("menu-mode");
         ui.overlay.classList.remove("hidden");
         ui.overlay.querySelector("h1").textContent = "再试一次，你已经很棒了！";
