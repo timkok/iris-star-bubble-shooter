@@ -179,6 +179,7 @@
     .icon-card b { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; color:#fff; background: linear-gradient(180deg,#9eeeff,#6a79f3); }
     .menu-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 6px 12px; color:#4a3f9b; }
     .parent-note { margin: 12px auto 0; max-width: 620px; font-size: 13px; line-height: 1.45; color: #4a3f75; }
+    .quick-guide { margin: 10px auto 0; max-width: 620px; font-weight: 900; color: #4a3f9b; }
 
     .modal-card {
       width: min(620px, 92vw);
@@ -323,6 +324,7 @@
         <div class="icon-card"><b>●</b><span>发送</span></div>
         <div class="icon-card"><b>★</b><span>收集</span></div>
       </div>
+      <p class="quick-guide">移动 Iris，送出星星泡泡，帮助天空朋友回家。</p>
       <div class="menu-row">
         <button id="startBtn" type="button" aria-label="开始守护星空">开始守护</button>
         <button id="settingsBtn" class="secondary" type="button" aria-label="打开设置">设置</button>
@@ -367,9 +369,9 @@
       const MAX_PARTICLES = 180;
       const MAX_STARS = 26;
       const DIFFICULTY = {
-        easy: { label: "简单", speed: 0.82, spawn: 1.18, hearts: 4 },
-        normal: { label: "普通", speed: 1, spawn: 1, hearts: 3 },
-        challenge: { label: "挑战", speed: 1.18, spawn: 0.86, hearts: 3 }
+        easy: { label: "简单", speed: 0.66, spawn: 1.48, hearts: 10 },
+        normal: { label: "普通", speed: 0.82, spawn: 1.32, hearts: 8 },
+        challenge: { label: "挑战", speed: 0.98, spawn: 1.02, hearts: 6 }
       };
       const LEVEL_TIPS = [
         "第 2 关：彩色气球来了",
@@ -478,6 +480,7 @@
         hudPopTimer: 0, levelGlowTimer: 0, toastTimer: 0,
         runUnlocks: [], runStickers: [], runGoalDone: false,
         bubbles: [], friends: [], particles: [], energyStars: [], trails: [], backdropStars: [],
+        floatTexts: [],
         player: { x: 0, y: 0, radius: 28, speed: 460, targetX: 0 }
       };
 
@@ -705,10 +708,10 @@
         Object.assign(state, {
           mode: "playing", score: 0, level: 1, hearts: diff.hearts, energy: 0, combo: 0, bestCombo: 0,
           elapsed: 0, launched: 0, rescued: 0, missed: 0, starsThisRun: 0,
-          spawnTimer: 0, spawnDelay: 1.35, fireCooldown: 0, rewardTimer: 0, slowTimer: 0,
+          spawnTimer: 0, spawnDelay: 2.0, fireCooldown: 0, rewardTimer: 0, slowTimer: 0,
           rainbowTimer: 0, shield: 0, energyBoostTimer: 0, hudPopTimer: 0, levelGlowTimer: 0,
           runUnlocks: [], runStickers: [], runGoalDone: false,
-          bubbles: [], friends: [], particles: [], energyStars: [], trails: []
+          bubbles: [], friends: [], particles: [], energyStars: [], trails: [], floatTexts: []
         });
         state.player.x = state.width / 2;
         state.player.targetX = state.player.x;
@@ -837,7 +840,7 @@
         const diff = DIFFICULTY[settings.difficulty];
         const reward = state.rewardTimer > 0 ? .86 : 1;
         const practice = settings.practice ? 1.22 : 1;
-        state.spawnDelay = Math.max(.72, (1.35 - state.level * .055) * diff.spawn * reward * practice);
+        state.spawnDelay = Math.max(1.1, (2.0 - state.level * .05) * diff.spawn * reward * practice);
         state.spawnTimer += delta;
         while (state.spawnTimer >= state.spawnDelay && state.friends.length < MAX_FRIENDS) {
           state.spawnTimer -= state.spawnDelay;
@@ -862,10 +865,12 @@
         updateAged(state.trails, delta);
         updateAged(state.particles, delta);
         updateAged(state.energyStars, delta);
+        updateAged(state.floatTexts, delta);
         state.bubbles.forEach((b) => { b.y += b.vy * delta; b.x += b.vx * delta + Math.sin(b.wobble += delta * 5.5) * .35; });
         state.bubbles = state.bubbles.filter((b) => b.y + b.radius > -20);
         state.friends.forEach((f) => { f.y += f.vy * delta; f.x += Math.sin(f.spin) * f.drift * delta; f.spin += delta * 1.45; });
         state.particles.forEach((p) => { p.x += p.vx * delta; p.y += p.vy * delta; p.vy += 90 * delta; });
+        state.floatTexts.forEach((t) => { t.y -= 32 * delta; });
         state.energyStars.forEach((s) => {
           const t = Math.min(1, s.age / s.life);
           const e = 1 - Math.pow(1 - t, 3);
@@ -880,7 +885,7 @@
           const f = state.friends[i];
           for (let j = state.bubbles.length - 1; j >= 0; j--) {
             const b = state.bubbles[j];
-            if (Math.hypot(f.x - b.x, f.y - b.y) > f.radius + b.radius) continue;
+            if (Math.hypot(f.x - b.x, f.y - b.y) > f.radius + b.radius + 18) continue;
             state.friends.splice(i, 1);
             state.bubbles.splice(j, 1);
             rescueFriend(f);
@@ -895,12 +900,15 @@
         const rewardEnergy = state.rewardTimer > 0 || state.energyBoostTimer > 0 ? 2 : 1;
         state.energy += rewardEnergy;
         state.starsThisRun += rewardEnergy;
-        state.score += friend.kind === "moon" ? 18 : friend.kind === "balloon" ? 12 : 16;
+        state.score += 10;
         state.hudPopTimer = .28;
-        addSparkles(friend.x, friend.y, friend.color, state.combo >= 5 ? 28 : 18);
+        addSparkles(friend.x, friend.y, friend.color, state.combo >= 5 ? 44 : 30);
+        addFloatText(friend.x, friend.y - friend.radius, "+10");
         addEnergyStar(friend.x, friend.y);
         audio.play("rescue");
-        if (state.combo % 5 === 0) sparkleToast("连续闪耀！");
+        if (state.combo === 3) sparkleToast("星光连连！");
+        if (state.combo === 5) sparkleToast("Iris 好厉害！");
+        if (state.combo === 10) sparkleToast("闪闪发光！");
         activateMagicIfReady();
       }
       function handleMisses() {
@@ -952,6 +960,7 @@
           drawFriends(time);
           drawParticles();
           drawEnergyStars();
+          drawFloatTexts();
           drawPlayer(time);
           if (state.levelGlowTimer > 0 && !settings.reducedMotion) drawLevelGlow();
           if (state.rewardTimer > 0) drawRewardGlow(time);
@@ -1064,6 +1073,21 @@
       function drawTrails() { state.trails.forEach((t)=>{ ctx.globalAlpha=(1-t.age/t.life)*.45; drawMenuBubble(t.x,t.y+(t.age/t.life)*18,12*(1-t.age/t.life),"#aaf7ff",0,0); }); ctx.globalAlpha=1; }
       function drawParticles() { state.particles.forEach((p)=>{ ctx.globalAlpha=Math.max(0,1-p.age/p.life); drawStar(p.x,p.y,p.size,p.color); }); ctx.globalAlpha=1; }
       function drawEnergyStars() { state.energyStars.forEach((s)=>drawStar(s.x,s.y,10*(1-s.age/s.life*.35),"#fff27b")); }
+      function drawFloatTexts() {
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.font = "900 22px Trebuchet MS, sans-serif";
+        state.floatTexts.forEach((t) => {
+          ctx.globalAlpha = Math.max(0, 1 - t.age / t.life);
+          ctx.fillStyle = "#fff6a4";
+          ctx.strokeStyle = "rgba(74,63,155,.7)";
+          ctx.lineWidth = 4;
+          ctx.strokeText(t.text, t.x, t.y);
+          ctx.fillText(t.text, t.x, t.y);
+        });
+        ctx.restore();
+        ctx.globalAlpha = 1;
+      }
       function drawLevelGlow() { drawRadialGlow(state.width/2,state.height/2,Math.max(state.width,state.height)*.6,`rgba(255,245,166,${.22*state.levelGlowTimer/.9})`); }
       function drawRewardGlow(time) { if (settings.reducedMotion) return; ctx.globalAlpha=.12; ctx.fillStyle=`hsl(${(time/30)%360}, 92%, 75%)`; ctx.fillRect(0,0,state.width,state.height); ctx.globalAlpha=1; }
 
@@ -1154,14 +1178,17 @@
         const unlocks = [...new Set([...state.runUnlocks, ...state.runStickers])];
         showModal(`
           <section class="modal-card">
-            <h2>${settings.practice ? "练习完成啦" : "本次守护完成啦"}</h2>
-            <p>本局分数：<b>${state.score}</b></p>
+            <h2>今天的守护完成啦</h2>
+            <p>得分：<b>${state.score}</b></p>
+            <p>守护时间：<b>${Math.floor(state.elapsed)} 秒</b></p>
+            <p>最高连闪：<b>${state.bestCombo}</b></p>
+            <p>鼓励称号：<b>${encouragementTitle()}</b></p>
             <p>最高分：<b>${data.bestScore}</b>${settings.practice ? "（练习模式不记录最高分）" : ""}</p>
             <p>本局星星能量：<b>${state.starsThisRun}</b></p>
             <p>今日目标：${goal.goal.text} ${goal.progress}/${goal.goal.target} ${goal.done ? "✓" : ""}</p>
             <p>本局收获：${unlocks.length ? unlocks.join("、") : "今天也很棒！"}</p>
             <div class="menu-row">
-              <button data-action="again" class="aqua" type="button">再玩一次</button>
+              <button data-action="again" class="aqua" type="button">再守护一次</button>
               <button data-action="home" class="secondary" type="button">回到首页</button>
             </div>
           </section>`);
@@ -1174,11 +1201,18 @@
         const amount = settings.reducedMotion ? Math.ceil(count*.35) : count;
         for(let i=0;i<amount;i++){ const a=Math.PI*2*i/amount; const speed=70+Math.random()*130; pushLimited(state.particles,{x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:.52+Math.random()*.18,age:0,color,size:4+Math.random()*5},MAX_PARTICLES); }
       }
+      function addFloatText(x,y,text) { pushLimited(state.floatTexts,{x,y,text,age:0,life:.85},24); }
       function addEnergyStar(x,y) { pushLimited(state.energyStars,{x,y,sx:x,sy:y,tx:Math.min(420,state.width*.48),ty:36,age:0,life:.72},MAX_STARS); audio.play("collect"); }
       function updateAged(list, delta) { list.forEach((item)=>item.age += delta); const live = list.filter((item)=>item.age < item.life); list.length = 0; list.push(...live); }
       function pushLimited(list, item, max) { list.push(item); if (list.length > max) list.splice(0, list.length - max); }
       function randomChoice(list) { return list[Math.floor(Math.random() * list.length)]; }
       function clamp(value,min,max) { return Math.max(min, Math.min(max, value)); }
+      function encouragementTitle() {
+        if (state.bestCombo >= 10) return "闪闪发光守护者";
+        if (state.score >= 100) return "星星小队长";
+        if (state.starsThisRun >= 10) return "泡泡小能手";
+        return "温柔小守护者";
+      }
 
       function loop(time) {
         const delta = Math.min(.034, (time - state.lastTime || 16) / 1000);
@@ -1218,7 +1252,12 @@
       function bindHold(btn, down, up) { ["pointerdown","touchstart"].forEach((e)=>btn.addEventListener(e,(ev)=>{ev.preventDefault();down();})); ["pointerup","pointerleave","pointercancel","touchend","touchcancel"].forEach((e)=>btn.addEventListener(e,(ev)=>{ev.preventDefault();up();})); }
       bindHold(ui.touchLeft, () => input.left = true, () => input.left = false);
       bindHold(ui.touchRight, () => input.right = true, () => input.right = false);
-      bindHold(ui.touchFire, () => { input.fire = true; state.fireCooldown = 0; }, () => input.fire = false);
+      ui.touchFire.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        if (state.mode !== "playing" || state.fireCooldown > 0) return;
+        launchBubble();
+        state.fireCooldown = FIRE_INTERVAL;
+      });
       ui.startBtn.onclick = newRun;
       ui.settingsBtn.onclick = showSettings;
       ui.stickersBtn.onclick = showStickers;
@@ -1234,7 +1273,6 @@
       resize();
       updateHud();
       requestAnimationFrame(loop);
-      setTimeout(() => showTutorial(false), 350);
     })();
   </script>
 </body>
