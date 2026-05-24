@@ -2,106 +2,87 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
   <title>Iris 的星星泡泡守护者</title>
-  <meta name="iris-build" content="polished-game-menu-v3">
+  <meta name="iris-build" content="guardian-complete-v1">
   <style>
     :root {
       color-scheme: light;
-      --ink: #35265f;
-      --panel: rgba(255, 255, 255, 0.78);
-      --panel-strong: rgba(255, 255, 255, 0.92);
-      --rose: #ff719d;
-      --teal: #39c7bc;
-      --gold: #ffd44d;
-      --sky: #80d4ff;
-      --violet: #8068dc;
+      --ink: #38256f;
+      --soft: rgba(255, 255, 255, 0.68);
+      --glass: rgba(255, 255, 255, 0.52);
+      --pink: #ff6fa7;
+      --aqua: #56d7d1;
+      --gold: #ffd85a;
+      --violet: #7462d8;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html, body {
       width: 100%;
       height: 100%;
       margin: 0;
       overflow: hidden;
-      font-family: "Trebuchet MS", "Microsoft YaHei", system-ui, sans-serif;
+      background: #14145c;
       color: var(--ink);
-      background: #1b1b6d;
-      touch-action: none;
+      font-family: "Trebuchet MS", "Microsoft YaHei", system-ui, sans-serif;
       user-select: none;
-    }
-
-    body {
-      display: grid;
-      place-items: stretch;
+      -webkit-user-select: none;
+      touch-action: none;
     }
 
     canvas {
       display: block;
       width: 100vw;
       height: 100vh;
-      background: #1b1b6d;
+      background: #14145c;
     }
 
     .hud {
       position: fixed;
-      inset: max(12px, env(safe-area-inset-top)) 12px auto;
+      inset: max(10px, env(safe-area-inset-top)) 10px auto;
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 10px;
       align-items: start;
+      z-index: 4;
       pointer-events: none;
-      z-index: 3;
+      opacity: 0;
       transition: opacity 180ms ease;
     }
+    body.playing .hud, body.paused .hud { opacity: 1; }
 
-    body.menu-mode .hud {
-      opacity: 0;
-    }
-
-    .stats,
-    .controls,
-    .message,
-    .start-card {
-      border: 2px solid rgba(255, 255, 255, 0.72);
-      background: rgba(255, 255, 255, 0.52);
-      box-shadow: 0 14px 30px rgba(28, 23, 96, 0.22);
+    .stats, .controls, .modal-card, .menu-card, .touch-pad, .toast, .mobile-hint {
+      border: 2px solid rgba(255,255,255,.72);
+      background: var(--glass);
+      box-shadow: 0 14px 30px rgba(28, 23, 96, .22);
       backdrop-filter: blur(10px);
     }
 
     .stats {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 7px;
       width: fit-content;
-      max-width: min(720px, calc(100vw - 132px));
+      max-width: min(780px, calc(100vw - 132px));
       padding: 8px;
       border-radius: 999px;
-      font-size: clamp(13px, 2.4vw, 16px);
+      font-size: clamp(12px, 2.3vw, 16px);
       font-weight: 900;
-      transition: transform 180ms ease, box-shadow 180ms ease;
     }
-
-    .stats.pop {
-      transform: scale(1.04);
-      box-shadow: 0 18px 38px rgba(255, 206, 92, 0.32);
-    }
+    .stats.pop { animation: hudPop 260ms ease; }
+    @keyframes hudPop { 50% { transform: scale(1.045); filter: brightness(1.08); } }
 
     .pill {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      min-height: 36px;
-      padding: 6px 12px;
+      gap: 5px;
+      min-height: 34px;
+      padding: 6px 11px;
       border-radius: 999px;
-      background:
-        radial-gradient(circle at 26% 20%, rgba(255, 255, 255, 0.9), transparent 18%),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(247, 232, 255, 0.62));
-      box-shadow: inset 0 -3px 0 rgba(99, 76, 160, 0.1), 0 7px 14px rgba(46, 35, 123, 0.12);
+      background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(247,232,255,.62));
+      box-shadow: inset 0 -3px 0 rgba(99,76,160,.1), 0 7px 14px rgba(46,35,123,.12);
       white-space: nowrap;
     }
 
@@ -115,249 +96,195 @@
     }
 
     button {
-      min-width: 48px;
       min-height: 48px;
       border: 0;
       border-radius: 999px;
       color: #fff;
       background:
-        radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.9), transparent 18%),
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,.9), transparent 18%),
         linear-gradient(180deg, #ff91bd, #ff5d9a 58%, #df3e84);
-      box-shadow: inset 0 -5px 0 rgba(122, 25, 72, 0.22), 0 10px 18px rgba(170, 68, 105, 0.24);
+      box-shadow: inset 0 -5px 0 rgba(122,25,72,.22), 0 10px 18px rgba(170,68,105,.24);
       font: 900 15px/1 system-ui, sans-serif;
       cursor: pointer;
-      transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;
+      transition: transform 140ms ease, filter 140ms ease;
     }
-
-    button:hover {
-      transform: translateY(-3px);
-      filter: brightness(1.04);
-    }
-
-    button:active {
-      transform: translateY(1px) scale(0.96);
-    }
-
+    button:hover { transform: translateY(-3px); filter: brightness(1.04); }
+    button:active { transform: translateY(1px) scale(.96); }
     button.secondary {
+      color: #4a3f9b;
       background:
-        radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.9), transparent 18%),
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,.95), transparent 18%),
+        linear-gradient(180deg, #fff2a6, #ffd45f 58%, #ffbc47);
+    }
+    button.aqua {
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,.9), transparent 18%),
         linear-gradient(180deg, #7cf3e9, #35c7c0 58%, #17a9a2);
-    }
-
-    .message {
-      position: fixed;
-      left: 50%;
-      bottom: max(22px, env(safe-area-inset-bottom));
-      transform: translateX(-50%);
-      max-width: min(560px, calc(100vw - 24px));
-      min-height: 46px;
-      padding: 12px 18px;
-      border-radius: 8px;
-      text-align: center;
-      font-weight: 900;
-      font-size: clamp(16px, 4vw, 24px);
-      opacity: 0;
-      transition: opacity 180ms ease, transform 180ms ease;
-      z-index: 4;
-      pointer-events: none;
-    }
-
-    .message.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(-8px);
     }
 
     .overlay {
       position: fixed;
       inset: 0;
+      z-index: 6;
       display: grid;
       place-items: center;
-      padding: 18px;
+      padding: 16px;
       background: transparent;
-      z-index: 5;
+      pointer-events: none;
     }
+    .overlay.hidden { display: none; }
+    .overlay.active { pointer-events: auto; background: rgba(22,18,94,.28); }
 
-    .overlay.hidden {
-      display: none;
-    }
-
-    .start-card {
-      width: min(760px, 92vw);
-      border-radius: 8px;
+    .menu-card {
+      width: min(780px, 92vw);
+      max-height: min(94vh, 900px);
+      overflow: auto;
+      border-radius: 14px;
       padding: clamp(14px, 3.5vw, 26px);
       text-align: center;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 246, 255, 0.32)),
-        radial-gradient(circle at 24% 18%, rgba(255, 228, 119, 0.5), transparent 28%),
-        radial-gradient(circle at 84% 22%, rgba(116, 222, 255, 0.42), transparent 30%);
-      box-shadow: 0 26px 56px rgba(22, 18, 94, 0.38), inset 0 0 0 2px rgba(255, 255, 255, 0.82);
+        linear-gradient(180deg, rgba(255,255,255,.58), rgba(255,246,255,.32)),
+        radial-gradient(circle at 24% 18%, rgba(255,228,119,.5), transparent 28%),
+        radial-gradient(circle at 84% 22%, rgba(116,222,255,.42), transparent 30%);
+      box-shadow: 0 26px 56px rgba(22,18,94,.38), inset 0 0 0 2px rgba(255,255,255,.82);
       backdrop-filter: none;
-      overflow: hidden;
+      pointer-events: auto;
     }
-
-    h1 {
-      margin: 2px 0 8px;
-      font-size: clamp(27px, 5vw, 50px);
-      line-height: 1.04;
-      letter-spacing: 0;
-      color: #4a3f9b;
-      text-shadow: 0 3px 0 rgba(255, 255, 255, 0.75), 0 9px 20px rgba(83, 57, 160, 0.18);
-    }
-
-    .subtitle {
-      margin: 0 auto;
-      color: #8b3da9;
-      font-size: clamp(17px, 4vw, 24px);
-      font-weight: 900;
-    }
-
-    .menu-status {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      margin: 12px auto 0;
-    }
-
-    .menu-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      min-height: 32px;
-      padding: 5px 11px;
-      border: 2px solid rgba(255, 255, 255, 0.86);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.72);
-      color: #4a3f9b;
-      font-size: clamp(13px, 3vw, 15px);
-      font-weight: 900;
-      box-shadow: 0 7px 16px rgba(73, 64, 145, 0.14);
-    }
-
-    .menu-art-window {
-      height: clamp(250px, 42vh, 390px);
-      margin: 0 auto clamp(8px, 1.8vw, 14px);
-      border-radius: 12px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
-      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.18);
+    .menu-art {
+      height: clamp(230px, 40vh, 370px);
+      margin: 0 auto 10px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0));
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.18);
       pointer-events: none;
     }
-
-    .icon-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin: 0 auto clamp(12px, 3vw, 18px);
-      max-width: 500px;
-    }
-
-    .icon-card {
-      display: grid;
-      gap: 4px;
-      justify-items: center;
-      min-height: 76px;
-      padding: 9px 6px;
-      border: 2px solid rgba(255, 255, 255, 0.92);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.74);
+    h1 {
+      margin: 4px 0 8px;
+      font-size: clamp(28px, 5vw, 52px);
+      line-height: 1.03;
       color: #4a3f9b;
-      font-size: clamp(13px, 3.2vw, 16px);
+      text-shadow: 0 3px 0 rgba(255,255,255,.75), 0 9px 20px rgba(83,57,160,.18);
+    }
+    .subtitle { margin: 0 auto 10px; color: #8b3da9; font-size: clamp(17px,4vw,24px); font-weight: 900; }
+    .menu-row, .icon-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .icon-row { display: grid; grid-template-columns: repeat(3, 1fr); max-width: 520px; margin: 12px auto; }
+    .icon-card, .menu-chip, .setting-row, .sticker-card {
+      border: 2px solid rgba(255,255,255,.88);
+      border-radius: 14px;
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 8px 18px rgba(73,64,145,.14);
       font-weight: 900;
-      box-shadow: 0 9px 18px rgba(73, 64, 145, 0.16);
     }
+    .icon-card { min-height: 72px; padding: 9px; display: grid; justify-items: center; gap: 4px; }
+    .icon-card b { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; color:#fff; background: linear-gradient(180deg,#9eeeff,#6a79f3); }
+    .menu-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 6px 12px; color:#4a3f9b; }
+    .parent-note { margin: 12px auto 0; max-width: 620px; font-size: 13px; line-height: 1.45; color: #4a3f75; }
 
-    .icon-card span:first-child {
+    .modal-card {
+      width: min(620px, 92vw);
+      max-height: min(86vh, 760px);
+      overflow: auto;
+      border-radius: 16px;
+      padding: 18px;
+      pointer-events: auto;
+      background: rgba(255,255,255,.86);
+    }
+    .modal-card h2 { margin: 0 0 10px; color:#4a3f9b; font-size: clamp(24px, 7vw, 34px); }
+    .modal-card p { line-height: 1.5; }
+    .settings-grid, .stickers-grid { display: grid; gap: 10px; margin: 12px 0; }
+    .setting-row {
       display: grid;
-      place-items: center;
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      color: #fff;
-      background: linear-gradient(180deg, #9eeeff, #6a79f3);
-      box-shadow: inset 0 -3px 0 rgba(53, 38, 95, 0.16);
-      font-size: 21px;
-    }
-
-    .start-card .actions {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      grid-template-columns: 1fr auto;
       gap: 10px;
-      margin-top: 0;
+      align-items: center;
+      padding: 12px;
+      text-align: left;
     }
+    .segmented { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .segmented button, .toggle { min-width: 72px; padding: 0 12px; }
+    button.on { outline: 3px solid rgba(255,216,90,.8); filter: brightness(1.06); }
+    .stickers-grid { grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); }
+    .sticker-card { padding: 12px; text-align: center; min-height: 130px; }
+    .sticker-card.locked { filter: grayscale(.8); opacity: .65; }
+    .sticker-drawing { height: 54px; display: grid; place-items: center; font-size: 34px; }
 
-    .big-button {
-      min-width: 176px;
-      min-height: 56px;
-      border-radius: 999px;
-      font-size: 20px;
-      background:
-        radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.88), transparent 18%),
-        linear-gradient(180deg, #ff9fc4, #ff5f9b 58%, #e74788);
-      box-shadow: inset 0 -5px 0 rgba(147, 28, 84, 0.24), 0 12px 22px rgba(189, 54, 116, 0.32);
-      text-shadow: 0 1px 0 rgba(110, 22, 69, 0.28);
-    }
-
-    .small-button {
-      min-width: 92px;
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: max(92px, env(safe-area-inset-bottom));
+      z-index: 8;
+      transform: translateX(-50%) translateY(20px);
+      max-width: min(560px, calc(100vw - 24px));
       min-height: 46px;
+      padding: 12px 18px;
+      border-radius: 14px;
+      opacity: 0;
+      pointer-events: none;
+      text-align: center;
+      font-weight: 900;
+      font-size: clamp(16px, 4vw, 23px);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .mobile-hint {
+      position: fixed;
+      left: 50%;
+      bottom: max(74px, env(safe-area-inset-bottom));
+      z-index: 4;
+      transform: translateX(-50%);
+      padding: 7px 12px;
       border-radius: 999px;
-      color: #4a3f9b;
-      background:
-        radial-gradient(circle at 28% 20%, rgba(255, 255, 255, 0.95), transparent 20%),
-        linear-gradient(180deg, #fff2a6, #ffd45f 58%, #ffbc47);
-      box-shadow: inset 0 -4px 0 rgba(153, 105, 32, 0.2), 0 10px 18px rgba(129, 90, 42, 0.22);
+      font-weight: 900;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    body.playing .mobile-hint { opacity: .92; }
+
+    .touch-controls {
+      position: fixed;
+      inset: auto 10px max(10px, env(safe-area-inset-bottom));
+      z-index: 5;
+      display: none;
+      grid-template-columns: 1fr 1fr 1.35fr;
+      gap: 10px;
+      pointer-events: none;
+    }
+    body.playing .touch-controls, body.paused .touch-controls { display: grid; }
+    .touch-pad {
+      min-height: 58px;
+      border-radius: 18px;
+      color: #fff;
+      font-size: 18px;
+      pointer-events: auto;
     }
 
-    @media (max-width: 620px) {
-      .hud {
-        grid-template-columns: 1fr;
-        inset: max(8px, env(safe-area-inset-top)) 8px auto;
-        gap: 7px;
-      }
+    .pause-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 7;
+      display: none;
+      place-items: center;
+      padding: 16px;
+      background: rgba(22,18,94,.28);
+    }
+    body.paused .pause-layer { display: grid; }
+    .pause-card { text-align: center; }
 
-      .stats {
-        max-width: calc(100vw - 16px);
-        border-radius: 18px;
-        padding: 6px;
-        gap: 5px;
-      }
-
-      .pill {
-        min-height: 31px;
-        padding: 4px 8px;
-        font-size: 12px;
-      }
-
-      .controls {
-        justify-self: start;
-        padding: 6px;
-      }
-
-      button {
-        min-height: 48px;
-      }
-
-      .start-card {
-        width: min(430px, 92vw);
-        padding: 12px;
-      }
-
-      .menu-art-window {
-        height: clamp(255px, 41vh, 330px);
-      }
-
-      .icon-row {
-        gap: 7px;
-      }
-
-      .icon-card {
-        min-height: 68px;
-      }
-
-      h1 {
-        font-size: clamp(25px, 8vw, 36px);
-      }
+    @media (max-width: 700px) {
+      .hud { grid-template-columns: 1fr; inset: max(8px, env(safe-area-inset-top)) 8px auto; gap: 7px; }
+      .stats { max-width: calc(100vw - 16px); border-radius: 18px; padding: 6px; gap: 5px; }
+      .pill { min-height: 30px; padding: 4px 8px; font-size: 12px; }
+      .controls { justify-self: start; padding: 6px; }
+      .menu-card { padding: 12px; }
+      .menu-art { height: clamp(230px, 38vh, 330px); }
+      h1 { font-size: clamp(25px, 8vw, 36px); }
+      .icon-row { gap: 7px; }
+      .icon-card { min-height: 66px; }
+      .touch-controls { display: grid; }
+      .setting-row { grid-template-columns: 1fr; }
+      .segmented { justify-content: flex-start; }
     }
   </style>
 </head>
@@ -365,957 +292,345 @@
   <canvas id="game" aria-label="Iris 的星星泡泡守护者游戏画布"></canvas>
 
   <div class="hud" aria-live="polite">
-    <div class="stats">
+    <div id="stats" class="stats">
       <span class="pill">✨ 分数 <span id="score">0</span></span>
       <span class="pill">🌙 关卡 <span id="level">1</span></span>
       <span class="pill">💖 爱心 <span id="hearts">3</span></span>
       <span class="pill">⭐ 星星能量 <span id="energy">0</span></span>
+      <span class="pill">🎯 <span id="dailyHud">今日目标</span></span>
+      <span id="practiceBadge" class="pill" hidden>练习中</span>
+      <span id="bonusBadge" class="pill" hidden>星光奖励时间</span>
+      <span id="powerBadge" class="pill" hidden>星星魔法</span>
     </div>
     <div class="controls">
-      <button id="pauseBtn" class="secondary" type="button" aria-label="暂停或继续">暂停</button>
-      <button id="restartBtn" type="button" aria-label="重新开始">重来</button>
+      <button id="pauseBtn" class="aqua" type="button" aria-label="暂停游戏">暂停</button>
+      <button id="restartBtn" type="button" aria-label="重新开始本局">重来</button>
     </div>
   </div>
 
-  <div id="message" class="message">Great job, Iris!</div>
-
   <div id="overlay" class="overlay">
-    <section class="start-card">
-      <div class="menu-art-window" aria-hidden="true"></div>
+    <section class="menu-card" id="menuCard">
+      <div class="menu-art" aria-hidden="true"></div>
       <h1>Iris 的星星泡泡守护者</h1>
       <p class="subtitle">用魔法泡泡守护星星城堡</p>
-      <div class="menu-status" aria-label="游戏状态">
+      <div class="menu-row">
         <span class="menu-chip">最高分 <span id="bestScore">0</span></span>
-        <span class="menu-chip">爱心 💛💛💛</span>
-        <span class="menu-chip">星星城堡</span>
+        <span class="menu-chip">🎯 <span id="dailyMenu">今日目标</span></span>
+        <span class="menu-chip">💖 温柔守护</span>
       </div>
-      <div class="icon-row" aria-label="游戏操作">
-        <div class="icon-card"><span>↔</span><span>移动</span></div>
-        <div class="icon-card"><span>●</span><span>发射</span></div>
-        <div class="icon-card"><span>★</span><span>收集</span></div>
+      <div class="icon-row" aria-label="怎么玩">
+        <div class="icon-card"><b>↔</b><span>移动</span></div>
+        <div class="icon-card"><b>●</b><span>发送</span></div>
+        <div class="icon-card"><b>★</b><span>收集</span></div>
       </div>
-      <div class="actions">
-        <button id="startBtn" class="big-button" type="button">开始守护</button>
-        <button id="settingsBtn" class="small-button" type="button">设置</button>
+      <div class="menu-row">
+        <button id="startBtn" type="button" aria-label="开始守护星空">开始守护</button>
+        <button id="settingsBtn" class="secondary" type="button" aria-label="打开设置">设置</button>
+        <button id="stickersBtn" class="aqua" type="button" aria-label="查看我的贴纸">我的贴纸</button>
+        <button id="howBtn" class="secondary" type="button" aria-label="查看新手引导">怎么玩</button>
+      </div>
+      <p class="parent-note">家长说明：这个小游戏无广告、无登录、无内购、无联网请求。游戏分数、设置和贴纸只保存在本机浏览器 localStorage 中。</p>
+    </section>
+  </div>
+
+  <div id="modalOverlay" class="overlay hidden active" aria-hidden="true"></div>
+  <div class="pause-layer" aria-hidden="true">
+    <section class="modal-card pause-card">
+      <h2>星星休息一下</h2>
+      <p>小伙伴们等你回来。</p>
+      <div class="menu-row">
+        <button id="resumeBtn" class="aqua" type="button" aria-label="继续守护">继续守护</button>
+        <button id="pauseRestartBtn" type="button" aria-label="重新开始">重新开始</button>
+        <button id="homeBtn" class="secondary" type="button" aria-label="返回首页">返回首页</button>
       </div>
     </section>
+  </div>
+
+  <div id="toast" class="toast">今天也很棒！</div>
+  <div class="mobile-hint">左侧移动，右侧或按钮发送泡泡</div>
+  <div class="touch-controls" aria-label="移动端操作">
+    <button id="touchLeft" class="touch-pad aqua" type="button" aria-label="左移">← 左移</button>
+    <button id="touchRight" class="touch-pad aqua" type="button" aria-label="右移">右移 →</button>
+    <button id="touchFire" class="touch-pad" type="button" aria-label="发送星星泡泡">发送泡泡</button>
   </div>
 
   <script>
     (() => {
       "use strict";
 
+      // Constants
+      const STORAGE_KEY = "irisStarBubbleGuardianV3";
+      const SETTINGS_KEY = "irisStarBubbleSettingsV3";
+      const FIRE_INTERVAL = 0.16;
+      const MAX_BUBBLES = 80;
+      const MAX_FRIENDS = 36;
+      const MAX_PARTICLES = 180;
+      const MAX_STARS = 26;
+      const DIFFICULTY = {
+        easy: { label: "简单", speed: 0.82, spawn: 1.18, hearts: 4 },
+        normal: { label: "普通", speed: 1, spawn: 1, hearts: 3 },
+        challenge: { label: "挑战", speed: 1.18, spawn: 0.86, hearts: 3 }
+      };
+      const LEVEL_TIPS = [
+        "第 2 关：彩色气球来了",
+        "第 3 关：月亮朋友更快啦",
+        "第 4 关：星星能量更闪亮",
+        "第 5 关：云朵朋友轻轻飘",
+        "第 6 关：一起守护星星城堡"
+      ];
+      const DAILY_GOALS = [
+        { type: "time", target: 60, text: "今天守护 60 秒" },
+        { type: "energy", target: 20, text: "今天收集 20 颗星星" },
+        { type: "combo", target: 3, text: "今天完成 3 次连击" },
+        { type: "launch", target: 30, text: "今天送出 30 个星星泡泡" },
+        { type: "score", target: 100, text: "今天达到 100 分" }
+      ];
+      const ACHIEVEMENTS = [
+        ["first_guard", "第一次守护", "完成第一局"],
+        ["score_100", "100 分小星星", "达到 100 分"],
+        ["combo_10", "连续闪耀", "连续守护 10 次"],
+        ["full_hearts", "爱心满满", "满爱心完成一局"],
+        ["energy_100", "星星收藏家", "累计收集 100 颗星星能量"],
+        ["daily_helper", "每日小帮手", "完成一次每日目标"],
+        ["practice_star", "练习小达人", "完成一次练习模式"]
+      ];
+      const STICKERS = [
+        ["first_guard", "小星星", "第一颗星星亮起来"],
+        ["combo_5", "彩虹泡泡", "泡泡闪闪发光"],
+        ["time_60", "睡觉月亮", "月亮轻轻点头"],
+        ["energy_20", "云朵朋友", "云朵送来拥抱"],
+        ["score_200", "Iris 的小皇冠", "今天也很棒"],
+        ["full_hearts", "温柔护盾", "爱心守护成功"],
+        ["practice_star", "星光练习生", "练习也很了不起"]
+      ];
+
+      // DOM refs
       const canvas = document.getElementById("game");
       const ctx = canvas.getContext("2d");
       const ui = {
+        overlay: document.getElementById("overlay"),
+        modalOverlay: document.getElementById("modalOverlay"),
+        menuCard: document.getElementById("menuCard"),
+        menuArt: document.querySelector(".menu-art"),
+        stats: document.getElementById("stats"),
         score: document.getElementById("score"),
-        bestScore: document.getElementById("bestScore"),
         level: document.getElementById("level"),
         hearts: document.getElementById("hearts"),
         energy: document.getElementById("energy"),
-        message: document.getElementById("message"),
-        overlay: document.getElementById("overlay"),
+        bestScore: document.getElementById("bestScore"),
+        dailyHud: document.getElementById("dailyHud"),
+        dailyMenu: document.getElementById("dailyMenu"),
+        practiceBadge: document.getElementById("practiceBadge"),
+        bonusBadge: document.getElementById("bonusBadge"),
+        powerBadge: document.getElementById("powerBadge"),
+        toast: document.getElementById("toast"),
         startBtn: document.getElementById("startBtn"),
         settingsBtn: document.getElementById("settingsBtn"),
+        stickersBtn: document.getElementById("stickersBtn"),
+        howBtn: document.getElementById("howBtn"),
         pauseBtn: document.getElementById("pauseBtn"),
-        restartBtn: document.getElementById("restartBtn")
+        restartBtn: document.getElementById("restartBtn"),
+        resumeBtn: document.getElementById("resumeBtn"),
+        pauseRestartBtn: document.getElementById("pauseRestartBtn"),
+        homeBtn: document.getElementById("homeBtn"),
+        touchLeft: document.getElementById("touchLeft"),
+        touchRight: document.getElementById("touchRight"),
+        touchFire: document.getElementById("touchFire")
       };
 
-      const input = {
-        left: false,
-        right: false,
-        fire: false,
-        pointerDown: false,
-        pointerX: null,
-        movePointerId: null,
-        firePointerId: null
-      };
-      const FIRE_INTERVAL = 0.16;
+      // Storage
+      function loadJSON(key, fallback) {
+        try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; }
+      }
+      function saveJSON(key, value) {
+        try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+      }
 
+      // Settings
+      const defaultSettings = {
+        sfx: true,
+        music: false,
+        difficulty: "normal",
+        practice: false,
+        reducedMotion: false,
+        eyeCare: false,
+        tutorialSeen: false
+      };
+      let settings = { ...defaultSettings, ...loadJSON(SETTINGS_KEY, {}) };
+      function saveSettings() { saveJSON(SETTINGS_KEY, settings); }
+
+      // State
+      const data = loadJSON(STORAGE_KEY, {
+        bestScore: 0,
+        achievements: {},
+        stickers: {},
+        totalEnergy: 0,
+        daily: null
+      });
+      const input = { left: false, right: false, fire: false, pointerDown: false, pointerX: null, movePointerId: null, firePointerId: null };
       const state = {
-        width: 0,
-        height: 0,
-        dpr: 1,
-        running: false,
-        paused: false,
-        gameOver: false,
-        score: 0,
-        bestScore: Number(localStorage.getItem("irisStarBubbleBest") || 0),
-        level: 1,
-        hearts: 3,
-        energy: 0,
-        lastTime: 0,
-        spawnTimer: 0,
-        spawnDelay: 1.3,
-        fireCooldown: 0,
-        hudPopTimer: 0,
-        levelGlowTimer: 0,
-        lastLevel: 1,
-        particles: [],
-        energyStars: [],
-        trails: [],
-        bubbles: [],
-        friends: [],
-        stars: [],
-        messageTimer: 0,
-        player: {
-          x: 0,
-          y: 0,
-          radius: 24,
-          targetX: 0,
-          speed: 460
+        width: 0, height: 0, dpr: 1,
+        mode: "menu",
+        score: 0, level: 1, hearts: 3, energy: 0, combo: 0, bestCombo: 0,
+        elapsed: 0, launched: 0, rescued: 0, missed: 0, starsThisRun: 0,
+        lastTime: 0, spawnTimer: 0, spawnDelay: 1.3, fireCooldown: 0,
+        rewardTimer: 0, slowTimer: 0, rainbowTimer: 0, shield: 0, energyBoostTimer: 0,
+        hudPopTimer: 0, levelGlowTimer: 0, toastTimer: 0,
+        runUnlocks: [], runStickers: [], runGoalDone: false,
+        bubbles: [], friends: [], particles: [], energyStars: [], trails: [], backdropStars: [],
+        player: { x: 0, y: 0, radius: 28, speed: 460, targetX: 0 }
+      };
+
+      // Daily Goals
+      function todayKey() {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+      }
+      function ensureDailyGoal() {
+        const key = todayKey();
+        if (!data.daily || data.daily.date !== key) {
+          const index = [...key].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % DAILY_GOALS.length;
+          data.daily = { date: key, goal: DAILY_GOALS[index], progress: 0, done: false };
+          saveData();
+        }
+      }
+      function updateDailyProgress() {
+        const goal = data.daily.goal;
+        const value = {
+          time: Math.floor(state.elapsed),
+          energy: state.starsThisRun,
+          combo: state.bestCombo,
+          launch: state.launched,
+          score: state.score
+        }[goal.type] || 0;
+        data.daily.progress = Math.max(data.daily.progress || 0, Math.min(goal.target, value));
+        if (!data.daily.done && value >= goal.target) {
+          data.daily.done = true;
+          state.runGoalDone = true;
+          unlockAchievement("daily_helper");
+          sparkleToast("今日星星任务完成！");
+        }
+        saveData();
+      }
+      function dailyText() {
+        const daily = data.daily;
+        return `${daily.goal.text} ${daily.progress || 0}/${daily.goal.target}`;
+      }
+
+      // Stickers
+      function unlockSticker(id) {
+        if (data.stickers[id]) return;
+        data.stickers[id] = true;
+        const item = STICKERS.find((sticker) => sticker[0] === id);
+        if (item) {
+          state.runStickers.push(item[1]);
+          sparkleToast(`贴纸解锁：${item[1]}`);
+          audio.play("sticker");
+        }
+        saveData();
+      }
+      function checkStickerUnlocks() {
+        if (state.combo >= 5) unlockSticker("combo_5");
+        if (state.elapsed >= 60) unlockSticker("time_60");
+        if (state.starsThisRun >= 20) unlockSticker("energy_20");
+        if (state.score >= 200) unlockSticker("score_200");
+      }
+
+      // Achievements
+      function unlockAchievement(id) {
+        if (data.achievements[id]) return;
+        data.achievements[id] = true;
+        const item = ACHIEVEMENTS.find((achievement) => achievement[0] === id);
+        if (item) {
+          state.runUnlocks.push(item[1]);
+          sparkleToast(`新星章：${item[1]}`);
+        }
+        saveData();
+      }
+      function checkAchievements(final = false) {
+        if (state.score >= 100) unlockAchievement("score_100");
+        if (state.bestCombo >= 10) unlockAchievement("combo_10");
+        if (data.totalEnergy >= 100) unlockAchievement("energy_100");
+        if (final) {
+          unlockAchievement("first_guard");
+          unlockSticker("first_guard");
+          if (settings.practice) {
+            unlockAchievement("practice_star");
+            unlockSticker("practice_star");
+          }
+          if (state.hearts >= DIFFICULTY[settings.difficulty].hearts) {
+            unlockAchievement("full_hearts");
+            unlockSticker("full_hearts");
+          }
+        }
+      }
+      function saveData() { saveJSON(STORAGE_KEY, data); }
+
+      // Audio
+      const audio = {
+        ctx: null,
+        musicTimer: null,
+        ensure() {
+          if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          if (this.ctx.state === "suspended") this.ctx.resume();
+        },
+        tone(freq, duration = 0.12, type = "sine", volume = 0.035) {
+          if (!settings.sfx) return;
+          try {
+            this.ensure();
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+            gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+            osc.connect(gain).connect(this.ctx.destination);
+            osc.start();
+            osc.stop(this.ctx.currentTime + duration);
+          } catch {}
+        },
+        play(name) {
+          const map = { launch: 680, rescue: 840, collect: 980, level: 620, sticker: 760, rest: 360 };
+          this.tone(map[name] || 560, name === "rest" ? 0.24 : 0.12, name === "launch" ? "triangle" : "sine");
+        },
+        startMusic() {
+          this.stopMusic();
+          if (!settings.music) return;
+          this.ensure();
+          let step = 0;
+          const notes = [392, 494, 523, 659];
+          this.musicTimer = setInterval(() => this.tone(notes[step++ % notes.length], 0.18, "sine", 0.015), 900);
+        },
+        stopMusic() {
+          if (this.musicTimer) clearInterval(this.musicTimer);
+          this.musicTimer = null;
         }
       };
 
-      const encouragingWords = [
-        "Great job, Iris!",
-        "星星能量 +1!",
-        "泡泡魔法成功!",
-        "守护得真棒!",
-        "闪闪发光!"
-      ];
-
-      function resize() {
-        state.dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-        state.width = Math.max(320, window.innerWidth);
-        state.height = Math.max(460, window.innerHeight);
-        canvas.width = Math.floor(state.width * state.dpr);
-        canvas.height = Math.floor(state.height * state.dpr);
-        canvas.style.width = `${state.width}px`;
-        canvas.style.height = `${state.height}px`;
-        ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
-        state.player.y = state.height - Math.max(78, state.height * 0.13);
-        if (!state.running) {
-          state.player.x = state.width / 2;
-          state.player.targetX = state.player.x;
-        }
-        seedStars();
-      }
-
-      function seedStars() {
-        const count = Math.floor((state.width * state.height) / 12500);
-        state.stars = Array.from({ length: count }, (_, index) => ({
-          x: (index * 97 + 43) % state.width,
-          y: (index * 151 + 29) % state.height,
-          r: 1 + ((index * 7) % 18) / 10,
-          twinkle: (index % 9) / 9
-        }));
-      }
-
-      function resetGame() {
-        clearInput();
-        state.running = true;
-        state.paused = false;
-        state.gameOver = false;
-        state.score = 0;
-        state.level = 1;
-        state.hearts = 3;
-        state.energy = 0;
-        state.spawnTimer = 0;
-        state.spawnDelay = 1.3;
-        state.fireCooldown = 0;
-        state.hudPopTimer = 0;
-        state.levelGlowTimer = 0;
-        state.lastLevel = 1;
-        state.particles = [];
-        state.energyStars = [];
-        state.trails = [];
-        state.bubbles = [];
-        state.friends = [];
-        state.player.x = state.width / 2;
-        state.player.targetX = state.player.x;
-        state.lastTime = performance.now();
-        document.body.classList.remove("menu-mode");
-        ui.overlay.classList.add("hidden");
-        ui.pauseBtn.textContent = "暂停";
-        showMessage("Great job, Iris!");
-        updateHud();
-      }
-
-      function updateHud() {
-        ui.score.textContent = state.score;
-        ui.bestScore.textContent = state.bestScore;
-        ui.level.textContent = state.level;
-        ui.energy.textContent = state.energy;
-        ui.hearts.textContent = Math.max(0, state.hearts);
-      }
-
-      function showMessage(text) {
-        ui.message.textContent = text;
-        ui.message.classList.add("show");
-        state.messageTimer = 1.5;
-      }
-
-      function togglePause() {
-        if (!state.running || state.gameOver) return;
-        state.paused = !state.paused;
-        ui.pauseBtn.textContent = state.paused ? "继续" : "暂停";
-        showMessage(state.paused ? "星星休息一下" : "继续守护星空!");
-        if (state.paused) {
-          input.fire = false;
-          state.fireCooldown = 0;
-        } else {
-          state.lastTime = performance.now();
-          state.fireCooldown = Math.max(0, state.fireCooldown);
-        }
-      }
-
-      function shootBubble() {
-        if (!state.running || state.paused || state.gameOver) return;
-        const hue = (state.score * 21 + state.energy * 37) % 360;
-        state.bubbles.push({
-          x: state.player.x,
-          y: state.player.y - 26,
-          radius: 10,
-          vy: -560,
-          hue,
-          wobble: Math.random() * Math.PI * 2
-        });
-      }
-
-      function spawnFriend() {
-        const size = 18 + Math.random() * 18;
-        const kinds = ["meteor", "balloon", "cloud", "moon"];
-        const kind = randomChoice(kinds);
-        const speed = 48 + state.level * 9 + Math.random() * 22;
-        state.friends.push({
-          x: size + Math.random() * (state.width - size * 2),
-          y: -size - 10,
-          radius: size,
-          vy: speed,
-          drift: (Math.random() - 0.5) * (24 + state.level * 3),
-          spin: Math.random() * Math.PI * 2,
-          kind,
-          color: {
-            meteor: randomChoice(["#b29cff", "#93d8ff", "#ffd36e"]),
-            balloon: randomChoice(["#ff92b5", "#8de077", "#75c9ff", "#ffc75f"]),
-            cloud: randomChoice(["#ffffff", "#e6f7ff", "#ffe7f2"]),
-            moon: randomChoice(["#fff09b", "#ffe1a6", "#f7d8ff"])
-          }[kind]
-        });
-      }
-
-      function randomChoice(list) {
-        return list[Math.floor(Math.random() * list.length)];
-      }
-
-      function addSparkles(x, y, color) {
-        for (let i = 0; i < 22; i += 1) {
-          const angle = (Math.PI * 2 * i) / 22;
-          const speed = 70 + Math.random() * 130;
-          state.particles.push({
-            x,
-            y,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            life: 0.52 + Math.random() * 0.18,
-            age: 0,
-            color,
-            size: 4 + Math.random() * 5
-          });
-        }
-      }
-
-      function addEnergyStar(x, y) {
-        state.energyStars.push({
-          x,
-          y,
-          sx: x,
-          sy: y,
-          tx: Math.min(360, state.width * 0.45),
-          ty: 34,
-          age: 0,
-          life: 0.72
-        });
-      }
-
-      function update(delta) {
-        if (!state.running || state.paused || state.gameOver) return;
-
-        state.messageTimer -= delta;
-        if (state.messageTimer <= 0) ui.message.classList.remove("show");
-
-        state.level = 1 + Math.floor(state.score / 90);
-        if (state.level > state.lastLevel) {
-          state.lastLevel = state.level;
-          state.levelGlowTimer = 0.9;
-          showMessage("关卡提升!");
-        }
-        state.spawnDelay = Math.max(0.62, 1.32 - state.level * 0.078);
-        state.spawnTimer += delta;
-        state.fireCooldown = Math.max(0, state.fireCooldown - delta);
-        state.hudPopTimer = Math.max(0, state.hudPopTimer - delta);
-        state.levelGlowTimer = Math.max(0, state.levelGlowTimer - delta);
-        document.querySelector(".stats").classList.toggle("pop", state.hudPopTimer > 0);
-
-        if (input.fire && state.fireCooldown <= 0) {
-          shootBubble();
-          state.fireCooldown = FIRE_INTERVAL;
-        }
-
-        while (state.spawnTimer >= state.spawnDelay) {
-          state.spawnTimer -= state.spawnDelay;
-          spawnFriend();
-        }
-
-        let moveDir = 0;
-        if (input.left) moveDir -= 1;
-        if (input.right) moveDir += 1;
-        if (input.pointerDown && input.pointerX !== null) {
-          state.player.targetX = clamp(input.pointerX, state.player.radius, state.width - state.player.radius);
-          const distance = state.player.targetX - state.player.x;
-          const maxStep = state.player.speed * delta;
-          state.player.x += clamp(distance, -maxStep, maxStep);
-        } else {
-          state.player.x += moveDir * state.player.speed * delta;
-          state.player.targetX = state.player.x;
-        }
-        state.player.x = clamp(state.player.x, state.player.radius, state.width - state.player.radius);
-        state.trails.push({ x: state.player.x, y: state.player.y + 18, age: 0, life: 0.42 });
-        state.trails = state.trails.filter((trail) => {
-          trail.age += delta;
-          return trail.age < trail.life;
-        });
-
-        for (const bubble of state.bubbles) {
-          bubble.y += bubble.vy * delta;
-          bubble.wobble += delta * 5.5;
-          bubble.x += Math.sin(bubble.wobble) * 0.35;
-        }
-        state.bubbles = state.bubbles.filter((bubble) => bubble.y + bubble.radius > -20);
-
-        for (const friend of state.friends) {
-          friend.y += friend.vy * delta;
-          friend.x += Math.sin(friend.spin) * friend.drift * delta;
-          friend.spin += delta * 1.45;
-        }
-
-        for (const particle of state.particles) {
-          particle.age += delta;
-          particle.x += particle.vx * delta;
-          particle.y += particle.vy * delta;
-          particle.vy += 90 * delta;
-        }
-        state.particles = state.particles.filter((particle) => particle.age < particle.life);
-
-        for (const star of state.energyStars) {
-          star.age += delta;
-          const t = Math.min(1, star.age / star.life);
-          const ease = 1 - Math.pow(1 - t, 3);
-          star.x = star.sx + (star.tx - star.sx) * ease;
-          star.y = star.sy + (star.ty - star.sy) * ease - Math.sin(t * Math.PI) * 42;
-        }
-        state.energyStars = state.energyStars.filter((star) => star.age < star.life);
-
-        handleCollisions();
-        handleMisses();
-        updateHud();
-      }
-
-      function handleCollisions() {
-        for (let i = state.friends.length - 1; i >= 0; i -= 1) {
-          const friend = state.friends[i];
-          for (let j = state.bubbles.length - 1; j >= 0; j -= 1) {
-            const bubble = state.bubbles[j];
-            const distance = Math.hypot(friend.x - bubble.x, friend.y - bubble.y);
-            if (distance < friend.radius + bubble.radius) {
-              state.friends.splice(i, 1);
-              state.bubbles.splice(j, 1);
-              state.score += friend.kind === "balloon" ? 12 : friend.kind === "moon" ? 18 : 16;
-              state.energy += 1;
-              state.hudPopTimer = 0.26;
-              addSparkles(friend.x, friend.y, friend.color);
-              addEnergyStar(friend.x, friend.y);
-              if (state.energy % 5 === 0 && state.hearts < 5) {
-                state.hearts += 1;
-                showMessage("爱心补充 +1!");
-              } else {
-                showMessage(randomChoice(encouragingWords));
-              }
-              break;
-            }
-          }
-        }
-      }
-
-      function handleMisses() {
-        for (let i = state.friends.length - 1; i >= 0; i -= 1) {
-          const friend = state.friends[i];
-          if (friend.y - friend.radius > state.height) {
-            state.friends.splice(i, 1);
-            state.hearts -= 1;
-            showMessage("没关系，下一颗泡泡会更准!");
-            if (state.hearts <= 0) endGame();
-          }
-        }
-      }
-
-      function endGame() {
-        state.gameOver = true;
-        state.running = false;
-        clearInput();
-        state.fireCooldown = 0;
-        state.bestScore = Math.max(state.bestScore, state.score);
-        localStorage.setItem("irisStarBubbleBest", String(state.bestScore));
-        updateHud();
-        document.body.classList.add("menu-mode");
-        ui.overlay.classList.remove("hidden");
-        ui.overlay.querySelector("h1").textContent = "再试一次，你已经很棒了！";
-        ui.overlay.querySelector(".subtitle").textContent = `Iris 得到了 ${state.score} 分`;
-        ui.startBtn.textContent = "再玩一次";
-      }
-
-      function draw(time) {
-        drawBackground(time);
-        if (!state.running && !state.gameOver) {
-          drawMenuScene(time);
-        }
-        if (state.running || state.gameOver) {
-          drawTrails();
-          drawBubbles();
-          drawFriends(time);
-          drawParticles();
-          drawEnergyStars();
-          drawPlayer(time);
-        }
-        if (state.levelGlowTimer > 0) drawLevelGlow();
-        if (state.paused) drawPaused();
-      }
-
-      function drawBackground(time) {
-        const sky = ctx.createLinearGradient(0, 0, 0, state.height);
-        sky.addColorStop(0, "#14145c");
-        sky.addColorStop(0.46, "#4a2f92");
-        sky.addColorStop(0.78, "#7a68c9");
-        sky.addColorStop(1, "#ffd6a0");
-        ctx.fillStyle = sky;
-        ctx.fillRect(0, 0, state.width, state.height);
-
-        const moonGlow = ctx.createRadialGradient(state.width * 0.78, state.height * 0.17, 10, state.width * 0.78, state.height * 0.17, Math.min(state.width, state.height) * 0.34);
-        moonGlow.addColorStop(0, "rgba(255, 245, 190, 0.45)");
-        moonGlow.addColorStop(1, "rgba(255, 245, 190, 0)");
-        ctx.fillStyle = moonGlow;
-        ctx.fillRect(0, 0, state.width, state.height);
-
-        ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
-        for (let i = 0; i < 6; i += 1) {
-          const x = (i * 210 + (time / (55 + i * 8))) % (state.width + 220) - 110;
-          const y = 84 + i * 55;
-          drawCloud(x, y, 42 + i * 3);
-        }
-
-        for (const star of state.stars) {
-          const glow = 0.45 + Math.sin(time / 500 + star.twinkle * Math.PI * 2) * 0.28;
-          ctx.globalAlpha = glow;
-          drawStar(star.x, star.y, star.r + 2, "#fff7a8");
-        }
-        ctx.globalAlpha = 1;
-
-        if (state.running || state.gameOver) {
-          drawDistantCastle(time);
-        }
-      }
-
-      function drawMenuScene(time) {
-        const rect = document.querySelector(".menu-art-window").getBoundingClientRect();
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
-        const scale = Math.min(rect.width / 620, rect.height / 280);
-
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(rect.left, rect.top, rect.width, rect.height);
-        ctx.clip();
-
-        drawMenuCloud(cx - 246 * scale, cy - 72 * scale, 34 * scale, time, 0);
-        drawMenuCloud(cx + 230 * scale, cy - 46 * scale, 30 * scale, time, 1.3);
-        drawMenuCloud(cx - 10 * scale, cy - 116 * scale, 24 * scale, time, 2.2);
-        drawMenuBubble(cx - 208 * scale, cy - 4 * scale, 22 * scale, "#9ff2ff", time, 0.2);
-        drawMenuBubble(cx + 188 * scale, cy - 16 * scale, 18 * scale, "#ffb2d3", time, 1.4);
-        drawMenuBubble(cx - 120 * scale, cy + 86 * scale, 14 * scale, "#fff59a", time, 2.1);
-        drawMenuBubble(cx + 90 * scale, cy + 92 * scale, 12 * scale, "#b4ffbf", time, 2.8);
-        for (let i = 0; i < 9; i += 1) {
-          drawStar(cx - 230 * scale + i * 58 * scale, cy - 112 * scale + Math.sin(time / 500 + i) * 8 * scale, 6 * scale, i % 2 ? "#fff6a4" : "#ffffff");
-        }
-        drawStarCastle(cx + 78 * scale, cy + 74 * scale, scale * 0.92, time);
-        drawIrisShip(cx - 94 * scale, cy + 12 * scale, scale * 1.55, time);
-
-        ctx.restore();
-      }
-
-      function drawDistantCastle(time) {
-        const scale = Math.min(0.56, Math.max(0.42, state.width / 2300));
-        ctx.save();
-        ctx.globalAlpha = 0.5;
-        drawStarCastle(state.width * 0.5, state.height - 138, scale, time);
-        ctx.restore();
-      }
-
-      function drawMenuCloud(x, y, r, time, offset) {
-        const bob = Math.sin(time / 640 + offset) * r * 0.08;
-        ctx.save();
-        ctx.translate(x, y + bob);
-        ctx.fillStyle = "rgba(255, 255, 255, 0.86)";
-        ctx.shadowColor = "rgba(112, 103, 196, 0.22)";
-        ctx.shadowBlur = 18;
-        drawCloud(-r * 0.9, 0, r);
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = "rgba(255, 202, 232, 0.34)";
-        ctx.beginPath();
-        ctx.ellipse(r * 0.02, r * 0.16, r * 1.35, r * 0.18, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-
-      function drawMenuBubble(x, y, r, color, time, offset) {
-        const bob = Math.sin(time / 520 + offset) * r * 0.24;
-        const fill = ctx.createRadialGradient(x - r * 0.35, y - r * 0.45 + bob, 2, x, y + bob, r);
-        fill.addColorStop(0, "rgba(255, 255, 255, 0.96)");
-        fill.addColorStop(0.42, color);
-        fill.addColorStop(1, "rgba(255, 255, 255, 0.12)");
-        ctx.fillStyle = fill;
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
-        ctx.lineWidth = Math.max(1.5, r * 0.1);
-        ctx.beginPath();
-        ctx.arc(x, y + bob, r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-      }
-
-      function drawStarCastle(x, y, scale, time) {
-        ctx.save();
-        ctx.translate(x, y + Math.sin(time / 700) * 2 * scale);
-        ctx.scale(scale, scale);
-
-        ctx.fillStyle = "rgba(24, 18, 76, 0.18)";
-        ctx.beginPath();
-        ctx.ellipse(0, 80, 128, 16, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        const body = ctx.createLinearGradient(0, -90, 0, 84);
-        body.addColorStop(0, "#ffe890");
-        body.addColorStop(0.5, "#ffb8de");
-        body.addColorStop(1, "#9cdcff");
-        ctx.fillStyle = body;
-        roundedRect(-76, -38, 152, 118, 18);
-        ctx.fill();
-
-        ctx.fillStyle = "#7b62d8";
-        roundedRect(-112, -4, 48, 84, 14);
-        ctx.fill();
-        roundedRect(64, -4, 48, 84, 14);
-        ctx.fill();
-
-        ctx.fillStyle = "#ffd95f";
-        drawStar(-88, -28, 32, "#ffd95f");
-        drawStar(88, -28, 32, "#ffd95f");
-        drawStar(0, -74, 44, "#fff27b");
-
-        ctx.fillStyle = "#fff8bf";
-        roundedRect(-30, 26, 60, 54, 28);
-        ctx.fill();
-        ctx.fillStyle = "#6b55bd";
-        roundedRect(-18, 42, 36, 38, 18);
-        ctx.fill();
-
-        ctx.fillStyle = "#ffffff";
-        for (const wx of [-45, 45]) {
-          ctx.beginPath();
-          ctx.arc(wx, 7, 13, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = "#83cfff";
-          ctx.beginPath();
-          ctx.arc(wx, 7, 8, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = "#ffffff";
-        }
-
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.82)";
-        ctx.lineWidth = 5;
-        ctx.stroke();
-
-        ctx.restore();
-      }
-
-      function drawIrisShip(x, y, scale, time) {
-        ctx.save();
-        ctx.translate(x, y + Math.sin(time / 520) * 4 * scale);
-        ctx.rotate(Math.sin(time / 700) * 0.06);
-        ctx.scale(scale, scale);
-
-        ctx.fillStyle = "rgba(20, 14, 76, 0.18)";
-        ctx.beginPath();
-        ctx.ellipse(0, 76, 82, 15, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = "#ff8fbd";
-        ctx.beginPath();
-        ctx.moveTo(-76, 12);
-        ctx.quadraticCurveTo(-120, 28, -104, 62);
-        ctx.quadraticCurveTo(-62, 58, -32, 30);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.fillStyle = "#7de7df";
-        ctx.beginPath();
-        ctx.moveTo(76, 12);
-        ctx.quadraticCurveTo(120, 28, 104, 62);
-        ctx.quadraticCurveTo(62, 58, 32, 30);
-        ctx.closePath();
-        ctx.fill();
-
-        const hull = ctx.createLinearGradient(0, -68, 0, 62);
-        hull.addColorStop(0, "#fff6a5");
-        hull.addColorStop(0.45, "#ffd65c");
-        hull.addColorStop(1, "#ff9f4d");
-        drawStar(0, 0, 68, "#ffd65c");
-        drawStar(0, 0, 43, "#fff6a5");
-
-        ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-        ctx.beginPath();
-        ctx.arc(0, -8, 36, Math.PI, 0);
-        ctx.lineTo(36, 2);
-        ctx.quadraticCurveTo(0, 18, -36, 2);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.fillStyle = "#ffffff";
-        ctx.strokeStyle = "#ff8fbd";
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.arc(0, -22, 16, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = "#7b62d8";
-        ctx.font = "900 22px Trebuchet MS, sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("I", 0, -21);
-
-        ctx.fillStyle = "#513a99";
-        ctx.beginPath();
-        ctx.arc(-19, 0, 4.5, 0, Math.PI * 2);
-        ctx.arc(19, 0, 4.5, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = "#513a99";
-        ctx.lineWidth = 4;
-        ctx.lineCap = "round";
-        ctx.beginPath();
-        ctx.arc(0, 8, 17, 0.18 * Math.PI, 0.82 * Math.PI);
-        ctx.stroke();
-
-        ctx.fillStyle = "#fff";
-        ctx.beginPath();
-        ctx.arc(-20.5, -2, 1.6, 0, Math.PI * 2);
-        ctx.arc(17.5, -2, 1.6, 0, Math.PI * 2);
-        ctx.fill();
-
-        for (let i = 0; i < 4; i += 1) {
-          drawMenuBubble(-70 - i * 18, 43 + i * 7, 10 - i, ["#a4f7ff", "#ffb7de", "#fff08a", "#b4ffbf"][i], time, i);
-        }
-
-        ctx.restore();
-      }
-
-      function drawCloud(x, y, r) {
-        ctx.beginPath();
-        ctx.arc(x, y, r * 0.55, 0, Math.PI * 2);
-        ctx.arc(x + r * 0.42, y - r * 0.2, r * 0.7, 0, Math.PI * 2);
-        ctx.arc(x + r * 0.98, y, r * 0.58, 0, Math.PI * 2);
-        ctx.arc(x + r * 0.55, y + r * 0.18, r * 0.7, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      function drawPlayer(time) {
-        const p = state.player;
-        drawIrisShip(p.x, p.y, 0.36, time);
-      }
-
-      function drawTrails() {
-        for (const trail of state.trails) {
-          const t = trail.age / trail.life;
-          ctx.globalAlpha = (1 - t) * 0.45;
-          drawMenuBubble(trail.x, trail.y + t * 18, 12 * (1 - t), "#aaf7ff", 0, t);
-        }
-        ctx.globalAlpha = 1;
-      }
-
-      function drawBubbles() {
-        for (const bubble of state.bubbles) {
-          const fill = ctx.createRadialGradient(
-            bubble.x - 4,
-            bubble.y - 5,
-            2,
-            bubble.x,
-            bubble.y,
-            bubble.radius + 5
-          );
-          fill.addColorStop(0, "rgba(255, 255, 255, 0.95)");
-          fill.addColorStop(0.35, `hsla(${bubble.hue}, 88%, 74%, 0.72)`);
-          fill.addColorStop(1, `hsla(${bubble.hue}, 88%, 58%, 0.22)`);
-          ctx.fillStyle = fill;
-          ctx.strokeStyle = `hsla(${bubble.hue}, 80%, 58%, 0.72)`;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-        }
-      }
-
-      function drawFriends(time) {
-        for (const friend of state.friends) {
-          ctx.save();
-          ctx.translate(friend.x, friend.y);
-          ctx.rotate(Math.sin(friend.spin) * 0.12);
-          if (friend.kind === "balloon") {
-            drawBalloonFriend(friend, time);
-          } else if (friend.kind === "cloud") {
-            drawCloudFriend(friend, time);
-          } else if (friend.kind === "moon") {
-            drawMoonFriend(friend, time);
-          } else {
-            drawMeteorFriend(friend);
-          }
-          ctx.restore();
-        }
-      }
-
-      function drawBalloonFriend(friend, time) {
-        const r = friend.radius;
-        ctx.fillStyle = friend.color;
-        ctx.strokeStyle = "rgba(92, 69, 146, 0.32)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.ellipse(0, 0, r * 0.84, r, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
-        ctx.beginPath();
-        ctx.ellipse(-r * 0.26, -r * 0.32, r * 0.18, r * 0.28, -0.5, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = "#51406e";
-        ctx.beginPath();
-        ctx.arc(-r * 0.25, -r * 0.06, 2.2, 0, Math.PI * 2);
-        ctx.arc(r * 0.25, -r * 0.06, 2.2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = "#51406e";
-        ctx.lineWidth = 1.8;
-        ctx.beginPath();
-        ctx.arc(0, r * 0.08, r * 0.2, 0.18 * Math.PI, 0.82 * Math.PI);
-        ctx.stroke();
-
-        ctx.strokeStyle = "rgba(81, 64, 110, 0.42)";
-        ctx.beginPath();
-        ctx.moveTo(0, r * 0.9);
-        ctx.quadraticCurveTo(Math.sin(time / 260) * 10, r * 1.25, 0, r * 1.6);
-        ctx.stroke();
-      }
-
-      function drawCloudFriend(friend, time) {
-        const r = friend.radius;
-        ctx.save();
-        ctx.translate(0, Math.sin(time / 360 + friend.spin) * 2);
-        ctx.fillStyle = friend.color;
-        ctx.strokeStyle = "rgba(124, 100, 190, 0.22)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(-r * 0.45, r * 0.08, r * 0.45, 0, Math.PI * 2);
-        ctx.arc(0, -r * 0.16, r * 0.58, 0, Math.PI * 2);
-        ctx.arc(r * 0.5, r * 0.08, r * 0.42, 0, Math.PI * 2);
-        ctx.arc(0, r * 0.24, r * 0.54, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = "#51406e";
-        ctx.beginPath();
-        ctx.arc(-r * 0.18, r * 0.02, 2.2, 0, Math.PI * 2);
-        ctx.arc(r * 0.18, r * 0.02, 2.2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = "#51406e";
-        ctx.lineWidth = 1.7;
-        ctx.beginPath();
-        ctx.arc(0, r * 0.1, r * 0.16, 0.18 * Math.PI, 0.82 * Math.PI);
-        ctx.stroke();
-        ctx.restore();
-      }
-
-      function drawMoonFriend(friend, time) {
-        const r = friend.radius;
-        const moon = ctx.createRadialGradient(-r * 0.25, -r * 0.35, 2, 0, 0, r);
-        moon.addColorStop(0, "#fff9c9");
-        moon.addColorStop(0.62, friend.color);
-        moon.addColorStop(1, "#f6b6d7");
-        ctx.fillStyle = moon;
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.arc(0, 0, r, 0.25 * Math.PI, 1.75 * Math.PI);
-        ctx.quadraticCurveTo(r * 0.34, 0, 0, r);
-        ctx.fill();
-        ctx.stroke();
-        drawStar(r * 0.1, -r * 0.56 + Math.sin(time / 340) * 2, r * 0.18, "#ffffff");
-        ctx.fillStyle = "#51406e";
-        ctx.beginPath();
-        ctx.arc(-r * 0.24, -r * 0.05, 2.1, 0, Math.PI * 2);
-        ctx.arc(r * 0.08, -r * 0.02, 2.1, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = "#51406e";
-        ctx.lineWidth = 1.6;
-        ctx.beginPath();
-        ctx.arc(-r * 0.08, r * 0.11, r * 0.15, 0.18 * Math.PI, 0.82 * Math.PI);
-        ctx.stroke();
-      }
-
-      function drawMeteorFriend(friend) {
-        const r = friend.radius;
-        const gem = ctx.createLinearGradient(-r, -r, r, r);
-        gem.addColorStop(0, "#fff3a8");
-        gem.addColorStop(0.5, friend.color);
-        gem.addColorStop(1, "#8b7ee8");
-        ctx.fillStyle = gem;
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.68)";
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(0, -r);
-        for (let i = 1; i < 10; i += 1) {
-          const angle = -Math.PI / 2 + (Math.PI * 2 * i) / 10;
-          const point = r * (i % 2 ? 0.78 : 1);
-          ctx.lineTo(Math.cos(angle) * point, Math.sin(angle) * point);
-        }
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = "rgba(255, 255, 255, 0.62)";
-        ctx.beginPath();
-        ctx.arc(-r * 0.25, -r * 0.25, r * 0.18, 0, Math.PI * 2);
-        ctx.arc(r * 0.28, r * 0.18, r * 0.13, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = "#51406e";
-        ctx.beginPath();
-        ctx.arc(-r * 0.22, 0, 2.2, 0, Math.PI * 2);
-        ctx.arc(r * 0.22, 0, 2.2, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = "#51406e";
-        ctx.lineWidth = 1.7;
-        ctx.beginPath();
-        ctx.arc(0, r * 0.08, r * 0.18, 0.16 * Math.PI, 0.84 * Math.PI);
-        ctx.stroke();
-      }
-
-      function drawParticles() {
-        for (const particle of state.particles) {
-          const alpha = 1 - particle.age / particle.life;
-          ctx.globalAlpha = Math.max(0, alpha);
-          drawStar(particle.x, particle.y, particle.size || 5, particle.color);
-        }
-        ctx.globalAlpha = 1;
-      }
-
-      function drawEnergyStars() {
-        for (const star of state.energyStars) {
-          const t = star.age / star.life;
-          ctx.globalAlpha = Math.max(0, 1 - t * 0.15);
-          drawStar(star.x, star.y, 10 * (1 - t * 0.35), "#fff27b");
-        }
-        ctx.globalAlpha = 1;
-      }
-
-      function drawLevelGlow() {
-        const alpha = state.levelGlowTimer / 0.9;
-        const glow = ctx.createRadialGradient(state.width / 2, state.height / 2, 40, state.width / 2, state.height / 2, Math.max(state.width, state.height) * 0.6);
-        glow.addColorStop(0, `rgba(255, 245, 166, ${0.22 * alpha})`);
-        glow.addColorStop(1, "rgba(255, 245, 166, 0)");
-        ctx.fillStyle = glow;
-        ctx.fillRect(0, 0, state.width, state.height);
-      }
-
-      function drawStar(x, y, radius, color) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.beginPath();
-        for (let i = 0; i < 10; i += 1) {
-          const angle = -Math.PI / 2 + (i * Math.PI) / 5;
-          const point = i % 2 === 0 ? radius : radius * 0.45;
-          ctx.lineTo(Math.cos(angle) * point, Math.sin(angle) * point);
-        }
-        ctx.closePath();
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.restore();
-      }
-
-      function roundedRect(x, y, width, height, radius) {
-        const r = Math.min(radius, width / 2, height / 2);
-        ctx.beginPath();
-        ctx.moveTo(x + r, y);
-        ctx.lineTo(x + width - r, y);
-        ctx.quadraticCurveTo(x + width, y, x + width, y + r);
-        ctx.lineTo(x + width, y + height - r);
-        ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
-        ctx.lineTo(x + r, y + height);
-        ctx.quadraticCurveTo(x, y + height, x, y + height - r);
-        ctx.lineTo(x, y + r);
-        ctx.quadraticCurveTo(x, y, x + r, y);
-        ctx.closePath();
-      }
-
-      function drawPaused() {
-        ctx.fillStyle = "rgba(255, 255, 255, 0.58)";
-        ctx.fillRect(0, 0, state.width, state.height);
-        ctx.fillStyle = "#4a3f9b";
-        ctx.font = "900 34px Trebuchet MS, sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText("暂停中", state.width / 2, state.height / 2);
-      }
-
-      function clamp(value, min, max) {
-        return Math.max(min, Math.min(max, value));
-      }
-
+      // Input
       function clearInput() {
-        input.left = false;
-        input.right = false;
-        input.fire = false;
-        input.pointerDown = false;
+        input.left = input.right = input.fire = input.pointerDown = false;
         input.pointerX = null;
-        input.movePointerId = null;
-        input.firePointerId = null;
+        input.movePointerId = input.firePointerId = null;
       }
-
-      function isFormControl(target) {
-        return target && target.closest && target.closest("button,input,select,textarea");
-      }
-
-      function isGameKey(code) {
-        return ["ArrowLeft", "ArrowRight", "KeyA", "KeyD", "Space"].includes(code);
-      }
-
-      function setPointerInput(event, isDown) {
-        if (!state.running || state.paused || state.gameOver) return;
-        const isMouse = event.pointerType === "mouse";
-        const isFireSide = event.clientX >= state.width * 0.5;
-        const mappedMoveX = isMouse ? event.clientX : event.clientX * 2;
-
-        if (isDown) {
-          if (isMouse || !isFireSide) {
+      function isFormControl(target) { return target && target.closest && target.closest("button,input,select,textarea"); }
+      function setPointerInput(event, down) {
+        if (state.mode !== "playing") return;
+        const mouse = event.pointerType === "mouse";
+        const fireSide = event.clientX >= state.width * 0.5;
+        if (down) {
+          if (mouse || !fireSide) {
             input.pointerDown = true;
-            input.pointerX = mappedMoveX;
+            input.pointerX = mouse ? event.clientX : event.clientX * 2;
             input.movePointerId = event.pointerId;
           }
-          if (isMouse || isFireSide) {
+          if (mouse || fireSide) {
             input.fire = true;
             input.firePointerId = event.pointerId;
             state.fireCooldown = 0;
           }
           return;
         }
-
         if (event.pointerId === input.movePointerId) {
           input.pointerDown = false;
           input.pointerX = null;
@@ -1327,59 +642,599 @@
         }
       }
 
+      // Tutorial
+      function showTutorial(force = false) {
+        if (!force && settings.tutorialSeen) return;
+        const steps = [
+          ["移动 Iris", "拖动或按方向键移动 Iris。"],
+          ["发送星星泡泡", "点击按钮或按空格键送出星星泡泡。"],
+          ["收集星星能量", "收集星星能量，帮助天空小伙伴回到星光里。"]
+        ];
+        let step = 0;
+        const render = () => {
+          showModal(`
+            <section class="modal-card">
+              <h2>${steps[step][0]}</h2>
+              <p>${steps[step][1]}</p>
+              <p>第 ${step + 1} / ${steps.length} 步</p>
+              <div class="menu-row">
+                <button data-tutorial="next" class="aqua" type="button">${step === steps.length - 1 ? "我会啦" : "下一步"}</button>
+                <button data-tutorial="skip" class="secondary" type="button">跳过</button>
+              </div>
+            </section>`);
+          ui.modalOverlay.querySelector("[data-tutorial='next']").onclick = () => {
+            if (step < steps.length - 1) { step += 1; render(); return; }
+            settings.tutorialSeen = true; saveSettings(); closeModal();
+          };
+          ui.modalOverlay.querySelector("[data-tutorial='skip']").onclick = () => {
+            settings.tutorialSeen = true; saveSettings(); closeModal();
+          };
+        };
+        render();
+      }
+
+      // Game lifecycle
+      function resize() {
+        const oldWidth = state.width || window.innerWidth;
+        state.dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+        state.width = Math.max(320, window.innerWidth);
+        state.height = Math.max(460, window.innerHeight);
+        canvas.width = Math.floor(state.width * state.dpr);
+        canvas.height = Math.floor(state.height * state.dpr);
+        canvas.style.width = `${state.width}px`;
+        canvas.style.height = `${state.height}px`;
+        ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+        state.player.y = state.height - Math.max(98, state.height * 0.14);
+        state.player.x = clamp(state.player.x || state.width / 2, state.player.radius, state.width - state.player.radius);
+        state.player.targetX = clamp(state.player.targetX || state.player.x, state.player.radius, state.width - state.player.radius);
+        if (oldWidth !== state.width && state.mode !== "playing") state.player.x = state.width / 2;
+        seedStars();
+      }
+      function seedStars() {
+        const count = Math.floor((state.width * state.height) / 12500);
+        state.backdropStars = Array.from({ length: count }, (_, i) => ({
+          x: (i * 97 + 43) % state.width,
+          y: (i * 151 + 29) % state.height,
+          r: 1 + ((i * 7) % 18) / 10,
+          tw: (i % 9) / 9
+        }));
+      }
+      function newRun() {
+        clearInput();
+        const diff = DIFFICULTY[settings.difficulty];
+        Object.assign(state, {
+          mode: "playing", score: 0, level: 1, hearts: diff.hearts, energy: 0, combo: 0, bestCombo: 0,
+          elapsed: 0, launched: 0, rescued: 0, missed: 0, starsThisRun: 0,
+          spawnTimer: 0, spawnDelay: 1.35, fireCooldown: 0, rewardTimer: 0, slowTimer: 0,
+          rainbowTimer: 0, shield: 0, energyBoostTimer: 0, hudPopTimer: 0, levelGlowTimer: 0,
+          runUnlocks: [], runStickers: [], runGoalDone: false,
+          bubbles: [], friends: [], particles: [], energyStars: [], trails: []
+        });
+        state.player.x = state.width / 2;
+        state.player.targetX = state.player.x;
+        state.lastTime = performance.now();
+        document.body.className = "playing";
+        ui.overlay.classList.add("hidden");
+        updateHud();
+        audio.ensure();
+        audio.startMusic();
+        sparkleToast(settings.practice ? "练习开始，轻松熟悉操作吧" : "Great job, Iris!");
+      }
+      function pauseGame(auto = false) {
+        if (state.mode !== "playing") return;
+        state.mode = "paused";
+        clearInput();
+        document.body.className = "paused";
+        ui.pauseBtn.textContent = "继续";
+        if (auto) sparkleToast("星星休息一下");
+        audio.stopMusic();
+      }
+      function resumeGame() {
+        if (state.mode !== "paused") return;
+        state.mode = "playing";
+        state.lastTime = performance.now();
+        document.body.className = "playing";
+        ui.pauseBtn.textContent = "暂停";
+        audio.startMusic();
+      }
+      function returnHome() {
+        clearInput();
+        state.mode = "menu";
+        document.body.className = "menu-mode";
+        ui.overlay.classList.remove("hidden");
+        ui.pauseBtn.textContent = "暂停";
+        audio.stopMusic();
+        updateHud();
+      }
+      function completeRun() {
+        state.mode = "complete";
+        clearInput();
+        audio.stopMusic();
+        audio.play("rest");
+        if (!settings.practice && state.score > data.bestScore) data.bestScore = state.score;
+        if (settings.practice) sparkleToast("练习完成，不记录最高分");
+        data.totalEnergy += state.starsThisRun;
+        checkAchievements(true);
+        updateDailyProgress();
+        checkStickerUnlocks();
+        saveData();
+        updateHud();
+        document.body.className = "menu-mode";
+        showEndScreen();
+      }
+
+      // Update
+      function update(delta) {
+        if (state.mode !== "playing") return;
+        state.elapsed += delta;
+        state.fireCooldown = Math.max(0, state.fireCooldown - delta);
+        state.hudPopTimer = Math.max(0, state.hudPopTimer - delta);
+        state.levelGlowTimer = Math.max(0, state.levelGlowTimer - delta);
+        state.rewardTimer = Math.max(0, state.rewardTimer - delta);
+        state.slowTimer = Math.max(0, state.slowTimer - delta);
+        state.rainbowTimer = Math.max(0, state.rainbowTimer - delta);
+        state.energyBoostTimer = Math.max(0, state.energyBoostTimer - delta);
+        ui.stats.classList.toggle("pop", state.hudPopTimer > 0 && !settings.reducedMotion);
+
+        handleInput(delta);
+        maybeLaunchBubble();
+        updateLevel();
+        spawnFriends(delta);
+        updateObjects(delta);
+        handleCollisions();
+        handleMisses();
+        updateDailyProgress();
+        checkAchievements(false);
+        checkStickerUnlocks();
+        if (state.hearts <= 0) completeRun();
+        updateHud();
+      }
+      function handleInput(delta) {
+        let dir = (input.right ? 1 : 0) - (input.left ? 1 : 0);
+        if (input.pointerDown && input.pointerX !== null) {
+          const target = clamp(input.pointerX, state.player.radius, state.width - state.player.radius);
+          const step = state.player.speed * delta;
+          state.player.x += clamp(target - state.player.x, -step, step);
+        } else {
+          state.player.x += dir * state.player.speed * delta;
+        }
+        state.player.x = clamp(state.player.x, state.player.radius, state.width - state.player.radius);
+        if (!settings.reducedMotion) pushLimited(state.trails, { x: state.player.x, y: state.player.y + 18, age: 0, life: .42 }, 36);
+      }
+      function maybeLaunchBubble() {
+        if (!input.fire || state.fireCooldown > 0) return;
+        launchBubble();
+        state.fireCooldown = FIRE_INTERVAL;
+      }
+      function launchBubble() {
+        const offsets = state.rainbowTimer > 0 ? [-15, 0, 15] : [0];
+        offsets.forEach((offset, i) => pushLimited(state.bubbles, {
+          x: state.player.x + offset,
+          y: state.player.y - 34,
+          radius: 10,
+          vy: -560,
+          vx: offset * 1.8,
+          hue: (state.score * 21 + state.energy * 37 + i * 80) % 360,
+          wobble: Math.random() * Math.PI * 2
+        }, MAX_BUBBLES));
+        state.launched += offsets.length;
+        audio.play("launch");
+      }
+      function updateLevel() {
+        const nextLevel = 1 + Math.floor((state.score + state.elapsed * 1.2) / 90);
+        if (nextLevel <= state.level) return;
+        state.level = nextLevel;
+        state.levelGlowTimer = .9;
+        const tip = LEVEL_TIPS[(state.level - 2) % LEVEL_TIPS.length] || `第 ${state.level} 关：星星更闪亮`;
+        sparkleToast(tip);
+        audio.play("level");
+        if (state.level % 3 === 0) {
+          state.rewardTimer = 10;
+          sparkleToast("星光奖励时间！");
+        }
+      }
+      function spawnFriends(delta) {
+        const diff = DIFFICULTY[settings.difficulty];
+        const reward = state.rewardTimer > 0 ? .86 : 1;
+        const practice = settings.practice ? 1.22 : 1;
+        state.spawnDelay = Math.max(.72, (1.35 - state.level * .055) * diff.spawn * reward * practice);
+        state.spawnTimer += delta;
+        while (state.spawnTimer >= state.spawnDelay && state.friends.length < MAX_FRIENDS) {
+          state.spawnTimer -= state.spawnDelay;
+          const kinds = state.level < 2 ? ["meteor", "balloon"] : ["meteor", "balloon", "cloud", "moon"];
+          const kind = randomChoice(kinds);
+          const r = 18 + Math.random() * 17;
+          const slow = state.slowTimer > 0 ? .58 : 1;
+          const bonus = state.rewardTimer > 0 ? .82 : 1;
+          pushLimited(state.friends, {
+            x: r + Math.random() * (state.width - r * 2),
+            y: -r - 16,
+            radius: r,
+            vy: (44 + state.level * 7 + Math.random() * 20) * diff.speed * slow * bonus * (settings.practice ? .72 : 1),
+            drift: (Math.random() - .5) * (20 + state.level * 2),
+            spin: Math.random() * Math.PI * 2,
+            kind,
+            color: { meteor:"#b29cff", balloon:"#ff92b5", cloud:"#ffffff", moon:"#fff09b" }[kind]
+          }, MAX_FRIENDS);
+        }
+      }
+      function updateObjects(delta) {
+        updateAged(state.trails, delta);
+        updateAged(state.particles, delta);
+        updateAged(state.energyStars, delta);
+        state.bubbles.forEach((b) => { b.y += b.vy * delta; b.x += b.vx * delta + Math.sin(b.wobble += delta * 5.5) * .35; });
+        state.bubbles = state.bubbles.filter((b) => b.y + b.radius > -20);
+        state.friends.forEach((f) => { f.y += f.vy * delta; f.x += Math.sin(f.spin) * f.drift * delta; f.spin += delta * 1.45; });
+        state.particles.forEach((p) => { p.x += p.vx * delta; p.y += p.vy * delta; p.vy += 90 * delta; });
+        state.energyStars.forEach((s) => {
+          const t = Math.min(1, s.age / s.life);
+          const e = 1 - Math.pow(1 - t, 3);
+          s.x = s.sx + (s.tx - s.sx) * e;
+          s.y = s.sy + (s.ty - s.sy) * e - Math.sin(t * Math.PI) * 42;
+        });
+      }
+
+      // Collision
+      function handleCollisions() {
+        for (let i = state.friends.length - 1; i >= 0; i--) {
+          const f = state.friends[i];
+          for (let j = state.bubbles.length - 1; j >= 0; j--) {
+            const b = state.bubbles[j];
+            if (Math.hypot(f.x - b.x, f.y - b.y) > f.radius + b.radius) continue;
+            state.friends.splice(i, 1);
+            state.bubbles.splice(j, 1);
+            rescueFriend(f);
+            break;
+          }
+        }
+      }
+      function rescueFriend(friend) {
+        state.combo += 1;
+        state.bestCombo = Math.max(state.bestCombo, state.combo);
+        state.rescued += 1;
+        const rewardEnergy = state.rewardTimer > 0 || state.energyBoostTimer > 0 ? 2 : 1;
+        state.energy += rewardEnergy;
+        state.starsThisRun += rewardEnergy;
+        state.score += friend.kind === "moon" ? 18 : friend.kind === "balloon" ? 12 : 16;
+        state.hudPopTimer = .28;
+        addSparkles(friend.x, friend.y, friend.color, state.combo >= 5 ? 28 : 18);
+        addEnergyStar(friend.x, friend.y);
+        audio.play("rescue");
+        if (state.combo % 5 === 0) sparkleToast("连续闪耀！");
+        activateMagicIfReady();
+      }
+      function handleMisses() {
+        for (let i = state.friends.length - 1; i >= 0; i--) {
+          if (state.friends[i].y - state.friends[i].radius <= state.height) continue;
+          state.friends.splice(i, 1);
+          state.combo = 0;
+          state.missed += 1;
+          if (state.rewardTimer > 0 || settings.practice) {
+            sparkleToast(settings.practice ? "练习中，继续试试看" : "星光奖励时间，轻轻继续");
+            continue;
+          }
+          if (state.shield > 0) {
+            state.shield -= 1;
+            sparkleToast("星星护盾抱住小伙伴");
+            continue;
+          }
+          state.hearts -= 1;
+          state.spawnTimer = -0.55;
+          sparkleToast("小伙伴绕了一圈，慢慢来");
+        }
+      }
+
+      // Powerups
+      function activateMagicIfReady() {
+        if (state.energy === 8) {
+          state.rainbowTimer = 6;
+          sparkleToast("彩虹泡泡来了！");
+        } else if (state.energy === 14) {
+          state.shield += 1;
+          sparkleToast("星星护盾准备好啦");
+        } else if (state.energy === 20) {
+          state.slowTimer = 5;
+          sparkleToast("慢速星尘轻轻落下");
+        } else if (state.energy === 26) {
+          state.energyBoostTimer = 6;
+          sparkleToast("星光加油！");
+        }
+      }
+
+      // Drawing
+      function draw(time) {
+        drawBackground(time);
+        if (state.mode === "menu" || state.mode === "complete") drawMenuScene(time);
+        if (state.mode === "playing" || state.mode === "paused") {
+          drawDistantCastle(time);
+          drawTrails();
+          drawBubbles();
+          drawFriends(time);
+          drawParticles();
+          drawEnergyStars();
+          drawPlayer(time);
+          if (state.levelGlowTimer > 0 && !settings.reducedMotion) drawLevelGlow();
+          if (state.rewardTimer > 0) drawRewardGlow(time);
+        }
+      }
+      function drawBackground(time) {
+        const sky = ctx.createLinearGradient(0, 0, 0, state.height);
+        if (settings.eyeCare) {
+          sky.addColorStop(0, "#1f245f"); sky.addColorStop(.68, "#5f5aa6"); sky.addColorStop(1, "#dcc9a7");
+        } else {
+          sky.addColorStop(0, "#14145c"); sky.addColorStop(.46, "#4a2f92"); sky.addColorStop(.78, "#7a68c9"); sky.addColorStop(1, "#ffd6a0");
+        }
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, state.width, state.height);
+        const glow = ctx.createRadialGradient(state.width * .78, state.height * .17, 10, state.width * .78, state.height * .17, Math.min(state.width, state.height) * .34);
+        glow.addColorStop(0, "rgba(255,245,190,.42)");
+        glow.addColorStop(1, "rgba(255,245,190,0)");
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, state.width, state.height);
+        ctx.fillStyle = "rgba(255,255,255,.75)";
+        for (let i = 0; i < 6; i++) drawCloud((i * 210 + time / (55 + i * 8)) % (state.width + 220) - 110, 84 + i * 55, 42 + i * 3);
+        state.backdropStars.forEach((star) => {
+          ctx.globalAlpha = settings.reducedMotion ? .55 : .45 + Math.sin(time / 500 + star.tw * Math.PI * 2) * .28;
+          drawStar(star.x, star.y, star.r + 2, "#fff7a8");
+        });
+        ctx.globalAlpha = 1;
+      }
+      function drawMenuScene(time) {
+        const rect = ui.menuArt.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const s = Math.min(rect.width / 650, rect.height / 320);
+        ctx.save();
+        ctx.beginPath(); ctx.rect(rect.left, rect.top, rect.width, rect.height); ctx.clip();
+        drawMenuCloud(cx - 250*s, cy - 70*s, 34*s, time, 0);
+        drawMenuCloud(cx + 240*s, cy - 40*s, 32*s, time, 1.3);
+        drawMenuBubble(cx - 220*s, cy - 2*s, 22*s, "#9ff2ff", time, .2);
+        drawMenuBubble(cx + 192*s, cy - 14*s, 18*s, "#ffb2d3", time, 1.4);
+        for (let i = 0; i < 10; i++) drawStar(cx - 250*s + i*58*s, cy - 112*s + Math.sin(time/500+i)*7*s, 6*s, i%2 ? "#fff6a4" : "#fff");
+        drawStarCastle(cx + 82*s, cy + 78*s, s*.92, time);
+        drawIrisShip(cx - 96*s, cy + 8*s, s*1.58, time);
+        ctx.restore();
+      }
+      function drawPlayer(time) { drawIrisShip(state.player.x, state.player.y, .36, time); }
+      function drawIrisShip(x, y, scale, time) {
+        ctx.save();
+        ctx.translate(x, y + (settings.reducedMotion ? 0 : Math.sin(time/520)*4*scale));
+        ctx.rotate(settings.reducedMotion ? 0 : Math.sin(time/700)*.06);
+        ctx.scale(scale, scale);
+        ctx.fillStyle = "rgba(20,14,76,.18)";
+        ctx.beginPath(); ctx.ellipse(0, 76, 82, 15, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = "#ff8fbd"; ctx.beginPath(); ctx.moveTo(-76,12); ctx.quadraticCurveTo(-120,28,-104,62); ctx.quadraticCurveTo(-62,58,-32,30); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = "#7de7df"; ctx.beginPath(); ctx.moveTo(76,12); ctx.quadraticCurveTo(120,28,104,62); ctx.quadraticCurveTo(62,58,32,30); ctx.closePath(); ctx.fill();
+        drawStar(0, 0, 68, "#ffd65c"); drawStar(0, 0, 43, "#fff6a5");
+        ctx.fillStyle = "rgba(255,255,255,.52)"; ctx.beginPath(); ctx.arc(0,-8,36,Math.PI,0); ctx.lineTo(36,2); ctx.quadraticCurveTo(0,18,-36,2); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = "#fff"; ctx.strokeStyle = "#ff8fbd"; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0,-22,16,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#7b62d8"; ctx.font = "900 22px Trebuchet MS, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("I", 0, -21);
+        ctx.fillStyle = "#513a99"; ctx.beginPath(); ctx.arc(-19,0,4.5,0,Math.PI*2); ctx.arc(19,0,4.5,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle = "#513a99"; ctx.lineWidth = 4; ctx.lineCap = "round"; ctx.beginPath(); ctx.arc(0,8,17,.18*Math.PI,.82*Math.PI); ctx.stroke();
+        for (let i=0;i<4;i++) drawMenuBubble(-70-i*18,43+i*7,10-i,["#a4f7ff","#ffb7de","#fff08a","#b4ffbf"][i],time,i);
+        ctx.restore();
+      }
+      function drawBubbles() {
+        state.bubbles.forEach((b) => drawMenuBubble(b.x, b.y, b.radius, `hsla(${b.hue},88%,74%,.72)`, 0, 0));
+      }
+      function drawFriends(time) {
+        state.friends.forEach((f) => {
+          ctx.save(); ctx.translate(f.x, f.y); ctx.rotate(Math.sin(f.spin)*.12);
+          if (f.kind === "balloon") drawBalloon(f, time);
+          else if (f.kind === "cloud") drawCloudFriend(f, time);
+          else if (f.kind === "moon") drawMoonFriend(f, time);
+          else drawMeteor(f);
+          ctx.restore();
+        });
+      }
+      function drawBalloon(f, time) {
+        const r=f.radius; ctx.fillStyle=f.color; ctx.strokeStyle="rgba(92,69,146,.32)"; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.ellipse(0,0,r*.84,r,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle="rgba(255,255,255,.55)"; ctx.beginPath(); ctx.ellipse(-r*.26,-r*.32,r*.18,r*.28,-.5,0,Math.PI*2); ctx.fill();
+        drawFace(r); ctx.strokeStyle="rgba(81,64,110,.42)"; ctx.beginPath(); ctx.moveTo(0,r*.9); ctx.quadraticCurveTo(Math.sin(time/260)*10,r*1.25,0,r*1.6); ctx.stroke();
+      }
+      function drawMeteor(f) {
+        const r=f.radius; const g=ctx.createLinearGradient(-r,-r,r,r); g.addColorStop(0,"#fff3a8"); g.addColorStop(.5,f.color); g.addColorStop(1,"#8b7ee8");
+        ctx.fillStyle=g; ctx.strokeStyle="rgba(255,255,255,.68)"; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(0,-r);
+        for(let i=1;i<10;i++){ const a=-Math.PI/2+(Math.PI*2*i)/10; const p=r*(i%2?.78:1); ctx.lineTo(Math.cos(a)*p,Math.sin(a)*p); }
+        ctx.closePath(); ctx.fill(); ctx.stroke(); drawFace(r);
+      }
+      function drawCloudFriend(f) {
+        const r=f.radius; ctx.fillStyle=f.color; ctx.strokeStyle="rgba(124,100,190,.22)"; ctx.lineWidth=2; ctx.beginPath();
+        ctx.arc(-r*.45,r*.08,r*.45,0,Math.PI*2); ctx.arc(0,-r*.16,r*.58,0,Math.PI*2); ctx.arc(r*.5,r*.08,r*.42,0,Math.PI*2); ctx.arc(0,r*.24,r*.54,0,Math.PI*2); ctx.fill(); ctx.stroke(); drawFace(r);
+      }
+      function drawMoonFriend(f, time) {
+        const r=f.radius; const g=ctx.createRadialGradient(-r*.25,-r*.35,2,0,0,r); g.addColorStop(0,"#fff9c9"); g.addColorStop(.62,f.color); g.addColorStop(1,"#f6b6d7");
+        ctx.fillStyle=g; ctx.strokeStyle="rgba(255,255,255,.7)"; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(0,0,r,.25*Math.PI,1.75*Math.PI); ctx.quadraticCurveTo(r*.34,0,0,r); ctx.fill(); ctx.stroke(); drawStar(r*.1,-r*.56+Math.sin(time/340)*2,r*.18,"#fff"); drawFace(r);
+      }
+      function drawFace(r) {
+        ctx.fillStyle="#51406e"; ctx.beginPath(); ctx.arc(-r*.22,0,2.2,0,Math.PI*2); ctx.arc(r*.22,0,2.2,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle="#51406e"; ctx.lineWidth=1.7; ctx.beginPath(); ctx.arc(0,r*.08,r*.18,.16*Math.PI,.84*Math.PI); ctx.stroke();
+      }
+      function drawDistantCastle(time) { ctx.save(); ctx.globalAlpha=.5; drawStarCastle(state.width*.5, state.height-138, Math.min(.56,Math.max(.42,state.width/2300)), time); ctx.restore(); }
+      function drawStarCastle(x,y,scale,time) {
+        ctx.save(); ctx.translate(x,y+(settings.reducedMotion?0:Math.sin(time/700)*2*scale)); ctx.scale(scale,scale);
+        ctx.fillStyle="rgba(24,18,76,.18)"; ctx.beginPath(); ctx.ellipse(0,80,128,16,0,0,Math.PI*2); ctx.fill();
+        const body=ctx.createLinearGradient(0,-90,0,84); body.addColorStop(0,"#ffe890"); body.addColorStop(.5,"#ffb8de"); body.addColorStop(1,"#9cdcff"); ctx.fillStyle=body; roundedRect(-76,-38,152,118,18); ctx.fill();
+        ctx.fillStyle="#7b62d8"; roundedRect(-112,-4,48,84,14); ctx.fill(); roundedRect(64,-4,48,84,14); ctx.fill();
+        drawStar(-88,-28,32,"#ffd95f"); drawStar(88,-28,32,"#ffd95f"); drawStar(0,-74,44,"#fff27b");
+        ctx.fillStyle="#fff8bf"; roundedRect(-30,26,60,54,28); ctx.fill(); ctx.fillStyle="#6b55bd"; roundedRect(-18,42,36,38,18); ctx.fill();
+        ctx.restore();
+      }
+      function drawTrails() { state.trails.forEach((t)=>{ ctx.globalAlpha=(1-t.age/t.life)*.45; drawMenuBubble(t.x,t.y+(t.age/t.life)*18,12*(1-t.age/t.life),"#aaf7ff",0,0); }); ctx.globalAlpha=1; }
+      function drawParticles() { state.particles.forEach((p)=>{ ctx.globalAlpha=Math.max(0,1-p.age/p.life); drawStar(p.x,p.y,p.size,p.color); }); ctx.globalAlpha=1; }
+      function drawEnergyStars() { state.energyStars.forEach((s)=>drawStar(s.x,s.y,10*(1-s.age/s.life*.35),"#fff27b")); }
+      function drawLevelGlow() { drawRadialGlow(state.width/2,state.height/2,Math.max(state.width,state.height)*.6,`rgba(255,245,166,${.22*state.levelGlowTimer/.9})`); }
+      function drawRewardGlow(time) { if (settings.reducedMotion) return; ctx.globalAlpha=.12; ctx.fillStyle=`hsl(${(time/30)%360}, 92%, 75%)`; ctx.fillRect(0,0,state.width,state.height); ctx.globalAlpha=1; }
+
+      // Drawing helpers
+      function drawMenuCloud(x,y,r,time,offset){ const bob=settings.reducedMotion?0:Math.sin(time/640+offset)*r*.08; ctx.save(); ctx.translate(x,y+bob); ctx.fillStyle="rgba(255,255,255,.86)"; drawCloud(-r*.9,0,r); ctx.restore(); }
+      function drawCloud(x,y,r){ ctx.beginPath(); ctx.arc(x,y,r*.55,0,Math.PI*2); ctx.arc(x+r*.42,y-r*.2,r*.7,0,Math.PI*2); ctx.arc(x+r*.98,y,r*.58,0,Math.PI*2); ctx.arc(x+r*.55,y+r*.18,r*.7,0,Math.PI*2); ctx.fill(); }
+      function drawMenuBubble(x,y,r,color,time,offset){ const bob=settings.reducedMotion?0:Math.sin(time/520+offset)*r*.24; const g=ctx.createRadialGradient(x-r*.35,y-r*.45+bob,2,x,y+bob,r); g.addColorStop(0,"rgba(255,255,255,.96)"); g.addColorStop(.42,color); g.addColorStop(1,"rgba(255,255,255,.12)"); ctx.fillStyle=g; ctx.strokeStyle="rgba(255,255,255,.85)"; ctx.lineWidth=Math.max(1.5,r*.1); ctx.beginPath(); ctx.arc(x,y+bob,r,0,Math.PI*2); ctx.fill(); ctx.stroke(); }
+      function drawStar(x,y,r,color){ ctx.save(); ctx.translate(x,y); ctx.beginPath(); for(let i=0;i<10;i++){ const a=-Math.PI/2+i*Math.PI/5; const p=i%2===0?r:r*.45; ctx.lineTo(Math.cos(a)*p,Math.sin(a)*p); } ctx.closePath(); ctx.fillStyle=color; ctx.fill(); ctx.restore(); }
+      function roundedRect(x,y,w,h,r){ r=Math.min(r,w/2,h/2); ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath(); }
+      function drawRadialGlow(x,y,r,color){ const g=ctx.createRadialGradient(x,y,40,x,y,r); g.addColorStop(0,color); g.addColorStop(1,"rgba(255,245,166,0)"); ctx.fillStyle=g; ctx.fillRect(0,0,state.width,state.height); }
+
+      // UI
+      function updateHud() {
+        ui.score.textContent = state.score;
+        ui.level.textContent = state.level;
+        ui.hearts.textContent = Math.max(0, state.hearts);
+        ui.energy.textContent = state.energy;
+        ui.bestScore.textContent = data.bestScore;
+        ui.dailyHud.textContent = dailyText();
+        ui.dailyMenu.textContent = dailyText();
+        ui.practiceBadge.hidden = !settings.practice || state.mode === "menu";
+        ui.bonusBadge.hidden = state.rewardTimer <= 0;
+        const active = state.rainbowTimer > 0 ? "彩虹泡泡" : state.slowTimer > 0 ? "慢速星尘" : state.shield > 0 ? `护盾 ${state.shield}` : state.energyBoostTimer > 0 ? "星光加油" : "";
+        ui.powerBadge.textContent = active || "星星魔法";
+        ui.powerBadge.hidden = !active;
+      }
+      function sparkleToast(text) {
+        ui.toast.textContent = text;
+        ui.toast.classList.add("show");
+        state.toastTimer = 1.8;
+      }
+      function showModal(html) {
+        ui.modalOverlay.innerHTML = html;
+        ui.modalOverlay.classList.remove("hidden");
+        ui.modalOverlay.setAttribute("aria-hidden", "false");
+      }
+      function closeModal() {
+        ui.modalOverlay.classList.add("hidden");
+        ui.modalOverlay.setAttribute("aria-hidden", "true");
+        ui.modalOverlay.innerHTML = "";
+      }
+      function showSettings() {
+        showModal(`
+          <section class="modal-card" role="dialog" aria-modal="true" aria-label="设置">
+            <h2>设置</h2>
+            <div class="settings-grid">
+              ${toggleRow("sfx", "音效", settings.sfx)}
+              ${toggleRow("music", "背景音乐", settings.music)}
+              ${toggleRow("practice", "练习模式", settings.practice)}
+              ${toggleRow("reducedMotion", "减少动画", settings.reducedMotion)}
+              ${toggleRow("eyeCare", "护眼模式", settings.eyeCare)}
+              <div class="setting-row"><span>难度</span><div class="segmented">
+                ${["easy","normal","challenge"].map((key)=>`<button data-difficulty="${key}" class="${settings.difficulty===key?"on":""}" type="button">${DIFFICULTY[key].label}</button>`).join("")}
+              </div></div>
+              <div class="setting-row"><span>控制说明</span><span>键盘 A/D 或方向键移动，空格发送。手机可用底部按钮。</span></div>
+            </div>
+            <div class="menu-row">
+              <button data-action="tutorial" class="aqua" type="button" aria-label="查看新手引导">查看新手引导</button>
+              <button data-action="reset" class="secondary" type="button" aria-label="重置本地数据">重置本地数据</button>
+              <button data-action="close" type="button" aria-label="关闭设置">关闭</button>
+            </div>
+          </section>`);
+        ui.modalOverlay.querySelectorAll("[data-setting]").forEach((btn)=>btn.onclick=()=>{ const key=btn.dataset.setting; settings[key]=!settings[key]; saveSettings(); if(key==="music") settings.music?audio.startMusic():audio.stopMusic(); showSettings(); });
+        ui.modalOverlay.querySelectorAll("[data-difficulty]").forEach((btn)=>btn.onclick=()=>{ settings.difficulty=btn.dataset.difficulty; saveSettings(); showSettings(); });
+        ui.modalOverlay.querySelector("[data-action='tutorial']").onclick=()=>showTutorial(true);
+        ui.modalOverlay.querySelector("[data-action='close']").onclick=closeModal;
+        ui.modalOverlay.querySelector("[data-action='reset']").onclick=()=>confirmReset();
+      }
+      function toggleRow(key, label, on) {
+        return `<div class="setting-row"><span>${label}</span><button class="toggle ${on?"on":""}" data-setting="${key}" type="button" aria-label="${label}${on?"已开启":"已关闭"}">${on?"开启":"关闭"}</button></div>`;
+      }
+      function confirmReset() {
+        showModal(`<section class="modal-card"><h2>确认重置？</h2><p>这会清除本机保存的最高分、设置、成就和贴纸。</p><div class="menu-row"><button data-reset-yes type="button">确认重置</button><button data-reset-no class="secondary" type="button">先保留</button></div></section>`);
+        ui.modalOverlay.querySelector("[data-reset-yes]").onclick=()=>{ try{ localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(SETTINGS_KEY); }catch{} location.reload(); };
+        ui.modalOverlay.querySelector("[data-reset-no]").onclick=showSettings;
+      }
+      function showStickers() {
+        const cards = STICKERS.map(([id,name,desc],i)=>{
+          const unlocked = !!data.stickers[id];
+          return `<div class="sticker-card ${unlocked?"":"locked"}"><div class="sticker-drawing">${unlocked?["⭐","🌈","🌙","☁️","👑","💖","✨"][i]:"?"}</div><b>${unlocked?name:"神秘贴纸"}</b><p>${unlocked?desc:"完成守护后解锁"}</p></div>`;
+        }).join("");
+        const achievements = ACHIEVEMENTS.map(([id,name,desc])=>`<li>${data.achievements[id]?"✓":"○"} ${name}：${desc}</li>`).join("");
+        showModal(`<section class="modal-card"><h2>我的贴纸</h2><div class="stickers-grid">${cards}</div><h3>星星成就</h3><ul>${achievements}</ul><div class="menu-row"><button data-action="close" type="button">关闭</button></div></section>`);
+        ui.modalOverlay.querySelector("[data-action='close']").onclick=closeModal;
+      }
+      function showEndScreen() {
+        const goal = data.daily;
+        const unlocks = [...new Set([...state.runUnlocks, ...state.runStickers])];
+        showModal(`
+          <section class="modal-card">
+            <h2>${settings.practice ? "练习完成啦" : "本次守护完成啦"}</h2>
+            <p>本局分数：<b>${state.score}</b></p>
+            <p>最高分：<b>${data.bestScore}</b>${settings.practice ? "（练习模式不记录最高分）" : ""}</p>
+            <p>本局星星能量：<b>${state.starsThisRun}</b></p>
+            <p>今日目标：${goal.goal.text} ${goal.progress}/${goal.goal.target} ${goal.done ? "✓" : ""}</p>
+            <p>本局收获：${unlocks.length ? unlocks.join("、") : "今天也很棒！"}</p>
+            <div class="menu-row">
+              <button data-action="again" class="aqua" type="button">再玩一次</button>
+              <button data-action="home" class="secondary" type="button">回到首页</button>
+            </div>
+          </section>`);
+        ui.modalOverlay.querySelector("[data-action='again']").onclick=()=>{ closeModal(); newRun(); };
+        ui.modalOverlay.querySelector("[data-action='home']").onclick=()=>{ closeModal(); returnHome(); };
+      }
+
+      // Utility
+      function addSparkles(x,y,color,count=18) {
+        const amount = settings.reducedMotion ? Math.ceil(count*.35) : count;
+        for(let i=0;i<amount;i++){ const a=Math.PI*2*i/amount; const speed=70+Math.random()*130; pushLimited(state.particles,{x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:.52+Math.random()*.18,age:0,color,size:4+Math.random()*5},MAX_PARTICLES); }
+      }
+      function addEnergyStar(x,y) { pushLimited(state.energyStars,{x,y,sx:x,sy:y,tx:Math.min(420,state.width*.48),ty:36,age:0,life:.72},MAX_STARS); audio.play("collect"); }
+      function updateAged(list, delta) { list.forEach((item)=>item.age += delta); const live = list.filter((item)=>item.age < item.life); list.length = 0; list.push(...live); }
+      function pushLimited(list, item, max) { list.push(item); if (list.length > max) list.splice(0, list.length - max); }
+      function randomChoice(list) { return list[Math.floor(Math.random() * list.length)]; }
+      function clamp(value,min,max) { return Math.max(min, Math.min(max, value)); }
+
       function loop(time) {
-        const delta = Math.min(0.034, (time - state.lastTime || 16) / 1000);
+        const delta = Math.min(.034, (time - state.lastTime || 16) / 1000);
         state.lastTime = time;
         update(delta);
+        if (state.toastTimer > 0) {
+          state.toastTimer -= delta;
+          if (state.toastTimer <= 0) ui.toast.classList.remove("show");
+        }
         draw(time);
         requestAnimationFrame(loop);
       }
 
+      // Events
       window.addEventListener("resize", resize);
+      document.addEventListener("visibilitychange", () => { if (document.hidden) pauseGame(true); else state.lastTime = performance.now(); });
+      window.addEventListener("blur", () => pauseGame(true));
       document.addEventListener("keydown", (event) => {
         const fromControl = isFormControl(event.target);
-        if (isGameKey(event.code) && !fromControl) {
-          event.preventDefault();
-        }
-
+        if (["ArrowLeft","ArrowRight","KeyA","KeyD","Space"].includes(event.code) && !fromControl) event.preventDefault();
         if (fromControl) return;
         if (event.code === "ArrowLeft" || event.code === "KeyA") input.left = true;
         if (event.code === "ArrowRight" || event.code === "KeyD") input.right = true;
         if (event.code === "Space") input.fire = true;
-        if (event.code === "KeyP") togglePause();
+        if (event.code === "KeyP") state.mode === "paused" ? resumeGame() : pauseGame();
+        if (event.code === "Escape") closeModal();
       });
       document.addEventListener("keyup", (event) => {
         if (event.code === "ArrowLeft" || event.code === "KeyA") input.left = false;
         if (event.code === "ArrowRight" || event.code === "KeyD") input.right = false;
         if (event.code === "Space") input.fire = false;
       });
-      window.addEventListener("blur", clearInput);
+      canvas.addEventListener("pointerdown", (event) => { event.preventDefault(); canvas.setPointerCapture?.(event.pointerId); setPointerInput(event, true); });
+      canvas.addEventListener("pointermove", (event) => { if (event.pointerId === input.movePointerId) input.pointerX = event.pointerType === "mouse" ? event.clientX : event.clientX * 2; });
+      canvas.addEventListener("pointerup", (event) => setPointerInput(event, false));
+      canvas.addEventListener("pointercancel", (event) => setPointerInput(event, false));
+      function bindHold(btn, down, up) { ["pointerdown","touchstart"].forEach((e)=>btn.addEventListener(e,(ev)=>{ev.preventDefault();down();})); ["pointerup","pointerleave","pointercancel","touchend","touchcancel"].forEach((e)=>btn.addEventListener(e,(ev)=>{ev.preventDefault();up();})); }
+      bindHold(ui.touchLeft, () => input.left = true, () => input.left = false);
+      bindHold(ui.touchRight, () => input.right = true, () => input.right = false);
+      bindHold(ui.touchFire, () => { input.fire = true; state.fireCooldown = 0; }, () => input.fire = false);
+      ui.startBtn.onclick = newRun;
+      ui.settingsBtn.onclick = showSettings;
+      ui.stickersBtn.onclick = showStickers;
+      ui.howBtn.onclick = () => showTutorial(true);
+      ui.pauseBtn.onclick = () => state.mode === "paused" ? resumeGame() : pauseGame();
+      ui.restartBtn.onclick = newRun;
+      ui.resumeBtn.onclick = resumeGame;
+      ui.pauseRestartBtn.onclick = newRun;
+      ui.homeBtn.onclick = returnHome;
+      ui.modalOverlay.addEventListener("click", (event) => { if (event.target === ui.modalOverlay) closeModal(); });
 
-      canvas.addEventListener("pointerdown", (event) => {
-        event.preventDefault();
-        canvas.setPointerCapture?.(event.pointerId);
-        setPointerInput(event, true);
-      });
-      canvas.addEventListener("pointermove", (event) => {
-        if (event.pointerId === input.movePointerId) {
-          input.pointerDown = true;
-          input.pointerX = event.pointerType === "mouse" ? event.clientX : event.clientX * 2;
-        }
-      });
-      canvas.addEventListener("pointerup", (event) => {
-        setPointerInput(event, false);
-      });
-      canvas.addEventListener("pointercancel", (event) => {
-        setPointerInput(event, false);
-      });
-
-      ui.startBtn.addEventListener("click", resetGame);
-      ui.restartBtn.addEventListener("click", resetGame);
-      ui.pauseBtn.addEventListener("click", togglePause);
-
+      ensureDailyGoal();
       resize();
       updateHud();
       requestAnimationFrame(loop);
+      setTimeout(() => showTutorial(false), 350);
     })();
   </script>
 </body>
